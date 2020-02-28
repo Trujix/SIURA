@@ -1,0 +1,61 @@
+﻿@{
+    Layout = null;
+}
+<div class="row scrollestilo" style="padding-top: 5px; height: 80vh; overflow: scroll;">
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-12">
+                <h5>Documentos Informativos</h5>
+            </div>
+            <div class="col-sm-12">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <button id="archivoBtnDocInf" class="btn btn-info btn-sm btn-block"><i class="fa fa-upload"></i> Añadir archivo</button>
+                        <input id="archivoDocInf" type="file" style="visibility: hidden; font-size: 0px;" />
+                    </div>
+                    <div class="col-sm-3">
+                        <input id="nombreDocInf" type="text" placeholder="Nombre del Archivo..." class="form-control form-control-sm" />
+                    </div>
+                    <div class="col-sm-3">
+                        <h3 id="iconoDocInf"></h3>
+                    </div>
+                    <div class="col-sm-2">
+                        <button id="btnGuardarDocInf" class="btn btn-sm btn-block btn-success"><i class="fa fa-save"></i> Guardar Archivo</button>
+                    </div>
+                    <div class="col-sm-2">
+                        <button id="btnMailDocInf" class="btn btn-sm btn-block btn-primary" data-toggle="modal" data-target="#modalMailDocInf"><i class="fa fa-envelope"></i> Compartir Docs</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="divDocsInformativos" class="row"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalMailDocInf" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-envelope"></i> Enviar correo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <input id="modalTextMailDocInf" type="text" class="form-control form-control-sm" placeholder="Escriba correo electrónico..." />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modalBtnEnviarDocsInf" type="button" class="btn btn-sm btn-primary">Enviar correo</button>
+            </div>
+        </div>
+    </div>
+</div>

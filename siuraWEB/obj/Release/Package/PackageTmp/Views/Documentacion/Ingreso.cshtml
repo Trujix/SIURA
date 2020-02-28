@@ -1,0 +1,150 @@
+﻿@{
+    Layout = null;
+}
+<div class="divcuerpo scrollestilo" style="overflow-x: scroll; white-space: nowrap; width: 82vw;">
+    <div class="col-sm-3" style="display: inline-block;">
+        <div class="card border-info">
+            <div class="card-body cardmenu1">
+                <div class="row">
+                    <div class="col-sm-2" style="text-align: center;">
+                        <h5><i class="fa fa-user"></i></h5>
+                    </div>
+                    <div class="col-sm-10">
+                        <label class="card-title">Info. Individual</label>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer cardmenupie1">
+                <button class="btn badge badge-pill badge-dark">Configurar</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3" style="display: inline-block;">
+        <div class="card border-info">
+            <div class="card-body cardmenu1">
+                <div class="row">
+                    <div class="col-sm-2" style="text-align: center;">
+                        <h5><i class="fa fa-map-marker-alt"></i></h5>
+                    </div>
+                    <div class="col-sm-10">
+                        <label class="card-title">Info. Geográfica</label>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer cardmenupie1">
+                <button class="btn badge badge-pill badge-dark">Configurar</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3" style="display: inline-block;">
+        <div class="card border-info">
+            <div class="card-body cardmenu1">
+                <div class="row">
+                    <div class="col-sm-2" style="text-align: center;">
+                        <h5><i class="fa fa-balance-scale"></i></h5>
+                    </div>
+                    <div class="col-sm-10">
+                        <label class="card-title">Info. Legal</label>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer cardmenupie1">
+                <button class="btn badge badge-pill badge-dark">Configurar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row esp1">
+    <div class="col-sm-2">
+        <button class="btn badge badge-pill badge-info"><i class="fa fa-plus"></i> Nuevo Registro</button>
+    </div>
+    <div class="col-sm-2">
+        <button class="btn badge badge-pill badge-success"><i class="fa fa-search"></i> Consultar Registro</button>
+    </div>
+</div>
+<div class="row esp1">
+    <div class="col-sm-12">
+        <div class="card">
+            <div id="divPacienteDatos" class="card-body scrollestilo" style="overflow: scroll; height: 65vh;">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group row">
+                            <i class="col-sm-1 col-form-label fa fa-user"></i>
+                            <div class="col-sm-10">
+                                <input id="ingresoPacienteNombre" placeholder="Nombre(s)" type="text" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group row">
+                            <i class="col-sm-1 col-form-label fa fa-user"></i>
+                            <div class="col-sm-10">
+                                <input id="ingresoPacienteApellidoP" placeholder="Apellido Paterno" type="text" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group row">
+                            <i class="col-sm-1 col-form-label fa fa-user"></i>
+                            <div class="col-sm-10">
+                                <input id="ingresoPacienteApellidoM" placeholder="Apellido Materno" type="text" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group row">
+                            <i class="col-sm-1 col-form-label fa fa-address-book"></i>
+                            <div class="col-sm-10">
+                                <input id="ingresoParienteNombre" placeholder="Pariente Nombre(s)" type="text" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group row">
+                            <i class="col-sm-1 col-form-label fa fa-address-book"></i>
+                            <div class="col-sm-10">
+                                <input id="ingresoParienteApellidoP" placeholder="Pariente Apellido Paterno" type="text" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group row">
+                            <i class="col-sm-1 col-form-label fa fa-address-book"></i>
+                            <div class="col-sm-10">
+                                <input id="ingresoParienteApellidoM" placeholder="Pariente Apellido Materno" type="text" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group row">
+                            <i class="col-sm-1 col-form-label fa fa-phone"></i>
+                            <div class="col-sm-10">
+                                <input id="ingresoTelefonoCasa" placeholder="Teléfono Casa" type="number" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group row">
+                            <i class="col-sm-1 col-form-label fa fa-phone"></i>
+                            <div class="col-sm-10">
+                                <input id="ingresoTelefonoPariente" placeholder="Teléfono Pariente" type="number" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group row">
+                            <i class="col-sm-1 col-form-label fa fa-phone"></i>
+                            <div class="col-sm-10">
+                                <input id="ingresoTelefonoUsuario" placeholder="Teléfono Usuario" type="number" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

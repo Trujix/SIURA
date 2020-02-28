@@ -1,0 +1,31 @@
+﻿@{
+    Layout = null;
+}
+<div id="modalPacienteBusqueda" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Consulta de Pacientes</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="input-group input-group-sm mb-3">
+                            <input id="modalTxtPacienteBusqueda" type="text" class="form-control" placeholder="Escriba el nombre del paciente..." aria-label="Recipient's username" aria-describedby="button-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" id="button-addon2"><i class="fa fa-search"></i> Consultar (ENTER)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="modalTablaConsultaPacientes" class="row" style="padding-top: 10px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cerrar (ESC)</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,38 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<div id="login">
+    <!-- LOGIN FORMULARIO -->
+    <h3 class="text-center text-white pt-5">SIUR-A</h3>
+    <div class="container">
+        <div id="login-row" class="row justify-content-center align-items-center">
+            <div id="login-column" class="col-md-6">
+                <div id="login-box" class="col-md-12">
+                    <div id="login-form" class="form">
+                        <h3 class="text-center text-info">Bienvenido</h3>
+                        <div class="form-group">
+                            <label for="username" class="text-info">Usuario:</label><br>
+                            <input type="text" name="username" id="usuarioLogin" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="text-info">Contraseña:</label><br>
+                            <input type="password" name="password" id="passLogin" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="remember-me" class="text-info"><span></span><span><input id="remember-me" name="remember-me" type="checkbox" style="visibility: hidden;"></span></label><br>
+                            <button id="btnLogin" class="btn btn-info btn-md">Iniciar Sesión</button>
+                        </div>
+                        <div id="register-link" class="text-right">
+                            <a href="#" class="text-info">Registrarse</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    window.onload = function () {
+        indexParams();
+    };
+</script>

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.421
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "siuraWEB", "siuraWEB\siuraWEB.csproj", "{C4968961-66DD-4921-B94B-D119C5B2C838}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C4968961-66DD-4921-B94B-D119C5B2C838}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4968961-66DD-4921-B94B-D119C5B2C838}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4968961-66DD-4921-B94B-D119C5B2C838}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4968961-66DD-4921-B94B-D119C5B2C838}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E63A2DAF-2FFA-4951-9967-1D8E752709FE}
+	EndGlobalSection
+EndGlobal

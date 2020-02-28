@@ -1,0 +1,145 @@
+﻿@{
+    Layout = null;
+}
+<h5>Registro de Paciente:</h5>
+<div class="row">
+    <div class="col-sm-4">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-user"></i>
+            <div class="col-sm-10">
+                <input id="ingresoPacienteNombre" placeholder="Nombre(s)" type="text" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-user"></i>
+            <div class="col-sm-10">
+                <input id="ingresoPacienteApellidoP" placeholder="Apellido Paterno" type="text" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-user"></i>
+            <div class="col-sm-10">
+                <input id="ingresoPacienteApellidoM" placeholder="Apellido Materno" type="text" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-calendar-alt"></i>&nbsp;Nacimiento
+            <div class="col-sm-7">
+                <input id="nacimientoPaciente" type="date" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-2">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-clipboard"></i>
+            <div class="col-sm-10">
+                <input id="edadPaciente" placeholder="Edad" type="number" max="120" maxlength="3" min="1" step="1" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-id-card"></i>
+            <div class="col-sm-10">
+                <input id="curpPaciente" placeholder="C.U.R.P." type="text" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-clipboard"></i>
+            <div class="col-sm-10">
+                <input id="apodoPaciente" placeholder="Apodo/Álias" type="text" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-address-book"></i>
+            <div class="col-sm-10">
+                <input id="ingresoParienteNombre" placeholder="Pariente Nombre(s)" type="text" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-address-book"></i>
+            <div class="col-sm-10">
+                <input id="ingresoParienteApellidoP" placeholder="Pariente Apellido Paterno" type="text" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-address-book"></i>
+            <div class="col-sm-10">
+                <input id="ingresoParienteApellidoM" placeholder="Pariente Apellido Materno" type="text" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-4">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-phone"></i>
+            <div class="col-sm-10">
+                <input id="ingresoTelefonoCasa" placeholder="Teléfono Casa" step="1" maxlength="10" type="number" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-phone"></i>
+            <div class="col-sm-10">
+                <input id="ingresoTelefonoPariente" placeholder="Teléfono Pariente" step="1" maxlength="10" type="number" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-phone"></i>
+            <div class="col-sm-10">
+                <input id="ingresoTelefonoUsuario" placeholder="Teléfono Usuario" step="1" maxlength="10" type="number" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-sm-3">
+        <div class="input-group input-group-sm mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="inputGroup-sizing-sm">$</span>
+            </div>
+            <input id="pacienteRegistroPago" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="Monto a pagar">
+            <div class="input-group-append">
+                <span class="input-group-text">.00</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="form-check pl-0">
+            <input id="pacienteRegistroBecario" type="checkbox" data-on="Si" data-off="No" checked data-toggle="toggle" data-size="xs" data-onstyle="outline-primary" data-offstyle="outline-secondary">
+            <label class="form-check-label"><b>Es Paciente Becario</b></label>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-6">
+        <button id="btnRegistroPacienteGuardar" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Guardar Registro</button>
+    </div>
+    <div class="col-sm-6" style="text-align: right;">
+        <button id="btnRegistroPacienteCancelar" class="btn btn-sm btn-danger"><i class="fa fa-times-circle"></i> Cancelar</button>
+    </div>
+</div>
