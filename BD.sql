@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS dbo.menuprincipal;
 DROP TABLE IF EXISTS dbo.usuariodocumentos;
 DROP TABLE IF EXISTS dbo.pacienteregistro;
 DROP TABLE IF EXISTS dbo.pacienteregistrofinanzas;
+DROP TABLE IF EXISTS dbo.pacienteregistropagos;
 
 CREATE TABLE [dbo].[usuarios](
 	[id] [int] IDENTITY(1,1) NOT NULL,
@@ -87,6 +88,17 @@ CREATE TABLE [dbo].[pacienteregistrofinanzas](
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_PacienteRegistroFinanzas] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[pacienteregistropagos](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idusuario] [int] NOT NULL,
+	[idfinanzas] [int] NOT NULL,
+	[montopago] [float] NULL,
+	[folrefdesc] [varchar](200) NULL,
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_PacienteRegistroPagos] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
 INSERT INTO usuariomenuprincipal (idusuario,nombre,visible,fechahora,admusuario) VALUES (1,'alanon','true','2017-08-09','Admin');
