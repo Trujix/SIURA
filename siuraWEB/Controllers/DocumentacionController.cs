@@ -52,17 +52,5 @@ namespace siuraWEB.Controllers
         {
             return MiDocumentacion.ListaPacientesPagosPendientes((string)Session["Token"]);
         }
-
-        // FUNCION QUE DEVUELVE LA LISTA DE LOS PAGOS DEL PACIENTE
-        public string ListaPagosPaciente(int IdFinanzas)
-        {
-            return MiDocumentacion.ListaPagosPaciente(IdFinanzas, (string)Session["Token"]);
-        }
-
-        // FUNCION QUE GENERA UN PAGO DE UN PACIENTE
-        public string GenerarPagoPaciente(MDocumentacion.PacientePagos PacientePago)
-        {
-            return MiDocumentacion.GenerarPagoPaciente(PacientePago, (string)Session["Token"]);
-        }
     }
 }

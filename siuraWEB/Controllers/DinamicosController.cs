@@ -18,10 +18,28 @@ namespace siuraWEB.Controllers
             return View();
         }
 
+        // FUNCION QUE DEVUELVE LA VISTA DEL MODAL DE CONSULTAS DEPACIENTES [ DINAMICOS ]
+        public ActionResult Pagos()
+        {
+            return View();
+        }
+
         // FUNCION QUE DEVUELVE LA CONSULTA DE UN PACIENTE [ DINAMICOS ]
         public string ConsultaPaciente(string PacienteConsulta, int Estatus)
         {
             return MiDinamico.ConsultaDinamicaPacientes(PacienteConsulta, Estatus, (string)Session["Token"]);
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE LOS PAGOS DEL PACIENTE
+        public string ListaPagosPaciente(int IdFinanzas)
+        {
+            return MiDinamico.ListaPagosPaciente(IdFinanzas, (string)Session["Token"]);
+        }
+
+        // FUNCION QUE GENERA UN PAGO DE UN PACIENTE
+        public string GenerarPagoPaciente(MDinamicos.PacientePagos PacientePago)
+        {
+            return MiDinamico.GenerarPagoPaciente(PacientePago, (string)Session["Token"]);
         }
     }
 }

@@ -94,6 +94,7 @@ CREATE TABLE [dbo].[pacienteregistropagos](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[idusuario] [int] NOT NULL,
 	[idfinanzas] [int] NOT NULL,
+	[folio] [varchar](200) NULL,
 	[montopago] [float] NULL,
 	[folrefdesc] [varchar](200) NULL,
 	[fechahora] [datetime] NULL,
@@ -106,13 +107,13 @@ INSERT INTO usuariomenuprincipal (idusuario,nombre,visible,fechahora,admusuario)
 INSERT INTO usuariomenuprincipal (idusuario,nombre,visible,fechahora,admusuario) VALUES (1,'medica','true','2017-08-09','Admin');
 INSERT INTO usuariomenuprincipal (idusuario,nombre,visible,fechahora,admusuario) VALUES (1,'psicologica','true','2017-08-09','Admin');
 INSERT INTO usuariomenuprincipal (idusuario,nombre,visible,fechahora,admusuario) VALUES (1,'espiritual','true','2017-08-09','Admin');
-INSERT INTO usuariomenuprincipal (idusuario,nombre,visible,fechahora,admusuario) VALUES (1,'ludico','true','2017-08-09','Admin');
 INSERT INTO usuariomenuprincipal (idusuario,nombre,visible,fechahora,admusuario) VALUES (1,'12pasos','true','2017-08-09','Admin');
+--INSERT INTO usuariomenuprincipal (idusuario,nombre,visible,fechahora,admusuario) VALUES (1,'ludico','true','2017-08-09','Admin');
 
 UPDATE usuariomenuprincipal SET visible = 'true' WHERE nombre = 'alanon';
 UPDATE usuariomenuprincipal SET visible = 'true' WHERE nombre = 'deportiva';
 UPDATE usuariomenuprincipal SET visible = 'true' WHERE nombre = 'medica';
 UPDATE usuariomenuprincipal SET visible = 'true' WHERE nombre = 'psicologica';
 UPDATE usuariomenuprincipal SET visible = 'true' WHERE nombre = 'espiritual';
-UPDATE usuariomenuprincipal SET visible = 'true' WHERE nombre = 'ludico';
 UPDATE usuariomenuprincipal SET visible = 'true' WHERE nombre = '12pasos';
+--UPDATE usuariomenuprincipal SET visible = 'true' WHERE nombre = 'ludico';

@@ -136,14 +136,6 @@ function mostrarCalendario() {
             end: '2020-02-05',
             color: '#27AE60',
             textColor: '#FFFFFF',
-        },
-        {
-            title: 'Expo cuaresma y santa cruz',
-            description: 'Lorem ipsum 1...',
-            start: '2020-02-27',
-            end: '2020-03-01',
-            color: '#000000',
-            textColor: '#FFFFFF',
         }
     ]);
 }

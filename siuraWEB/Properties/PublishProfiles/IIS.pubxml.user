@@ -196,10 +196,10 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>05/24/2018 07:38:24</publishTime>
     </File>
     <File Include="bin/siuraWEB.dll">
-      <publishTime>02/29/2020 01:16:39</publishTime>
+      <publishTime>03/01/2020 19:01:39</publishTime>
     </File>
     <File Include="bin/siuraWEB.pdb">
-      <publishTime>02/29/2020 01:16:39</publishTime>
+      <publishTime>03/01/2020 19:01:39</publishTime>
     </File>
     <File Include="bin/System.Diagnostics.DiagnosticSource.dll">
       <publishTime>07/19/2017 04:01:30</publishTime>
@@ -5589,8 +5589,422 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     <File Include="Media/siuralogo.svg">
       <publishTime>02/12/2020 18:12:29</publishTime>
     </File>
+    <File Include="pdflib/.eslintrc.json">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/bower.json">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/build/pdfmake.js">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/build/pdfmake.js.map">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/build/pdfmake.min.js">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/build/pdfmake.min.js.map">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/build/vfs_fonts.js">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/composer.json">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/package.json">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/ace.js">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/index.html">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/mode-javascript.js">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/pdfmake.css">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/playground.js">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/samples/basics">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/samples/columns">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/samples/images">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/samples/inline-styling">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/samples/lists">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/samples/margins">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/samples/named-styles">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/samples/style-overrides">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/samples/tables">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/theme-monokai.js">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/public/worker-javascript.js">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/README.md">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/dev-playground/server.js">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/examples/absolute.js">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/examples/background.js">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/examples/basics.js">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/examples/columns_simple.js">
+      <publishTime>03/01/2020 02:59:10</publishTime>
+    </File>
+    <File Include="pdflib/examples/fonts/Roboto-Italic.ttf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/fonts/Roboto-Medium.ttf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/fonts/Roboto-MediumItalic.ttf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/fonts/Roboto-Regular.ttf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/fonts/sampleImage.jpg">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/images.js">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/lists.js">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/margins.js">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pageReference.js">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/absolute.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/background.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/basics.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/columns_simple.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/images.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/lists.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/margins.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/named_styles.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/named_styles_with_overrides.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/pageReference.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/qrCode.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/relative.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/security.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/styling_inlines.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/styling_properties.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/tables.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/textDecorations.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/toc.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/vectors.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/pdfs/watermark.pdf">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/qrCode.js">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/relative.js">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/security.js">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/styling_inlines.js">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/styling_named_styles.js">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/styling_named_styles_with_overrides.js">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/styling_properties.js">
+      <publishTime>03/01/2020 02:59:11</publishTime>
+    </File>
+    <File Include="pdflib/examples/tables.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/examples/textDecorations.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/examples/toc.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/examples/vectors.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/examples/watermark.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/gulpfile.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/package.json">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/base.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/browser-extensions/index.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/browser-extensions/OutputDocumentBrowser.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/browser-extensions/pdfMake.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/browser-extensions/virtual-fs.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/columnCalculator.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/DocMeasure.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/DocPreprocessor.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/DocumentContext.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/ElementWriter.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/helpers/node.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/helpers/tools.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/helpers/variableType.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/index.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/LayoutBuilder.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/Line.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/OutputDocument.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/OutputDocumentServer.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/PageElementWriter.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/PDFDocument.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/Printer.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/qrEnc.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/Renderer.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/standardPageSizes.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/StyleContextStack.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/SVGMeasure.js">
+      <publishTime>03/01/2020 02:36:36</publishTime>
+    </File>
+    <File Include="pdflib/src/tableLayouts.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/TableProcessor.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/TextBreaker.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/TextDecorator.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/src/TextInlines.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/fonts/Roboto-Italic.ttf">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/fonts/Roboto-Medium.ttf">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/fonts/Roboto-MediumItalic.ttf">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/fonts/Roboto-Regular.ttf">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/fonts/sampleImage.jpg">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/integration/alignment.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/integration/background.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/integration/basics.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/integration/columns.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/integration/images.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/integration/integrationTestHelper.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/integration/lists.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/integration/tables.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/columnCalculator.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/DocMeasure.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/DocPreprocessor.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/DocumentContext.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/ElementWriter.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/helpers/node.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/helpers/tools.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/helpers/variableType.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/LayoutBuilder.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/Line.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/PageElementWriter.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/PDFDocument.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/Printer.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/StyleContextStack.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/TableProcessor.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/TextBreaker.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/TextDecorator.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/tests/unit/TextInlines.spec.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/webpack-standardfonts.config.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
+    <File Include="pdflib/webpack.config.js">
+      <publishTime>03/01/2020 02:59:12</publishTime>
+    </File>
     <File Include="Scripts/administracion.js">
-      <publishTime>02/29/2020 01:15:18</publishTime>
+      <publishTime>03/01/2020 02:59:36</publishTime>
     </File>
     <File Include="Scripts/bootstrap.min.js">
       <publishTime>02/10/2020 19:48:27</publishTime>
@@ -5605,13 +6019,16 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>02/21/2020 20:06:09</publishTime>
     </File>
     <File Include="Scripts/dinamicos.js">
-      <publishTime>02/25/2020 23:37:43</publishTime>
+      <publishTime>03/01/2020 18:59:29</publishTime>
     </File>
     <File Include="Scripts/documentacion.js">
       <publishTime>02/25/2020 21:44:42</publishTime>
     </File>
     <File Include="Scripts/funcsaux.js">
       <publishTime>10/02/2020 23:18:01</publishTime>
+    </File>
+    <File Include="Scripts/impresiones.js">
+      <publishTime>03/01/2020 03:10:24</publishTime>
     </File>
     <File Include="Scripts/index.js">
       <publishTime>02/21/2020 19:58:48</publishTime>
@@ -5664,6 +6081,9 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     <File Include="Views/Dinamicos/Pacientes.cshtml">
       <publishTime>02/25/2020 21:22:31</publishTime>
     </File>
+    <File Include="Views/Dinamicos/Pagos.cshtml">
+      <publishTime>02/29/2020 22:53:13</publishTime>
+    </File>
     <File Include="Views/Documentacion/Administracion.cshtml">
       <publishTime>02/25/2020 22:53:03</publishTime>
     </File>
@@ -5671,10 +6091,10 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>02/25/2020 18:13:47</publishTime>
     </File>
     <File Include="Views/Documentacion/NuevoPaciente.cshtml">
-      <publishTime>02/25/2020 17:31:51</publishTime>
+      <publishTime>02/29/2020 23:15:52</publishTime>
     </File>
     <File Include="Views/Documentacion/PacientesPagos.cshtml">
-      <publishTime>02/29/2020 00:45:02</publishTime>
+      <publishTime>02/29/2020 22:53:05</publishTime>
     </File>
     <File Include="Views/Home/BarraMenu.cshtml">
       <publishTime>02/25/2020 22:10:49</publishTime>
