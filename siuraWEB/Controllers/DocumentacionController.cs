@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using siuraWEB.Models;
+using Newtonsoft.Json;
 
 namespace siuraWEB.Controllers
 {
@@ -29,6 +30,12 @@ namespace siuraWEB.Controllers
             return View();
         }
 
+        // FUNCION QUE DEVUELVE LA VISTA DE PACIENTES PRE REGISTROS [ PRE REGISTROS ]
+        public ActionResult PreRegistros()
+        {
+            return View();
+        }
+
         // FUNCION QUE DEVUELVE LA VISTA DE PAGOS DEL PACIENTE [ ADMINISTRACION ]
         public ActionResult PacientesPagos()
         {
@@ -36,21 +43,44 @@ namespace siuraWEB.Controllers
         }
 
         // ------------ FUNCIONES ------------
-
-        // ::::::::::::::::::::::::::: [ PACIENTES ] :::::::::::::::::::::::::::
-        // FUNCION QUE GUARDA UN PACIENTE [ REGISTRO PREVIO ]
-        public string GuardarPaciente(MDocumentacion.PacienteData PacienteInfo, MDocumentacion.PacienteFinazasData PacienteFinanzas)
+        // -----------------------------------------------------
+        // FUNCION QUE ACTUALIZA EL  ESTATUS DE UN PACIENTE (POSIBLEMENTE MULTIUSOS)
+        public string ActEstatusPaciente(int IDPaciente, int Estatus)
         {
-            return MiDocumentacion.GuardarPacienteRegistro(PacienteInfo, PacienteFinanzas, (string)Session["Token"]);
+            return MiDocumentacion.ActEstatusPaciente(IDPaciente, Estatus, (string)Session["TokenCentro"]);
+        }
+        // -----------------------------------------------------
+
+        // ::::::::::::::::::::::::::: [ PRE REGISTROS ] :::::::::::::::::::::::::::
+        public string ListaPreRegistros()
+        {
+            return MiDocumentacion.ListaPreRegistros((string)Session["TokenCentro"]);
+        }
+
+        // ::::::::::::::::::::::::::: [ PRE-REGISTROS ] :::::::::::::::::::::::::::
+        // FUNCION QUE GUARDA UN PACIENTE [ REGISTRO PREVIO ]
+        public string GuardarPaciente(MDocumentacion.PacienteData PacienteInfo, MDocumentacion.PacienteIngreso PacienteIngreso, MDocumentacion.PacienteFinazasData PacienteFinanzas)
+        {
+            string Contrato = MiDocumentacion.GuardarPacienteRegistro(PacienteInfo, PacienteIngreso, PacienteFinanzas, (string)Session["Token"], (string)Session["TokenCentro"]);
+            List<object> RespuestaLista = new List<object>();
+            if (Contrato.IndexOf("«~LOGOPERS~»") >= 0)
+            {
+                RespuestaLista.Add(System.IO.File.ReadAllText(Server.MapPath("~/Docs/" + (string)Session["TokenCentro"] + "/logocentro.json")));
+            }
+            else
+            {
+                RespuestaLista.Add(System.IO.File.ReadAllText(Server.MapPath("~/Media/logoalanon.json")));
+            }
+            RespuestaLista.Add(Contrato.Replace("«~LOGOPERS~»", "").Replace("«~LOGOALANON~»", ""));
+            return JsonConvert.SerializeObject(RespuestaLista);
         }
 
 
         // ::::::::::::::::::::::::::: [ ADMINISTRACION ] :::::::::::::::::::::::::::
-
         // FUNCION QUE TRAE LA LISTA DE PACIENTES  CON PAGOS PENDITES
-        public string ListaPacientesPagosPend()
+        public string ListaPacientesPagosPend(string Consulta)
         {
-            return MiDocumentacion.ListaPacientesPagosPendientes((string)Session["Token"]);
+            return MiDocumentacion.ListaPacientesPagosPendientes(Consulta, (string)Session["TokenCentro"]);
         }
     }
 }

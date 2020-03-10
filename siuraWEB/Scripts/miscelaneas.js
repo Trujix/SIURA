@@ -84,6 +84,17 @@ function CrearCadOracion(cadena) {
     return cad;
 }
 
+// FUNCION QUE CALCULA LA EDAD UNA EDAD DE UNA FECHA A LA FECHA DE HOY [ NACIMIENTOS ]
+function calcularEdad(edadComparar) {
+    var d = new Date();
+    const date1 = new Date(edadComparar);
+    const date2 = new Date((d.getMonth() + 1).toString() + "/" + ((d.getDate() < 10) ? "0" + d.getDate().toString() : d.getDate().toString()) + "/" + d.getFullYear().toString());
+    const diffTime = Math.abs(date2 - date1);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    var edad = parseInt(diffDays / 365);
+    return edad;
+}
+
 // FUNCION QUE DEVUELVE EL NOMBRE DEL ICONO DE ACUERDO AL ARCHIVO
 function verifExtensionArchIcono(extension) {
     var data = {

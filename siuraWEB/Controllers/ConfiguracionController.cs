@@ -30,6 +30,98 @@ namespace siuraWEB.Controllers
             return View();
         }
 
+        // :::::::::::::: MENU MICENTRO ::::::::::::::
+        // ENTRADA PRINCIPAL DE VISTA [ MICENTRO ]
+        public ActionResult MiCentro()
+        {
+            return View();
+        }
+
+        // FUNCION QUE DEVUELVE LA INFO DEL CENTRO DE REHABILITACION
+        public string MiCentroInfo()
+        {
+            return MiConfiguracion.MiCentroInfo((string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE GUARDA LOS VALORES DE [ MI CENTRO ]
+        public string GuardarMiCentro(MConfiguracion.MiCentro CentroData)
+        {
+            return MiConfiguracion.GuardarMiCentro(CentroData, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE GUARDA UN LOGO PERSONALIZADO [ MI CENTRO ]
+        public string GuardarLogo(string LogoB64)
+        {
+            try
+            {
+                string ActLogo = MiConfiguracion.ActLogoCentro(true, (string)Session["TokenCentro"]);
+                if (ActLogo == "true")
+                {
+                    string rutaCentro = "/Docs/" + (string)Session["TokenCentro"] + "/";
+                    Directory.CreateDirectory(Server.MapPath("~" + rutaCentro));
+                    Dictionary<string, object> LogoJson = new Dictionary<string, object>() {
+                        { "LogoCentro", LogoB64 }
+                    };
+                    System.IO.File.WriteAllText(Server.MapPath("~" + rutaCentro + "logocentro.json"), JsonConvert.SerializeObject(LogoJson));
+
+                    return "true";
+                }
+                else
+                {
+                    return ActLogo;
+                }
+            }
+            catch (Exception e)
+            {
+                return e.ToString();
+            }
+        }
+
+        // FUNCION QUE DEVUELVE EL LOGO PERSONALIZADO [ MI CENTRO ]
+        public string AbrirLogoPers()
+        {
+            try
+            {
+                return System.IO.File.ReadAllText(Server.MapPath("~/Docs/" + (string)Session["TokenCentro"] + "/logocentro.json"));
+            }
+            catch (Exception e)
+            {
+                return e.ToString();
+            }
+        }
+
+        // FUNCION QUE BORRA UN LOGOTIPO PERSONALIZADO [ MI CENTRO ]
+        public string BorrarLogo()
+        {
+            try
+            {
+                string ActLogo = MiConfiguracion.ActLogoCentro(false, (string)Session["TokenCentro"]);
+                if (ActLogo == "true")
+                {
+                    string rutaCentro = "/Docs/" + (string)Session["TokenCentro"] + "/";
+                    if (System.IO.File.Exists(Server.MapPath("~" + rutaCentro + "logocentro.json")))
+                    {
+                        System.IO.File.Delete(Server.MapPath("~" + rutaCentro + "logocentro.json"));
+                    }
+                    return "true";
+                }
+                else
+                {
+                    return ActLogo;
+                }
+            }
+            catch(Exception e)
+            {
+                return e.ToString();
+            }
+        }
+
+        // FUNCION QUE ACTUALIZA EL ESTATUS DEL LOGO ALANON [ MI CENTRO ]
+        public string ActLogoALAnon(bool Estatus)
+        {
+            return MiConfiguracion.ActLogoALAnon(Estatus, (string)Session["TokenCentro"]);
+        }
+
         // :::::::::::::: MENU DOCUMENTOS ::::::::::::::
         // ENTRADA PRINCIPAL DE VISTA [ DOCUMENTOS ]
         public ActionResult Documentos()
@@ -40,8 +132,8 @@ namespace siuraWEB.Controllers
         // FUNCION QUE DEVUELVE LA LISTA DE DOCUMENTOS
         public string ListaDocs()
         {
-            MConfiguracion.DocsLista docs = MiConfiguracion.ConfigListaDocs((string)Session["Token"]);
-            docs.UrlFolderCliente = System.Web.HttpContext.Current.Request.Url.AbsoluteUri.Replace(System.Web.HttpContext.Current.Request.Url.AbsolutePath, "") + "/Docs/";
+            MConfiguracion.DocsLista docs = MiConfiguracion.ConfigListaDocs((string)Session["TokenCentro"]);
+            docs.UrlFolderCliente = System.Web.HttpContext.Current.Request.Url.AbsoluteUri.Replace(System.Web.HttpContext.Current.Request.Url.AbsolutePath, "") + "/Docs/" + (string)Session["TokenCentro"] + "/";
             return JsonConvert.SerializeObject(docs);
         }
 
@@ -53,11 +145,11 @@ namespace siuraWEB.Controllers
                 ArchivoInfo archivoInfo = JsonConvert.DeserializeObject<ArchivoInfo>(Info);
                 MConfiguracion.DocInformativo DocData = new MConfiguracion.DocInformativo()
                 {
-                    TokenUsuario = (string)Session["Token"],
+                    TokenCentro = (string)Session["TokenCentro"],
                     Nombre = archivoInfo.Nombre,
                     Archivo = archivoInfo.NombreArchivo,
                     Extension = archivoInfo.Extension,
-                    AdmUsuario = (string)Session["IdUsuario"]
+                    TokenUsuario = (string)Session["Token"]
                 };
                 string Alta = MiConfiguracion.AltaDocInformativo(DocData);
                 if(Alta == "true")
@@ -80,9 +172,9 @@ namespace siuraWEB.Controllers
         {
             try
             {
-                string UrlUsuarioDocs = System.Web.HttpContext.Current.Request.Url.AbsoluteUri.Replace(System.Web.HttpContext.Current.Request.Url.AbsolutePath, "") + "/Docs/";
+                string UrlUsuarioDocs = System.Web.HttpContext.Current.Request.Url.AbsoluteUri.Replace(System.Web.HttpContext.Current.Request.Url.AbsolutePath, "") + "/Docs/" + (string)Session["TokenCentro"] + "/";
                 string correoHTML = "<!DOCTYPE html><html><body><p>Documentos Informativos</p>ê~DOCUMENTOS~ê</body></html>";
-                List<Dictionary<string, object>> docs = MiConfiguracion.ConfigListaDocs((string)Session["Token"]).DocsInformativos;
+                List<Dictionary<string, object>> docs = MiConfiguracion.ConfigListaDocs((string)Session["TokenCentro"]).DocsInformativos;
                 string linksDocs = "";
                 foreach (Dictionary<string, object> doc in docs)
                 {
@@ -133,13 +225,14 @@ namespace siuraWEB.Controllers
         {
             try
             {
-                string rutaGrafico = "/Docs/";
+                string rutaCentro = "/Docs/" + (string)Session["TokenCentro"] + "/";
+                Directory.CreateDirectory(Server.MapPath("~" + rutaCentro));
                 HttpPostedFileBase archivo = Archivo;
                 int archivoTam = archivo.ContentLength;
                 string archivoNom = archivo.FileName;
                 string archivoTipo = archivo.ContentType;
                 Stream archivoContenido = archivo.InputStream;
-                archivo.SaveAs(Server.MapPath("~" + rutaGrafico) + Nombre + "." + Extension);
+                archivo.SaveAs(Server.MapPath("~" + rutaCentro) + Nombre + "." + Extension);
                 return "true";
             }
             catch (Exception e)

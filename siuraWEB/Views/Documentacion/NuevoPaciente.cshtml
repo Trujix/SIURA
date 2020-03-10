@@ -1,13 +1,13 @@
 ﻿@{
     Layout = null;
 }
-<h5>Registro de Paciente:</h5>
+<h5>Pre-registro de Paciente:</h5>
 <div class="row">
     <div class="col-sm-4">
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-user"></i>
             <div class="col-sm-10">
-                <input id="ingresoPacienteNombre" placeholder="Nombre(s)" type="text" class="form-control form-control-sm" />
+                <input id="ingresoPacienteNombre" placeholder="Nombre(s)" type="text" class="form-control form-control-sm" autocomplete="off" />
             </div>
         </div>
     </div>
@@ -15,7 +15,7 @@
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-user"></i>
             <div class="col-sm-10">
-                <input id="ingresoPacienteApellidoP" placeholder="Primer Apellido" type="text" class="form-control form-control-sm" />
+                <input id="ingresoPacienteApellidoP" placeholder="Primer Apellido" type="text" class="form-control form-control-sm" autocomplete="off" />
             </div>
         </div>
     </div>
@@ -23,25 +23,38 @@
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-user"></i>
             <div class="col-sm-10">
-                <input id="ingresoPacienteApellidoM" placeholder="Segundo Apellido" type="text" class="form-control form-control-sm" />
+                <input id="ingresoPacienteApellidoM" placeholder="Segundo Apellido" type="text" class="form-control form-control-sm" autocomplete="off" />
             </div>
         </div>
     </div>
 </div>
 <div class="row">
-    <div class="col-sm-4">
+    <div class="col-sm-5">
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-calendar-alt"></i>&nbsp;Nacimiento
             <div class="col-sm-7">
-                <input id="nacimientoPaciente" type="date" class="form-control form-control-sm" />
+                <input id="nacimientoPaciente" type="date" class="form-control form-control-sm" autocomplete="off" />
             </div>
         </div>
     </div>
-    <div class="col-sm-2">
+    <div class="col-sm-3">
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-clipboard"></i>
             <div class="col-sm-10">
-                <input id="edadPaciente" placeholder="Edad" type="number" max="120" maxlength="3" min="1" step="1" class="form-control form-control-sm" />
+                <input title="Click para calcular edad..." id="edadPaciente" placeholder="Edad" type="number" max="120" maxlength="3" min="1" step="1" class="form-control form-control-sm" autocomplete="off" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-venus-mars"></i>
+            <div class="col-sm-10">
+                <select id="sexoPaciente" class="form-control form-control-sm">
+                    <option value="F">Femenino</option>
+                    <option value="M">Masculino</option>
+                </select>
             </div>
         </div>
     </div>
@@ -49,7 +62,7 @@
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-id-card"></i>
             <div class="col-sm-10">
-                <input id="curpPaciente" placeholder="C.U.R.P." type="text" class="form-control form-control-sm" />
+                <input id="curpPaciente" placeholder="C.U.R.P." type="text" class="form-control form-control-sm" autocomplete="off" />
             </div>
         </div>
     </div>
@@ -57,7 +70,7 @@
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-clipboard"></i>
             <div class="col-sm-10">
-                <input id="apodoPaciente" placeholder="Apodo/Álias" type="text" class="form-control form-control-sm" />
+                <input id="apodoPaciente" placeholder="Apodo/Álias" type="text" class="form-control form-control-sm" autocomplete="off" />
             </div>
         </div>
     </div>
@@ -67,7 +80,7 @@
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-address-book"></i>
             <div class="col-sm-10">
-                <input id="ingresoParienteNombre" placeholder="Pariente Nombre(s)" type="text" class="form-control form-control-sm" />
+                <input id="ingresoParienteNombre" placeholder="Pariente Nombre(s)" type="text" class="form-control form-control-sm" autocomplete="off" />
             </div>
         </div>
     </div>
@@ -75,7 +88,7 @@
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-address-book"></i>
             <div class="col-sm-10">
-                <input id="ingresoParienteApellidoP" placeholder="Pariente Primer Apellido" type="text" class="form-control form-control-sm" />
+                <input id="ingresoParienteApellidoP" placeholder="Pariente Primer Apellido" type="text" class="form-control form-control-sm" autocomplete="off" />
             </div>
         </div>
     </div>
@@ -83,7 +96,7 @@
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-address-book"></i>
             <div class="col-sm-10">
-                <input id="ingresoParienteApellidoM" placeholder="Pariente Segundo Apellido" type="text" class="form-control form-control-sm" />
+                <input id="ingresoParienteApellidoM" placeholder="Pariente Segundo Apellido" type="text" class="form-control form-control-sm" autocomplete="off" />
             </div>
         </div>
     </div>
@@ -93,7 +106,7 @@
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-phone"></i>
             <div class="col-sm-10">
-                <input id="ingresoTelefonoCasa" placeholder="Teléfono Casa" step="1" maxlength="10" type="number" class="form-control form-control-sm" />
+                <input id="ingresoTelefonoCasa" placeholder="Teléfono Casa" step="1" maxlength="10" type="number" class="form-control form-control-sm" autocomplete="off" />
             </div>
         </div>
     </div>
@@ -101,7 +114,7 @@
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-phone"></i>
             <div class="col-sm-10">
-                <input id="ingresoTelefonoPariente" placeholder="Teléfono Pariente" step="1" maxlength="10" type="number" class="form-control form-control-sm" />
+                <input id="ingresoTelefonoPariente" placeholder="Teléfono Pariente" step="1" maxlength="10" type="number" class="form-control form-control-sm" autocomplete="off" />
             </div>
         </div>
     </div>
@@ -109,19 +122,66 @@
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-phone"></i>
             <div class="col-sm-10">
-                <input id="ingresoTelefonoUsuario" placeholder="Teléfono Usuario" step="1" maxlength="10" type="number" class="form-control form-control-sm" />
+                <input id="ingresoTelefonoUsuario" placeholder="Teléfono Usuario" step="1" maxlength="10" type="number" class="form-control form-control-sm" autocomplete="off" />
             </div>
         </div>
     </div>
 </div>
 <hr />
+<h5>Datos de Ingreso:</h5>
+<div class="row">
+    <div class="col-sm-1">
+        <p><b>Tipo:</b></p>
+    </div>
+    <div class="col-sm-2">
+        <input class="magic-radio" type="radio" name="contratoradio" id="contratoVoluntario" opcion="V">
+        <label for="contratoVoluntario">Voluntario</label>
+    </div>
+    <div class="col-sm-2">
+        <input class="magic-radio" type="radio" name="contratoradio" id="contratoInvoluntario" opcion="I">
+        <label for="contratoInvoluntario">Involuntario</label>
+    </div>
+    <div class="col-sm-4">
+        <div class="alert alert-warning" role="alert">
+            Determina el <b>Contrato</b> a generar.
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-2">
+        <p><b>Tiempo de Estancia:</b></p>
+    </div>
+    <div class="col-sm-2">
+        <input id="tiempoEstanciaCantidad" type="number" class="form-control form-control-sm" autocomplete="off" />
+    </div>
+    <div class="col-sm-2">
+        <select id="tiempoEstanciaTipo" class="form-control form-control-sm">
+            <option value="D">Días</option>
+            <option value="S">Semanas</option>
+            <option value="M">Meses</option>
+            <option value="A">Años</option>
+        </select>
+    </div>
+</div>
+<div class="row" style="padding-top: 10px;">
+    <div class="col-sm-6">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-user-circle"></i>
+            <div class="col-sm-10">
+                <input id="testigoPaciente" placeholder="Nombre de Téstigo" type="text" class="form-control form-control-sm" autocomplete="off" />
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<h5>Datos Financieros:</h5>
 <div class="row">
     <div class="col-sm-3">
         <div class="input-group input-group-sm mb-3">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="inputGroup-sizing-sm">$</span>
             </div>
-            <input id="pacienteRegistroPago" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="Monto a pagar">
+            <input id="pacienteRegistroPago" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" placeholder="Monto a pagar" autocomplete="off" />
             <div class="input-group-append">
                 <span class="input-group-text">.00</span>
             </div>
@@ -129,11 +189,12 @@
     </div>
     <div class="col-sm-3">
         <div class="form-check pl-0">
-            <input id="pacienteRegistroBecario" type="checkbox" data-on="Si" data-off="No" checked data-toggle="toggle" data-size="xs" data-onstyle="outline-primary" data-offstyle="outline-secondary">
+            <input id="pacienteRegistroBecario" type="checkbox" data-on="Si" data-off="No" checked data-toggle="toggle" data-size="xs" data-onstyle="outline-primary" data-offstyle="outline-secondary" autocomplete="off">
             <label class="form-check-label"><b>Es Paciente Becario</b></label>
         </div>
     </div>
 </div>
+<hr />
 <br />
 <div class="row">
     <div class="col-sm-6">

@@ -17,6 +17,7 @@ namespace siuraWEB
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
+                      "~/JQueryUI/jquery-ui.css",
                       "~/Content/bootstrap.min.css",
                       "~/CalendarioUI/css/styles.css",
                       "~/CalendarioUI/css/fullcalendar.css",
@@ -29,9 +30,12 @@ namespace siuraWEB
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                       "~/Scripts/bootstrap.min.js",
+                      "~/JQueryUI/jquery-ui.js",
                       "~/CalendarioUI/js/moment.min.js",
                       "~/CalendarioUI/js/fullcalendar.min.js",
                       "~/CalendarioUI/js/locale/es.js",
+                      "~/Scripts/canvasImagen.js",
+                      "~/Scripts/html2canvas.js.map",
                       "~/Scripts/pnotify.min.js",
                       "~/Scripts/pnotify.js",
                       "~/Scripts/toggle.min.js",

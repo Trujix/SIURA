@@ -38,6 +38,7 @@ namespace siuraWEB.Controllers
                 Session["IdSession"] = MISC.CrearIdSession();
                 Session["IdUsuario"] = LoginData.Usuario;
                 Session["Token"] = JsonConvert.DeserializeObject<MLogin.LoginRespuesta>(respuesta).Token;
+                Session["TokenCentro"] = JsonConvert.DeserializeObject<MLogin.LoginRespuesta>(respuesta).TokenCentro;
             }
             return respuesta;
         }

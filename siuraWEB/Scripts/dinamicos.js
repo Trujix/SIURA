@@ -6,15 +6,21 @@
 var estatusPacienteConsulta = 0;
 var finanzasPacientesJSON = {};
 var idPacienteFinanzasGLOBAL = 0;
+var PagosListaJSON = {};
 
 // --------------------------------------------------------
 // FUNCIONES TIPO DOCUMENT (BUTTONS, INPUTS, TEXTAREAS ETC)
 
 // DOCUMENT - QUE CONTROLA LAS TECLAS PRESIONADAS AL ESCRIBIR EN LA CONSULTA DE PACIENTES
 $(document).on('keyup', '#modalTxtPacienteBusqueda', function (e) {
-    if (e.keyCode === 13 && $(this).val().length > 5) {
+    if (e.keyCode === 13 && $(this).val().length >= 4) {
         llenarTablaConsultaPacientes();
     }
+});
+
+// DOCUMENT - QUE CONTROLA EL BOTON DE BUSQUEDA DE PACIENTES
+$(document).on('click', '#btnModalPacienteBusqueda', function () {
+    llenarTablaConsultaPacientes();
 });
 
 // DOCUMENT - BOTON QUE GENERA EL PAGO DE UN PACIENTE
@@ -25,6 +31,7 @@ $(document).on('click', '#modalBtnGenerarPago', function () {
                 var pacientePago = {
                     IdFinanzas: idPacienteFinanzasGLOBAL,
                     MontoPago: parseFloat($('#modalPacienteRegistroPago').val()),
+                    TipoPago: $('#modalPacienteTipoPago option:selected').text(),
                     FolRefDesc: (parseInt($('#modalPacienteTipoPago').val()) > 0 && parseInt($('#modalPacienteTipoPago').val()) !== 1) ? $('#modalTxtReferenciaPago').val() : "--"
                 };
                 $.ajax({
@@ -32,27 +39,25 @@ $(document).on('click', '#modalBtnGenerarPago', function () {
                     contentType: "application/x-www-form-urlencoded",
                     url: "/Dinamicos/GenerarPagoPaciente",
                     data: { PacientePago: pacientePago },
+                    dataType: 'JSON',
                     beforeSend: function () {
                         LoadingOn("Generando Pago...");
                     },
                     success: function (data) {
+                        console.log(data);
                         try {
-                            var dataPago = JSON.parse(data);
+                            var dataLogo = JSON.parse(data[0]);
+                            var dataPago = JSON.parse(data[1]);
                             dataPago["NombrePaciente"] = $('#modalPacienteNombre').text();
                             dataPago["TipoPago"] = $('#modalPacienteTipoPago option:selected').text();
                             dataPago["ReferenciaPago"] = (parseInt($('#modalPacienteTipoPago').val()) > 0 && parseInt($('#modalPacienteTipoPago').val()) !== 1) ? $('#modalTxtReferenciaPago').val() : "--";
-                            imprimirReciboPago(dataPago);
+
+                            imprimirReciboPago(dataPago, dataLogo.LogoCentro);
                             $('#modalPacientesPagos').modal('hide');
                             LoadingOff();
                         } catch (err) {
                             ErrorLog(err.toString(), "Pago de Paciente");
                         }
-                        /*if (data === "true") {
-                            $('#modalPacientesPagos').modal('hide');
-                            LoadingOff();
-                        } else {
-                            ErrorLog(data, "Pago de Paciente");
-                        }*/
                     },
                     error: function (error) {
                         ErrorLog(error, "Pago de Paciente");
@@ -61,6 +66,11 @@ $(document).on('click', '#modalBtnGenerarPago', function () {
             }
         });
     }
+});
+
+// DOCUMENT - QUE CONTROLA EL BOTON PARA EDITAR UN PACIENTE DE PRE-REGISTRO
+$(document).on('click', '.editarPrePaciente', function () {
+    alert('EN ELABORACION')
 });
 
 // --------------------------------------------------------
@@ -113,16 +123,20 @@ function consultarPagos() {
                 dataType: 'JSON',
                 data: { IdFinanzas: idPacienteFinanzasGLOBAL },
                 beforeSend: function () {
-                    LoadingOn("Obteniendo lista pagos...");
+                    LoadingOn("Obteniendo info Paciente...");
+                    PagosListaJSON = {};
                 },
                 success: function (data) {
                     if (Array.isArray(data)) {
-                        console.log(data);
                         var montoActual = parseFloat(finanzasPacientesJSON["Finanza_" + idPacienteFinanzasGLOBAL].Monto);
                         var tablaPagos = "";
                         $(data).each(function (key, value) {
                             montoActual = montoActual - parseFloat(value.Pago);
-                            tablaPagos += "<tr><td>" + value.Folio + "</td><td>$ " + value.Pago.toFixed(2) + "</td><td>" + value.FechaRegistro + "</td></tr>";
+                            tablaPagos += "<tr><td>" + value.Folio + "</td><td>$ " + value.Pago.toFixed(2) + "</td><td>" + value.FechaRegistro + "</td><td style='text-align: center;'><button onclick='reimprimirPago(" + value.IdPago + ")' title='Reimprimir Recibo' class='btn badge badge-pill badge-secondary'><i class='fa fa-print'></i></button>&nbsp;&nbsp;<button onclick='mostrarInfoPago(" + value.IdPago + ")' title='Info de Pago' class='btn badge badge-pill badge-dark'><i class='fa fa-info-circle'></i></button></td></tr>";
+                            PagosListaJSON["Pago_" + value.IdPago] = {
+                                TipoPago: value.TipoPago,
+                                ReferenciaPago: value.Referencia
+                            };
                         });
                         $('#modalPacienteNombre').html(finanzasPacientesJSON["Finanza_" + idPacienteFinanzasGLOBAL].NombreCompleto);
                         $('#modalPacienteMontoInicial').html(finanzasPacientesJSON["Finanza_" + idPacienteFinanzasGLOBAL].Monto.toFixed(2));
@@ -169,10 +183,17 @@ function llenarTablaConsultaPacientes() {
         success: function (data) {
             if (Array.isArray(data)) {
                 if (data.length > 0) {
-                    var tabla = "<div class='col-sm-12'><div class='table scrollestilo' style='max-height: 40vh; overflow: scroll;'><table class='table table-sm table-bordered'><thead><tr class='table-active'><th>Nombre Paciente</th><th>Opciones</th></tr></thead><tbody>óê%TABLA%óê</tbody></table></div></div>";
+                    var tabla = "<div class='col-sm-12'><div class='table scrollestilo' style='max-height: 40vh; overflow: scroll;'><table class='table table-sm table-bordered'><thead><tr class='table-active'><th>Nombre Paciente</th><th style='text-align: center;'>Nivel</th><th style='text-align: center;'>Opciones</th></tr></thead><tbody>óê%TABLA%óê</tbody></table></div></div>";
                     var pacientes = "";
                     $(data).each(function (key, value) {
-                        pacientes += "<tr><td>" + value.NombreCompleto + "</td><td></td></tr>";
+                        var boton = "", nivel = "";
+                        if (value.Estatus == 1) {
+                            boton = "<button class='btn badge badge-pill badge-warning editarPrePaciente'><i class='fa fa-user-edit' title='Editar Pre-registro'></i></button>";
+                            nivel = "<span class='badge badge-dark'>Pre-registro</span>";
+                        } else if (value.Estatus == 2) {
+
+                        }
+                        pacientes += "<tr><td>" + value.NombreCompleto + "</td><td style='text-align: center;'>" + nivel + "</td><td style='text-align: center;'>" + boton + "</td></tr>";
                     });
                     LoadingOff();
                     $('#modalTxtPacienteBusqueda').focus();
@@ -224,4 +245,45 @@ function validarFormPagoPaciente() {
         MsgAlerta("Atención!", msg, 3000, "default");
     }
     return correcto;
+}
+
+// FUNCION QUE REIMPRIME EL RECIBO DE PAGO DEL PACIENTE
+function reimprimirPago(idPago) {
+    $.ajax({
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/Dinamicos/ReimprimirRecibo",
+        data: { IDPago: idPago },
+        dataType: "JSON",
+        beforeSend: function () {
+            LoadingOn("Cargando Recibo...");
+        },
+        success: function (data) {
+            console.log(data);
+            if (Array.isArray(data)) {
+                try {
+                    var dataLogo = JSON.parse(data[0]);
+                    var dataPago = JSON.parse(data[1]);
+                    dataPago["NombrePaciente"] = $('#modalPacienteNombre').text();
+                    dataPago["TipoPago"] = dataPago.TipoPago;
+                    dataPago["ReferenciaPago"] = (parseInt($('#modalPacienteTipoPago').val()) > 0 && parseInt($('#modalPacienteTipoPago').val()) !== 1) ? $('#modalTxtReferenciaPago').val() : "--";
+
+                    imprimirReciboPago(dataPago, dataLogo.LogoCentro);
+                    LoadingOff();
+                } catch (e) {
+                    ErrorLog(e.toString(), "Reimprimir Recibo Pago");
+                }
+            } else {
+                ErrorLog(data.responseText, "Reimprimir Recibo Pago");
+            }
+        },
+        error: function (error) {
+            ErrorLog(error.responseText, "Reimprimir Recibo Pago");
+        }
+    });
+}
+
+// FUNCION QUE MUESTRA INFO SENCILLA DEL PAGO
+function mostrarInfoPago(idPago) {
+    MsgAlerta("Info!", "Caracteristicas del pago:\n\n<b>Tipo: </b> " + PagosListaJSON["Pago_" + idPago].TipoPago + "\n\n<b>Referencia: </b> " + PagosListaJSON["Pago_" + idPago].ReferenciaPago, 8000, "info");
 }

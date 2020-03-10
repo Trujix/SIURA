@@ -196,10 +196,10 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>05/24/2018 07:38:24</publishTime>
     </File>
     <File Include="bin/siuraWEB.dll">
-      <publishTime>03/01/2020 19:01:39</publishTime>
+      <publishTime>03/07/2020 21:47:10</publishTime>
     </File>
     <File Include="bin/siuraWEB.pdb">
-      <publishTime>03/01/2020 19:01:39</publishTime>
+      <publishTime>03/07/2020 21:47:10</publishTime>
     </File>
     <File Include="bin/System.Diagnostics.DiagnosticSource.dll">
       <publishTime>07/19/2017 04:01:30</publishTime>
@@ -565,7 +565,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>02/11/2020 01:01:32</publishTime>
     </File>
     <File Include="Content/offcanvas.css">
-      <publishTime>02/23/2020 01:22:54</publishTime>
+      <publishTime>03/06/2020 01:11:22</publishTime>
     </File>
     <File Include="Content/pnotify.css">
       <publishTime>02/11/2020 00:47:17</publishTime>
@@ -5586,6 +5586,66 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     <File Include="iconos/webfonts/fa-solid-900.woff2">
       <publishTime>02/11/2020 02:12:39</publishTime>
     </File>
+    <File Include="JQueryUI/external/jquery/jquery.js">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/images/ui-icons_444444_256x240.png">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/images/ui-icons_555555_256x240.png">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/images/ui-icons_777620_256x240.png">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/images/ui-icons_777777_256x240.png">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/images/ui-icons_cc0000_256x240.png">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/images/ui-icons_ffffff_256x240.png">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/jquery-ui.css">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/jquery-ui.js">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/jquery-ui.min.css">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/jquery-ui.min.js">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/jquery-ui.structure.css">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/jquery-ui.structure.min.css">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/jquery-ui.theme.css">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/jquery-ui.theme.min.css">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="JQueryUI/package.json">
+      <publishTime>03/03/2020 23:14:41</publishTime>
+    </File>
+    <File Include="Media/estados.json">
+      <publishTime>03/05/2020 22:34:10</publishTime>
+    </File>
+    <File Include="Media/fondoEditor.png">
+      <publishTime>03/03/2020 22:30:56</publishTime>
+    </File>
+    <File Include="Media/logoalanon.json">
+      <publishTime>03/04/2020 22:41:24</publishTime>
+    </File>
+    <File Include="Media/municipios.json">
+      <publishTime>03/05/2020 23:12:28</publishTime>
+    </File>
     <File Include="Media/siuralogo.svg">
       <publishTime>02/12/2020 18:12:29</publishTime>
     </File>
@@ -6004,7 +6064,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>03/01/2020 02:59:12</publishTime>
     </File>
     <File Include="Scripts/administracion.js">
-      <publishTime>03/01/2020 02:59:36</publishTime>
+      <publishTime>03/05/2020 15:34:00</publishTime>
     </File>
     <File Include="Scripts/bootstrap.min.js">
       <publishTime>02/10/2020 19:48:27</publishTime>
@@ -6015,20 +6075,26 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     <File Include="Scripts/bootstrap4-toggle.min.js.map">
       <publishTime>02/22/2020 23:39:38</publishTime>
     </File>
+    <File Include="Scripts/canvasImagen.js">
+      <publishTime>03/04/2020 00:19:34</publishTime>
+    </File>
     <File Include="Scripts/configuracion.js">
-      <publishTime>02/21/2020 20:06:09</publishTime>
+      <publishTime>03/06/2020 22:43:34</publishTime>
     </File>
     <File Include="Scripts/dinamicos.js">
-      <publishTime>03/01/2020 18:59:29</publishTime>
+      <publishTime>03/06/2020 20:12:06</publishTime>
     </File>
     <File Include="Scripts/documentacion.js">
-      <publishTime>02/25/2020 21:44:42</publishTime>
+      <publishTime>03/07/2020 01:57:46</publishTime>
     </File>
     <File Include="Scripts/funcsaux.js">
       <publishTime>10/02/2020 23:18:01</publishTime>
     </File>
+    <File Include="Scripts/html2canvas.js.map">
+      <publishTime>03/04/2020 19:20:59</publishTime>
+    </File>
     <File Include="Scripts/impresiones.js">
-      <publishTime>03/01/2020 03:10:24</publishTime>
+      <publishTime>03/07/2020 02:08:53</publishTime>
     </File>
     <File Include="Scripts/index.js">
       <publishTime>02/21/2020 19:58:48</publishTime>
@@ -6037,7 +6103,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>02/10/2020 19:48:27</publishTime>
     </File>
     <File Include="Scripts/jquery.validate-vsdoc.js">
-      <publishTime>10/02/2020 19:23:15</publishTime>
+      <publishTime>02/10/2020 19:23:15</publishTime>
     </File>
     <File Include="Scripts/jquery.validate.js">
       <publishTime>02/10/2020 19:23:15</publishTime>
@@ -6049,10 +6115,10 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>02/11/2020 01:02:31</publishTime>
     </File>
     <File Include="Scripts/login.js">
-      <publishTime>02/20/2020 13:03:34</publishTime>
+      <publishTime>03/02/2020 19:11:57</publishTime>
     </File>
     <File Include="Scripts/miscelaneas.js">
-      <publishTime>02/26/2020 13:44:16</publishTime>
+      <publishTime>03/06/2020 00:35:56</publishTime>
     </File>
     <File Include="Scripts/modernizr-2.8.3.js">
       <publishTime>02/10/2020 19:23:13</publishTime>
@@ -6073,28 +6139,34 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="Views/Configuracion/Documentos.cshtml">
-      <publishTime>02/25/2020 18:08:21</publishTime>
+      <publishTime>03/02/2020 23:18:15</publishTime>
     </File>
     <File Include="Views/Configuracion/MenuConfiguracion.cshtml">
-      <publishTime>02/21/2020 15:15:01</publishTime>
+      <publishTime>03/05/2020 17:10:41</publishTime>
+    </File>
+    <File Include="Views/Configuracion/MiCentro.cshtml">
+      <publishTime>03/06/2020 22:28:53</publishTime>
     </File>
     <File Include="Views/Dinamicos/Pacientes.cshtml">
-      <publishTime>02/25/2020 21:22:31</publishTime>
+      <publishTime>03/02/2020 21:22:07</publishTime>
     </File>
     <File Include="Views/Dinamicos/Pagos.cshtml">
-      <publishTime>02/29/2020 22:53:13</publishTime>
+      <publishTime>03/05/2020 20:29:30</publishTime>
     </File>
     <File Include="Views/Documentacion/Administracion.cshtml">
-      <publishTime>02/25/2020 22:53:03</publishTime>
+      <publishTime>03/05/2020 17:13:28</publishTime>
     </File>
     <File Include="Views/Documentacion/Ingreso.cshtml">
-      <publishTime>02/25/2020 18:13:47</publishTime>
+      <publishTime>03/06/2020 00:03:08</publishTime>
     </File>
     <File Include="Views/Documentacion/NuevoPaciente.cshtml">
-      <publishTime>02/29/2020 23:15:52</publishTime>
+      <publishTime>03/07/2020 00:01:54</publishTime>
     </File>
     <File Include="Views/Documentacion/PacientesPagos.cshtml">
-      <publishTime>02/29/2020 22:53:05</publishTime>
+      <publishTime>03/05/2020 12:12:35</publishTime>
+    </File>
+    <File Include="Views/Documentacion/PreRegistros.cshtml">
+      <publishTime>03/05/2020 17:15:02</publishTime>
     </File>
     <File Include="Views/Home/BarraMenu.cshtml">
       <publishTime>02/25/2020 22:10:49</publishTime>
@@ -6103,7 +6175,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="Views/Home/Index.cshtml">
-      <publishTime>02/17/2020 12:34:05</publishTime>
+      <publishTime>03/01/2020 23:04:42</publishTime>
     </File>
     <File Include="Views/Home/Principal.cshtml">
       <publishTime>02/21/2020 23:25:00</publishTime>
@@ -6121,7 +6193,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>02/10/2020 19:21:52</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>02/25/2020 22:11:45</publishTime>
+      <publishTime>03/07/2020 21:47:19</publishTime>
     </File>
   </ItemGroup>
 </Project>

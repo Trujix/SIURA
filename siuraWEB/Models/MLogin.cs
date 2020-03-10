@@ -17,13 +17,14 @@ namespace siuraWEB.Models
         public class LoginInfo {
             public string Usuario { get; set; }
             public string Pass { get; set; }
+            public  string ClaveCentro { get; set; }
         }
         // CLASE DE RESPUESTA DE LOGIN
         public class LoginRespuesta
         {
             public bool Respuesta { get; set; }
             public string Token { get; set; }
-            //public List<object> Parametros { get; set; }
+            public string TokenCentro { get; set; }
         }
 
         // ---------- FUNCIONES GENERALES ----------
@@ -37,11 +38,12 @@ namespace siuraWEB.Models
                     Respuesta = false
                 };
                 int IdUsuario = 0;
-                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.usuarios WHERE usuario = @UsuarioDATA AND pass = @PassDATA", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL = new SqlCommand("SELECT U.*, C.tokencentro FROM dbo.usuarios U JOIN dbo.centros C ON C.clave = @ClaveCentroDATA AND C.tokencentro = U.tokencentro WHERE U.usuario = @UsuarioDATA AND U.pass = @PassDATA", SQL.conSQL, SQL.transaccionSQL);
                 SqlParameter[] UsuarioLoginPars =
                 {
                     new SqlParameter("@UsuarioDATA", SqlDbType.VarChar) {Value = logininfo.Usuario },
                     new SqlParameter("@PassDATA", SqlDbType.VarChar) {Value = MISC.CrearMD5(logininfo.Pass) },
+                    new SqlParameter("@ClaveCentroDATA", SqlDbType.VarChar) {Value = logininfo.ClaveCentro },
                 };
                 SQL.commandoSQL.Parameters.AddRange(UsuarioLoginPars);
                 using (var lector = SQL.commandoSQL.ExecuteReader())
@@ -50,6 +52,7 @@ namespace siuraWEB.Models
                     {
                         respuesta.Respuesta = true;
                         respuesta.Token = lector["tokenusuario"].ToString();
+                        respuesta.TokenCentro = lector["tokencentro"].ToString();
                         IdUsuario = int.Parse(lector["id"].ToString());
                     }
                 }

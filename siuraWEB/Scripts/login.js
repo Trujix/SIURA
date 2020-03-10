@@ -12,7 +12,8 @@ $(document).on('click', '#btnLogin', function (e) {
     if (ValidarFormLogin()) {
         var LoginData = {
             Usuario: $('#usuarioLogin').val(),
-            Pass: $('#passLogin').val()
+            Pass: $('#passLogin').val(),
+            ClaveCentro: $('#centroClaveLogin').val()
         };
         $.ajax({
             type: "POST",
@@ -27,7 +28,7 @@ $(document).on('click', '#btnLogin', function (e) {
                 if (data.Respuesta) {
                     location.reload();
                 } else {
-                    MsgAlerta("Error!", "<b>Usuario</b> y/o <b>Contraseña</b> son incorrectos", 3000, "error");
+                    MsgAlerta("Error!", "Los <b>Datos de inicio de sesión</b> son incorrectos", 4000, "error");
                     $('#usuarioLogin').focus();
                     LoadingOff();
                 }
@@ -40,7 +41,7 @@ $(document).on('click', '#btnLogin', function (e) {
 });
 
 // DOCUMENT QUE CONTROLA LA TECLA ENTER EN LOS CAMPOS USUARIO Y CONTRASEÑA
-$(document).on('keyup', '#usuarioLogin, #passLogin', function (e) {
+$(document).on('keyup', '#usuarioLogin, #passLogin, #centroClaveLogin', function (e) {
     if (e.keyCode === 13) {
         $('#btnLogin').click();
     }
@@ -84,6 +85,10 @@ function ValidarFormLogin() {
     } else if ($('#passLogin').val() === "") {
         $('#passLogin').focus();
         MsgAlerta("Atención!", "Coloque la <b>Contraseña</b>", 2000, "default");
+        return false;
+    } else if ($('#centroClaveLogin').val() === "") {
+        $('#centroClaveLogin').focus();
+        MsgAlerta("Atención!", "Coloque la <b>Clave del Centro</b>", 2000, "default");
         return false;
     } else {
         return true;

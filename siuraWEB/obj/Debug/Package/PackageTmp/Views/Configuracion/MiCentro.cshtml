@@ -1,0 +1,127 @@
+﻿@{
+    Layout = null;
+}
+<div class="row scrollestilo" style="padding-top: 5px; height: 80vh; overflow: scroll;">
+    <div class="col-sm-12">
+        <h5>Datos del Centro:</h5>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label><i class="fa fa-home"></i> Nombre Centro</label>
+                    <input id="miCentroNombre" type="text" class="form-control form-control-sm" autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label><i class="fa fa-address-book"></i> Dirección</label>
+                    <input id="miCentroDireccion"  type="text" class="form-control form-control-sm" autocomplete="off" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label><i class="fa fa-key"></i> Clave Institución / RFC</label>
+                    <input id="miCentroClave" type="text" class="form-control form-control-sm" autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label><i class="fa fa-hashtag"></i> Código Postal</label>
+                    <input id="miCentroCP" type="number" class="form-control form-control-sm" max="999999" autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label><i class="fa fa-address-book"></i> Colonia</label>
+                    <input id="miCentroColonia" type="text" class="form-control form-control-sm" autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label><i class="fa fa-map-marker"></i> Localidad</label>
+                    <input id="miCentroLocalidad" type="text" class="form-control form-control-sm" autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label><i class="fa fa-phone"></i> Teléfono</label>
+                    <input id="miCentroTelefono" type="number" class="form-control form-control-sm" max="9999999999" autocomplete="off" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label><i class="fa fa-map-marked-alt"></i> Estado</label>
+                    <select id="miCentroEstado" class="form-control form-control-sm"></select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label><i class="fa fa-map-marked-alt"></i> Municipio</label>
+                    <select id="miCentroMunicipio" class="form-control form-control-sm"></select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label><i class="fa fa-user-tie"></i> Nombre Director/Jefe</label>
+                    <input id="miCentroNombreDirector" type="text" class="form-control form-control-sm" autocomplete="off" />
+                </div>
+            </div>
+        </div>
+        <div class="row" style="padding-top: 20px;">
+            <div class="col-sm-4">
+                <button id="btnMiCentroGuardarConfig" class="btn btn-sm btn-success btn-block"><i class="fa fa-save"></i> Guardar Datos</button>
+            </div>
+        </div>
+        <hr />
+        <h5>Logotipo</h5>
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="form-check pl-0">
+                    <input id="miCentroLogoDefault" type="checkbox" data-on="Si" data-off="No" checked data-toggle="toggle" data-size="xs" data-onstyle="outline-info" data-offstyle="outline-secondary" autocomplete="off">
+                    <label class="form-check-label"><b>Usar Logo AL-anon</b></label>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <button id="btnMiCentroSubirLogo" class="btn btn-info btn-sm btn-block"><i class="fa fa-upload"></i> Cargar Imagen Logotipo</button>
+            </div>
+            <div class="col-sm-4">
+                <div class="card" align="center">
+                    <div id="divMiCentroEstatusLogoImg" class="card-body" style="padding: 0;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalMiCentroLogoEditor" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" data-backdrop="static" data-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <button id="btnModalArchivoSubirLogo" class="btn badge badge-info"><i class="fa fa-image"></i> Elegir Imagen</button>
+                        <input id="modalArchivoSubirLogo" type="file" style="visibility: hidden; font-size: 0px;" accept="image/x-png,image/jpeg" />
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 2px;">
+                    <div class="col-sm-12">
+                        <div id="divModalLogoEditor"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <p>El tamaño requerido es <b>120 pixeles X 120 pixeles</b>; La imagen seleccionada debe quedar dentro del recuadro.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnModalMiCentroGuardarLogo" type="button" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Guardar Logo</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>

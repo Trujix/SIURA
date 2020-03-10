@@ -18,21 +18,21 @@ namespace siuraWEB.Models
             {
                 SQL.comandoSQLTrans("Parametros");
 
-                int IdUsuario = 0;
+                string TokenCentro = "";
                 SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioDATA", SQL.conSQL, SQL.transaccionSQL);
                 SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenUsuarioDATA", SqlDbType.VarChar) { Value = token });
                 using (var lector = SQL.commandoSQL.ExecuteReader())
                 {
                     while (lector.Read())
                     {
-                        IdUsuario = int.Parse(lector["id"].ToString());
+                        TokenCentro = lector["tokencentro"].ToString();
                     }
                 }
                 List<object> Parametros = new List<object>();
                 Random aleatorio = new Random();
                 string cadHTML = MISC.GenerarCadAleatoria(10, aleatorio);
-                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.usuariomenuprincipal WHERE idusuario = @IDUsuarioDATA", SQL.conSQL, SQL.transaccionSQL);
-                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDUsuarioDATA", SqlDbType.Int) { Value = IdUsuario });
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.usuariomenuprincipal WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = TokenCentro });
                 using (var lector = SQL.commandoSQL.ExecuteReader())
                 {
                     while (lector.Read())

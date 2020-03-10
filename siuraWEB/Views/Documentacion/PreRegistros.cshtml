@@ -1,0 +1,55 @@
+﻿@{
+    Layout = null;
+}
+<div class="row" style="padding-top: 5px;">
+    <div class="col-sm-2">
+        <button id="btnMostrarPreRegistros" class="btn badge badge-pill badge-info"><i class="fa fa-search"></i> Ver pacientes pendientes</button>
+    </div>
+</div>
+<div class="row" style="padding-top: 5px;">
+    <div class="col-sm-12">
+        <div class="table scrollestilo" style="height: 80vh; overflow: scroll;">
+            <table class="table table-bordered table-striped table-sm">
+                <thead>
+                    <tr class="table-active">
+                        <th>Nombre</th>
+                        <th style="text-align: center;">Fecha Registro</th>
+                        <th style="text-align: center;">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody id="adminTablaPreRegistros"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="modalAceptarContrato" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" data-backdrop="static" data-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h5>Aceptar Contrato</h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h6><b>Paciente: </b><i id="modalNombreAceptarContrato"></i></h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning" role="alert">
+                            <p><b>Advertencia!</b></p>
+                            <p>Por medio de la presente acción asigna al paciente anteriormente mencionado, como habilitado para los siguientes procesos en su registro en el sistema, adjuntando también que el y/o su representante (familiar o conocido) han <b>firmado y aceptado</b> el contrato otorgado, quedando el individuo a disposición para los fines funcionales establecidos en la Institución.</p>
+                            <p><b>Cualquier revocación o reestablecimiento de los parametros correspondientes a esta acción, deberán hacerse en coordinación con el Usuario Administrador del sistema.</b></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnModalAceptarContrato" type="button" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Aceptar y Guardar</button>
+                <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
