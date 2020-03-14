@@ -27,6 +27,8 @@ namespace siuraWEB.Models
             public string ParienteNombre { get; set; }
             public string ParienteApellidoP { get; set; }
             public string ParienteApellidoM { get; set; }
+            public string ParentescoIndx { get; set; }
+            public string Parentesco { get; set; }
             public double TelefonoCasa { get; set; }
             public double TelefonoPariente { get; set; }
             public double TelefonoUsuario { get; set; }
@@ -40,6 +42,12 @@ namespace siuraWEB.Models
             public string TipoEstancia { get; set; }
             public string TipoEstanciaIndx { get; set; }
             public string TestigoNombre { get; set; }
+            public string TipoTratamiento { get; set; }
+            public string TipoTratamientoIndx { get; set; }
+            public string FasesCantTratamiento { get; set; }
+            public string FasesCantTratamientoIndx { get; set; }
+            public string FasesTratamiento { get; set; }
+            public string FasesTratamientoIndx { get; set; }
         }
         // CLASE DE REGISTRO DE FINANZAS DEL PACIENTE
         public class PacienteFinazasData
@@ -125,7 +133,7 @@ namespace siuraWEB.Models
             try
             {
                 SQL.comandoSQLTrans("RegistrarPaciente");
-                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.pacienteregistro (idcentro, idpaciente, nombre, apellidopaterno, apellidomaterno, fechanacimiento, edad, sexo, sexosigno, curp, alias, parientenombre, parienteapellidop, parienteapellidom, telefonocasa, telefonopariente, telefonousuario, estatus, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @IDPacienteParam, @PacNombreParam, @PacApellidoPParam, @PacApellidoMParam, @FechaNacParam, @EdadParam, @SexoParam, @SexoSignoParam, @CURPParam, @AliasParam, @ParNombreParam, @ParApellidoPParam, @ParApellidoMParam, @TelefonoCasaParam, @TelefonoParienteParam, @TelefonoUsuParam, @EstatusParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenParam))", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.pacienteregistro (idcentro, idpaciente, nombre, apellidopaterno, apellidomaterno, fechanacimiento, edad, sexo, sexosigno, curp, alias, parientenombre, parienteapellidop, parienteapellidom, parentesco, parentescoindx, telefonocasa, telefonopariente, telefonousuario, estatus, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @IDPacienteParam, @PacNombreParam, @PacApellidoPParam, @PacApellidoMParam, @FechaNacParam, @EdadParam, @SexoParam, @SexoSignoParam, @CURPParam, @AliasParam, @ParNombreParam, @ParApellidoPParam, @ParApellidoMParam, @ParentescoParam, @ParentescoIndxParam, @TelefonoCasaParam, @TelefonoParienteParam, @TelefonoUsuParam, @EstatusParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenParam))", SQL.conSQL, SQL.transaccionSQL);
                 SqlParameter[] registroPaciente =
                 {
                     new SqlParameter("@TokenCentroParam", SqlDbType.VarChar){Value = tokencentro },
@@ -142,6 +150,8 @@ namespace siuraWEB.Models
                     new SqlParameter("@ParNombreParam", SqlDbType.VarChar){Value = pacienteinfo.ParienteNombre },
                     new SqlParameter("@ParApellidoPParam", SqlDbType.VarChar){Value = pacienteinfo.ParienteApellidoP },
                     new SqlParameter("@ParApellidoMParam", SqlDbType.VarChar){Value = pacienteinfo.ParienteApellidoM },
+                    new SqlParameter("@ParentescoParam", SqlDbType.VarChar){Value = pacienteinfo.Parentesco },
+                    new SqlParameter("@ParentescoIndxParam", SqlDbType.VarChar){Value = pacienteinfo.ParentescoIndx },
                     new SqlParameter("@TelefonoCasaParam", SqlDbType.Float){Value = pacienteinfo.TelefonoCasa },
                     new SqlParameter("@TelefonoParienteParam", SqlDbType.Float){Value = pacienteinfo.TelefonoPariente },
                     new SqlParameter("@TelefonoUsuParam", SqlDbType.Float){Value = pacienteinfo.TelefonoUsuario },
@@ -193,7 +203,7 @@ namespace siuraWEB.Models
                 }
 
                 string folioContrato = ((pacienteingreso.TipoIngreso == "I") ? "CI" : "CV") + "-" + SiglaLegal + MISC.CrearCadAleatoria(2, 8);
-                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.pacienteingreso (idcentro, idpaciente, tipoingreso, foliocontrato, tiempoestancia, tipoestancia, tipoestanciaindx, nombretestigo, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @IdPacienteParam, @TipoIngresoParam, @FolioContratoParam, @TiempoEstanciaParam, @TipoEstanciaParam, @TipoEstanciaIndxParam, @TestigoNombreParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenParam))", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.pacienteingreso (idcentro, idpaciente, tipoingreso, foliocontrato, tiempoestancia, tipoestancia, tipoestanciaindx, nombretestigo, tipotratamiento, tipotratamientoindx, fasescantratamiento, fasescantratamientoindx, fasestratamiento, fasestratamientoindx, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @IdPacienteParam, @TipoIngresoParam, @FolioContratoParam, @TiempoEstanciaParam, @TipoEstanciaParam, @TipoEstanciaIndxParam, @TestigoNombreParam, @TipoTratamientoParam, @TipoTratamientoIndxParam, @FasesCanTratamientoParam, @FasesCanTratamientoIndxParam, @FasesTratamientoParam, @FasesTratamientoIndxParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenParam))", SQL.conSQL, SQL.transaccionSQL);
                 SqlParameter[] registroPacienteIngreso =
                 {
                     new SqlParameter("@TokenCentroParam", SqlDbType.VarChar){Value = tokencentro },
@@ -204,6 +214,12 @@ namespace siuraWEB.Models
                     new SqlParameter("@TipoEstanciaParam", SqlDbType.VarChar){Value = pacienteingreso.TipoEstancia },
                     new SqlParameter("@TipoEstanciaIndxParam", SqlDbType.VarChar){Value = pacienteingreso.TipoEstanciaIndx },
                     new SqlParameter("@TestigoNombreParam", SqlDbType.VarChar){Value = pacienteingreso.TestigoNombre },
+                    new SqlParameter("@TipoTratamientoParam", SqlDbType.VarChar){Value = pacienteingreso.TipoTratamiento },
+                    new SqlParameter("@TipoTratamientoIndxParam", SqlDbType.VarChar){Value = pacienteingreso.TipoTratamientoIndx },
+                    new SqlParameter("@FasesCanTratamientoParam", SqlDbType.VarChar){Value = pacienteingreso.FasesCantTratamiento },
+                    new SqlParameter("@FasesCanTratamientoIndxParam", SqlDbType.VarChar){Value = pacienteingreso.FasesCantTratamientoIndx },
+                    new SqlParameter("@FasesTratamientoParam", SqlDbType.VarChar){Value = pacienteingreso.FasesTratamiento },
+                    new SqlParameter("@FasesTratamientoIndxParam", SqlDbType.VarChar){Value = pacienteingreso.FasesTratamientoIndx },
                     new SqlParameter("@FechaParam", SqlDbType.DateTime){Value = MISC.FechaHoy() },
                     new SqlParameter("@TokenParam", SqlDbType.VarChar){Value = tokenusuario }
                 };
@@ -223,7 +239,7 @@ namespace siuraWEB.Models
                 SQL.commandoSQL.ExecuteNonQuery();
 
                 Dictionary<string, object> Contrato = new Dictionary<string, object>() {
-                    { "TipoContrato", pacienteingreso.TipoEstancia },
+                    { "TipoContrato", pacienteingreso.TipoIngreso },
                     { "FolioContrato", folioContrato },
                     { "NombrePaciente", pacienteinfo.Nombre.ToUpper() + " " + pacienteinfo.PacienteApellidoP.ToUpper() + " " + pacienteinfo.PacienteApellidoM.ToUpper() },
                     { "NombreCentro", NombreCentro.ToUpper() },
@@ -240,12 +256,148 @@ namespace siuraWEB.Models
                     { "Municipio", MunicipioCentro },
                     { "NombreDirector", Director.ToUpper() },
                     { "Testigo", pacienteingreso.TestigoNombre.ToUpper() },
+                    { "FamiliarNombre", pacienteinfo.ParienteNombre.ToUpper() + " " + pacienteinfo.ParienteApellidoP.ToUpper() + " " + pacienteinfo.ParienteApellidoM.ToUpper() },
+                    { "Parentesco", pacienteinfo.Parentesco },
+                    { "TipoTratamiento", pacienteingreso.TipoTratamiento },
+                    { "NumeroExpediente", MISC.CadExpediente(IdPaciente) },
+                    { "FasesCantTratamiento", pacienteingreso.FasesCantTratamiento },
+                    { "FasesTratamiento", pacienteingreso.FasesTratamiento },
                 };
 
                 SQL.transaccionSQL.Commit();
                 return JsonConvert.SerializeObject(Contrato) + LogoCad;
             }
             catch(Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE REIMPRIME UN CONTRATO - PREREGISTRO [ PACIENTES ]
+        public string ReimprimirContrato(int idpaciente, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ReimprimirContrato");
+                string SiglaLegal = "", NombreCentro = "", ClaveCentro = "", DireccionCentro = "", CPCentro = "", ColoniaCentro = "", EstadoCentro = "", MunicipioCentro = "", Director = "", LogoCad = "";
+                double TelefonoCentro = 0;
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.usuarioscentro WHERE id = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        SiglaLegal = lector["siglalegal"].ToString();
+                        NombreCentro = lector["nombrecentro"].ToString();
+                        ClaveCentro = lector["clavecentro"].ToString();
+                        DireccionCentro = lector["direccion"].ToString();
+                        CPCentro = lector["cp"].ToString();
+                        ColoniaCentro = lector["colonia"].ToString();
+                        EstadoCentro = lector["estado"].ToString();
+                        MunicipioCentro = lector["municipio"].ToString();
+                        Director = lector["nombredirector"].ToString();
+                        TelefonoCentro = double.Parse(lector["telefono"].ToString());
+
+                        if (bool.Parse(lector["logopersonalizado"].ToString()))
+                        {
+                            LogoCad = "«~LOGOPERS~»";
+                        }
+                        if (bool.Parse(lector["alanonlogo"].ToString()))
+                        {
+                            LogoCad = "«~LOGOALANON~»";
+                        }
+                    }
+                }
+
+                string NombrePaciente = "", ApellidoPacienteP = "", ApellidoPacienteM = "", SexoPaciente = "", EdadPaciente = "", ParienteNombre = "", ParienteApP = "", ParienteApM = "", Parentesco = "";
+                DateTime FechaIngreso = new DateTime();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacienteregistro WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND id = @IDPacienteDATA", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDPacienteDATA", SqlDbType.Int) { Value = idpaciente });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        NombrePaciente = lector["nombre"].ToString();
+                        ApellidoPacienteP = lector["apellidopaterno"].ToString();
+                        ApellidoPacienteM = lector["apellidomaterno"].ToString();
+                        SexoPaciente = lector["sexo"].ToString();
+                        FechaIngreso = DateTime.Parse(lector["fechahora"].ToString());
+                        EdadPaciente = lector["edad"].ToString();
+                        ParienteNombre = lector["parientenombre"].ToString();
+                        ParienteApP = lector["parienteapellidop"].ToString();
+                        ParienteApM = lector["parienteapellidom"].ToString();
+                        Parentesco = lector["parentesco"].ToString();
+                    }
+                }
+
+                string FolioContrato = "", TipoIngreso = "", TiempoEstancia = "", TipoEstancia = "", TestigoNombre = "", TipoTratamiento = "", FasesCantTratamiento = "", FasesTratamiento = "";
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacienteingreso WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND idpaciente = @IDPacienteDATA", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDPacienteDATA", SqlDbType.Int) { Value = idpaciente });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        FolioContrato = lector["foliocontrato"].ToString();
+                        TipoIngreso = lector["tipoingreso"].ToString();
+                        TiempoEstancia = lector["tiempoestancia"].ToString();
+                        TipoEstancia = lector["tipoestancia"].ToString();
+                        TestigoNombre = lector["nombretestigo"].ToString();
+                        TipoTratamiento = lector["tipotratamiento"].ToString();
+                        FasesCantTratamiento = lector["fasescantratamiento"].ToString();
+                        FasesTratamiento = lector["fasestratamiento"].ToString();
+                    }
+                }
+
+                string TipoMoneda = "PESOS MEXICANOS";
+                double MontoPagar = 0;
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacienteregistrofinanzas WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND idpaciente = @IDPacienteDATA", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDPacienteDATA", SqlDbType.Int) { Value = idpaciente });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        MontoPagar = double.Parse(lector["montototal"].ToString());
+                    }
+                }
+
+                Dictionary<string, object> Contrato = new Dictionary<string, object>() {
+                    { "TipoContrato", TipoIngreso },
+                    { "FolioContrato", FolioContrato },
+                    { "NombrePaciente", NombrePaciente.ToUpper() + " " + ApellidoPacienteP.ToUpper() + " " + ApellidoPacienteM.ToUpper() },
+                    { "NombreCentro", NombreCentro.ToUpper() },
+                    { "ClaveCentro", ClaveCentro.ToUpper() },
+                    { "FechaIngreso",  FechaIngreso.ToString("dddd, dd MMMM yyyy HH:mm:ss") },
+                    { "SexoPaciente", SexoPaciente.ToUpper() },
+                    { "EdadPaciente", EdadPaciente.ToString() },
+                    { "DomicilioDoc", DireccionCentro + " Colonia: " + ColoniaCentro + " - C.P. " + CPCentro + ", " + MunicipioCentro + ", " + EstadoCentro },
+                    { "Estancia", TiempoEstancia + " " + TipoEstancia },
+                    { "MontoPago", MontoPagar },
+                    { "TipoMoneda", TipoMoneda },
+                    { "FechaFirma",  MISC.FechaHoy().ToString("dddd, dd MMMM yyyy") },
+                    { "Estado", EstadoCentro },
+                    { "Municipio", MunicipioCentro },
+                    { "NombreDirector", Director.ToUpper() },
+                    { "Testigo",TestigoNombre.ToUpper() },
+                    { "FamiliarNombre", ParienteNombre.ToUpper() + " " + ParienteApP.ToUpper() + " " + ParienteApM.ToUpper() },
+                    { "Parentesco", Parentesco },
+                    { "TipoTratamiento", TipoTratamiento },
+                    { "NumeroExpediente", MISC.CadExpediente(idpaciente) },
+                    { "FasesCantTratamiento", FasesCantTratamiento },
+                    { "FasesTratamiento", FasesTratamiento },
+                };
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(Contrato) + LogoCad;
+            }
+            catch (Exception e)
             {
                 SQL.transaccionSQL.Rollback();
                 return e.ToString();

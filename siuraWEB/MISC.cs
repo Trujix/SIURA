@@ -84,6 +84,23 @@ namespace siuraWEB
             return result.ToString();
         }
 
+        // FUNCION QUE DEVUELVE UNA CAD TIPO "000" PARA EXPENDIENTES
+        public static string CadExpediente(int num)
+        {
+            if(num < 10)
+            {
+                return "00" + num.ToString();
+            }
+            else if(num < 100)
+            {
+                return "0" + num.ToString();
+            }
+            else
+            {
+                return num.ToString();
+            }
+        }
+
         // FUNCION QUE DEVUELVE LA FECHA DE HOY
         public static DateTime FechaHoy()
         {

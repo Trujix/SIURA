@@ -8,6 +8,10 @@ USE siura;
 
 DROP TABLE IF EXISTS dbo.centros;
 DROP TABLE IF EXISTS dbo.usuarios;
+DROP TABLE IF EXISTS dbo.modelostratamientos;
+DROP TABLE IF EXISTS dbo.fasestratamientos;
+DROP TABLE IF EXISTS dbo.fasesnombres;
+DROP TABLE IF EXISTS dbo.fasestipos;
 DROP TABLE IF EXISTS dbo.usuarioscentro;
 DROP TABLE IF EXISTS dbo.usuariomenuprincipal;
 DROP TABLE IF EXISTS dbo.menuprincipal;
@@ -38,6 +42,47 @@ CREATE TABLE [dbo].[usuarios](
 		CONSTRAINT [PK_UsuarioID] PRIMARY KEY CLUSTERED ([usuario] ASC)
 );
 INSERT INTO usuarios (usuario,tokenusuario,tokencentro,pass,fechahora,admusuario) VALUES ('adm','75996de9e8471c8a7dd7b05ff064b34d','1a2b3c4d','202cb962ac59075b964b07152d234b70','2017-08-09','Admin');
+
+CREATE TABLE [dbo].[modelostratamientos](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[nombretratamiento] [varchar](200) NOT NULL,
+	[estatus] [int] NOT NULL DEFAULT 1,
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_ModelosTratamientosID] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[fasestratamientos](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[idmodelo] [int] NOT NULL DEFAULT 0,
+	[cantidadfases] [int] NOT NULL DEFAULT 0,
+	[estatus] [int] NOT NULL DEFAULT 1,
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_FasesTratamientosID] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[fasesnombres](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[idfases] [int] NOT NULL DEFAULT 0,
+	[nombrefase] [varchar](200) NOT NULL,
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_FasesNombresID] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[fasestipos](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[idfases] [int] NOT NULL DEFAULT 0,
+	[nombretipo] [varchar](200) NOT NULL,
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_FasesTipoID] PRIMARY KEY CLUSTERED ([id] ASC)
+);
 
 CREATE TABLE [dbo].[usuarioscentro](
 	[id] [int] IDENTITY(1,1) NOT NULL,
@@ -112,6 +157,8 @@ CREATE TABLE [dbo].[pacienteregistro](
 	[parientenombre] [varchar](200) NOT NULL,
 	[parienteapellidop] [varchar](200) NOT NULL,
 	[parienteapellidom] [varchar](200) NOT NULL,
+	[parentesco] [varchar](200) NOT NULL,
+	[parentescoindx] [varchar](200) NOT NULL,
 	[telefonocasa] [float] NULL,
 	[telefonopariente] [float] NULL,
 	[telefonousuario] [float] NULL,
@@ -131,6 +178,12 @@ CREATE TABLE [dbo].[pacienteingreso](
 	[tipoestancia] [varchar](200) NOT NULL,
 	[tipoestanciaindx] [varchar](200) NOT NULL,
 	[nombretestigo] [varchar](MAX) NOT NULL,
+	[tipotratamiento] [varchar](200) NOT NULL,
+	[tipotratamientoindx] [varchar](200) NOT NULL,
+	[fasescantratamiento] [varchar](200) NOT NULL,
+	[fasescantratamientoindx] [varchar](200) NOT NULL,
+	[fasestratamiento] [varchar](200) NOT NULL,
+	[fasestratamientoindx] [varchar](200) NOT NULL,
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_PacienteIngreso] PRIMARY KEY CLUSTERED ([id] ASC)

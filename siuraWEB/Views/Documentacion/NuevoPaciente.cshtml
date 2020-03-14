@@ -102,6 +102,49 @@
     </div>
 </div>
 <div class="row">
+    <div class="col-sm-6">
+        <div class="form-group row">
+            <i class="col-sm-1 col-form-label fa fa-address-book"></i>&nbsp;Parentesco
+            <div class="col-sm-7">
+                <select id="parentescoPaciente" class="form-control form-control-sm">
+                    <optgroup label="Consanguíneos">
+                        <option value="P1">Padre</option>
+                        <option value="P2">Madre</option>
+                        <option value="P3">Hermano</option>
+                        <option value="P4">Hermana</option>
+                        <option value="P5">Hijo</option>
+                        <option value="P6">Hija</option>
+                        <option value="P7">Primo</option>
+                        <option value="P8">Prima</option>
+                        <option value="P9">Abuelo</option>
+                        <option value="P10">Abuela</option>
+                        <option value="P11">Tío</option>
+                        <option value="P12">Tía</option>
+                        <option value="P13">Sobrino</option>
+                        <option value="P14">Sobrina</option>
+                    </optgroup>
+                    <optgroup label="Afines">
+                        <option value="P15">Esposo</option>
+                        <option value="P16">Esposa</option>
+                        <option value="P17">Suegro</option>
+                        <option value="P18">Suegra</option>
+                        <option value="P19">Yerno</option>
+                        <option value="P20">Nuera</option>
+                        <option value="P21">Padrastro</option>
+                        <option value="P22">Madrastra</option>
+                        <option value="P23">Hijastro</option>
+                        <option value="P24">Hijastra</option>
+                        <option value="P25">Cuñado</option>
+                        <option value="P26">Cuñada</option>
+                        <option value="P27">Hermanastro</option>
+                        <option value="P28">Hermanastra</option>
+                    </optgroup>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
     <div class="col-sm-4">
         <div class="form-group row">
             <i class="col-sm-1 col-form-label fa fa-phone"></i>
@@ -160,6 +203,11 @@
             <option value="S">Semanas</option>
             <option value="M">Meses</option>
             <option value="A">Años</option>
+        </select>
+    </div>
+    <div class="col-sm-3">
+        <select id="pacienteModeloTratamiento" class="form-control form-control-sm">
+            <option value="-1">- Eliga Modelo de Tratamiento -</option>
         </select>
     </div>
 </div>

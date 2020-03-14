@@ -95,6 +95,25 @@ function calcularEdad(edadComparar) {
     return edad;
 }
 
+// FUNCION QUE CREA CADENA ALEATORIA (LONGITUD QUE SE NECESITE)
+function cadAleatoria(lng) {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789";
+    for (var r = 0; r < lng; r++) {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+}
+
+// FUNCION PARA REMOVER ELEMENTO DE JSON
+Array.prototype.quitarElemento = function (llave, valor) {
+    var array = $.map(this, function (v, i) {
+        return v[llave] === valor ? null : v;
+    });
+    this.length = 0;
+    this.push.apply(this, array);
+}
+
 // FUNCION QUE DEVUELVE EL NOMBRE DEL ICONO DE ACUERDO AL ARCHIVO
 function verifExtensionArchIcono(extension) {
     var data = {

@@ -188,7 +188,7 @@ function llenarTablaConsultaPacientes() {
                     $(data).each(function (key, value) {
                         var boton = "", nivel = "";
                         if (value.Estatus == 1) {
-                            boton = "<button class='btn badge badge-pill badge-warning editarPrePaciente'><i class='fa fa-user-edit' title='Editar Pre-registro'></i></button>";
+                            boton = "<button class='btn badge badge-pill badge-warning editarPrePaciente'><i class='fa fa-user-edit' title='Editar Pre-registro'></i></button>&nbsp;<button class='btn badge badge-pill badge-dark reimprimircontrato' idpaciente='" + value.IdPaciente + "'><i class='fa fa-print' title='Reimprimir Contrato'></i></button>";
                             nivel = "<span class='badge badge-dark'>Pre-registro</span>";
                         } else if (value.Estatus == 2) {
 

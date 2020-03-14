@@ -25,6 +25,7 @@ $(document).on('click', '#btnNuevoRegistro', function () {
                     $('#divPacienteDatos').html(data);
                     $('#pacienteRegistroBecario').bootstrapToggle('off');
                     $('#contratoVoluntario').click();
+                    nuevoPacienteParams();
                     LoadingOff();
                 },
                 error: function (error) {
@@ -57,21 +58,23 @@ $(document).on('click', '#btnRegistroPacienteGuardar', function () {
                 data: { PacienteInfo: registroPacienteJSON, PacienteIngreso: registroIngresoJSON, PacienteFinanzas: registroPacienteFinanzasJSON },
                 dataType: 'JSON',
                 beforeSend: function () {
-                    LoadingOn("Guardando Paciente");
+                    LoadingOn("Guardando Paciente...");
                 },
                 success: function (data) {
                     if (Array.isArray(data)) {
                         try {
                             var logoIMG = JSON.parse(data[0]);
                             var jsonContrato = JSON.parse(data[1]);
-                            console.log(logoIMG);
-                            console.log(jsonContrato);
                             $('#divPacienteDatos').html('');
                             LoadingOff();
                             MsgAlerta("Ok!", "Paciente registrado <b>correctamente</b>", 2000, "success");
-                            imprimirContratoCV(jsonContrato, logoIMG.LogoCentro);
+                            if (jsonContrato.TipoContrato === "I") {
+                                imprimirContratoCI(jsonContrato, logoIMG.LogoCentro);
+                            } else if (jsonContrato.TipoContrato === "V") {
+                                imprimirContratoCV(jsonContrato, logoIMG.LogoCentro);
+                            }
                         } catch (e) {
-                            ErrorLog(data.responseText, "Registrar Paciente");
+                            ErrorLog(e.toString(), "Registrar Paciente");
                         }
                     } else {
                         ErrorLog(data.responseText , "Registrar Paciente");
@@ -108,8 +111,89 @@ $(document).on('click focus', '#edadPaciente', function () {
     }
 });
 
+// DOCUMENT - BOTON QUE CONTROLA LA REIMPRESION DE UN CONTRATO [ REGISTRO DE PACIENTES ] ¿ANEXO¿ - [ DINAMICOS ]
+$(document).on('click', '.reimprimircontrato', function () {
+    var idPaciente = parseInt($(this).attr("idpaciente"));
+    $.ajax({
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/Documentacion/ReimprimirContrato",
+        data: { IDPaciente: idPaciente },
+        dataType: 'JSON',
+        beforeSend: function () {
+            LoadingOn("Generando documento...");
+        },
+        success: function (data) {
+            if (Array.isArray(data)) {
+                try {
+                    var logoIMG = JSON.parse(data[0]);
+                    var jsonContrato = JSON.parse(data[1]);
+                    LoadingOff();
+                    if (jsonContrato.TipoContrato === "I") {
+                        imprimirContratoCI(jsonContrato, logoIMG.LogoCentro);
+                    } else if (jsonContrato.TipoContrato === "V") {
+                        imprimirContratoCV(jsonContrato, logoIMG.LogoCentro);
+                    }
+                } catch (e) {
+                    ErrorLog(e.toString(), "Reimprimir Contrato");
+                }
+            } else {
+                ErrorLog(error.responseText, "Reimprimir Contrato");
+            }
+        },
+        error: function (error) {
+            ErrorLog(error.responseText, "Reimprimir Contrato");
+        }
+    });
+});
+
+// DOCUMENT - SELECT QUE CONTROLA LA SELECCION DE UN MODELO PARA TRAER ESQUEMAS DE FASES [ REGISTRO PREVIO ]
+$(document).on('change', '#pacienteModeloTratamiento', function () {
+    /*if (parseFloat($(this).val()) > 0) {
+        $.ajax({
+            type: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            url: "/Configuracion/ListaFasesTratIdModelo",
+            dataType: 'JSON',
+            data: { IdModelo: parseInt($('#pacienteModeloTratamiento').val()) },
+            beforeSend: function () {
+                LoadingOn("Cargando Parametros...");
+            },
+            success: function (data) {
+                console.log(data);
+                LoadingOff();
+            },
+            error: function (error) {
+                ErrorLog(error.responseText, "Lista Fases Tratamientos");
+            }
+        });
+    }*/
+});
+
 // --------------------------------------------------------
 // FUNCIONES GENERALES
+
+// FUNCION QUE CARGA PARAMETROS DE NUEVO PACIENTE [ PRE-REGISTRO DE PACIENTE ] - [ REGISTRO PREVIO ]
+function nuevoPacienteParams() {
+    $.ajax({
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/Configuracion/ListaModelosTratamiento",
+        dataType: 'JSON',
+        beforeSend: function () {
+            LoadingOn("Cargando Parametros...");
+        },
+        success: function (data) {
+            $(data.Activos).each(function (key, value) {
+                $('#pacienteModeloTratamiento').append("<option value='" + value.IdTratamiento + "'>" + value.NombreTratamiento + "</option>");
+            });
+            LoadingOff();
+        },
+        error: function (error) {
+            ErrorLog(error.responseText, "Lista Modelos Tratamientos");
+        }
+    });
+}
 
 // FUNCION QUE EMPAQUETA LOS DATOS EN EL JSON PARA GUARDAR REGISTRO PACIENTE [ FASE DE COBRO ]
 function generarPacienteDataV1() {
@@ -137,6 +221,8 @@ function generarPacienteDataV1() {
         ParienteNombre: ($('#ingresoParienteNombre').val().trim() !== "") ? $('#ingresoParienteNombre').val().trim() : "--",
         ParienteApellidoP: ($('#ingresoParienteApellidoP').val().trim() !== "") ? $('#ingresoParienteApellidoP').val().trim() : "--",
         ParienteApellidoM: ($('#ingresoParienteApellidoM').val().trim() !== "") ? $('#ingresoParienteApellidoM').val().trim() : "--",
+        ParentescoIndx: $('#parentescoPaciente').val(),
+        Parentesco: $('#parentescoPaciente option:selected').text(),
         TelefonoCasa: (parseFloat($('#ingresoTelefonoCasa').val()) > 0) ? parseFloat($('#ingresoTelefonoCasa').val()) : 0,
         TelefonoPariente: (parseFloat($('#ingresoTelefonoPariente').val()) > 0) ? parseFloat($('#ingresoTelefonoPariente').val()) : 0,
         TelefonoUsuario: (parseFloat($('#ingresoTelefonoUsuario').val()) > 0) ? parseFloat($('#ingresoTelefonoUsuario').val()) : 0,
@@ -154,6 +240,12 @@ function generarPacienteDataV1() {
         TipoEstancia: $('#tiempoEstanciaTipo option:selected').text(),
         TipoEstanciaIndx: $('#tiempoEstanciaTipo').val(),
         TestigoNombre: $('#testigoPaciente').val(),
+        TipoTratamiento: $('#pacienteModeloTratamiento option:selected').text(),
+        TipoTratamientoIndx: $('#pacienteModeloTratamiento').val(),
+        FasesCantTratamiento: "3",
+        FasesCantTratamientoIndx: "FC1",
+        FasesTratamiento: "(INGRESO, PROGRESO, EGRESO)",
+        FasesTratamientoIndx: "FT1"
     };
     registroPacienteFinanzasJSON = {
         MontoPagar: parseFloat($('#pacienteRegistroPago').val()),

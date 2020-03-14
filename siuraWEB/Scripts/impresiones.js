@@ -496,3 +496,294 @@ function imprimirContratoCV(jsonCV, logoIMG) {
         ErrorLog(e.toString(), "Imprimir Contrato");
     }
 }
+
+// FUNCION QUE IMPRIME CONTRATO DE TIPO INVOLUNTARIO
+function imprimirContratoCI(jsonCI, logoIMG) {
+    var contrato = {
+        pageSize: 'LETTER',
+        pageMargins: [50, 60, 50, 70],
+        footer: function (currentPage, pageCount) {
+            return [
+                {
+                    text: [
+                        { text: "\n" },
+                        { text: "Página " + currentPage.toString() + " de " + pageCount.toString(), alignment: 'right' },
+                        { text: "--------------------", color: 'white' }
+                    ], fontSize: 9
+                }
+            ]
+        },
+        content: [
+            {
+                table: {
+                    widths: ['auto', '*', 'auto'],
+                    body: [
+                        [
+                            { image: logoIMG, width: 120, alignment: 'center', border: [false, false, false, false] },
+                            { text: jsonCI.NombreCentro + "\n" + jsonCI.ClaveCentro, bold: true, fontSize: 15, border: [false, false, false, false] },
+                            {
+                                table: {
+                                    widths: [100],
+                                    body: [
+                                        [
+                                            { text: "Folio", fontSize: 11, bold: true, alignment: 'center', fillColor: '#EAEDED' }
+                                        ],
+                                        [
+                                            { text: jsonCI.FolioContrato, fontSize: 10, alignment: 'center' }
+                                        ]
+                                    ]
+                                },
+                                border: [false, false, false, false]
+                            }
+                        ]
+                    ]
+                }
+            },
+            { text: "\n" },
+            { text: "Consentimiento Informado Involuntario Mixto (CIV-M)", fontSize: 15, bold: true, alignment: 'center' },
+            { text: "\n" },
+            {
+                text: [
+                    { text: "Consentimiento Informado de: ", fontSize: 13 },
+                    { text: jsonCI.NombrePaciente, fontSize: 13, bold: true }
+                ],
+            },
+            {
+                text: [
+                    { text: "Info del: ", fontSize: 13 },
+                    { text: jsonCI.NombreCentro, fontSize: 13, bold: true }
+                ],
+            },
+            {
+                text: [
+                    { text: "Revisión: ", fontSize: 13 },
+                    { text: ContratoInvoluntarioRevision, fontSize: 13, bold: true }
+                ],
+            },
+            {
+                text: [
+                    { text: "Versión: ", fontSize: 13 },
+                    { text: ContratoInvoluntarioVersion, fontSize: 13, bold: true }
+                ],
+            },
+            { text: "\n" },
+            {
+                table: {
+                    widths: ['*', 120],
+                    body: [
+                        [
+                            { text: "Título", fontSize: 12, bold: true, alignment: 'left', fillColor: '#EAEDED' },
+                            { text: "Código", fontSize: 12, bold: true, alignment: 'left', fillColor: '#EAEDED' }
+                        ],
+                        [
+                            { text: "Consentimiento Informado", fontSize: 12 },
+                            { text: "FA-02", fontSize: 12 }
+                        ]
+                    ]
+                }
+            },
+            { text: "\n", fontSize: 5 },
+            {
+                table: {
+                    widths: ['auto', 'auto', '*'],
+                    body: [
+                        [
+                            { text: "Expendiente Número", fontSize: 12, bold: true, alignment: 'left', fillColor: '#EAEDED' },
+                            { text: "Fecha y Hora de Ingreso", fontSize: 12, bold: true, alignment: 'left', fillColor: '#EAEDED' },
+                            { text: "Tipo Ingreso", fontSize: 12, bold: true, alignment: 'left', fillColor: '#EAEDED' }
+                        ],
+                        [
+                            { text: "001", fontSize: 12 },
+                            { text: CrearCadOracion(jsonCI.FechaIngreso), fontSize: 12 },
+                            { text: "Voluntario", fontSize: 12 },
+                        ]
+                    ]
+                }
+            },
+            { text: "\n\n" },
+            { text: "Por parte del familiar:", fontSize: 14, bold: true },
+            { text: "\n" },
+            {
+                text: [
+                    { text: "-------------------------", color: 'white' },
+                    { text: "Por medio de la presente, yo " },
+                    { text: jsonCI.FamiliarNombre, bold: true, decoration: 'underline' },
+                    { text: " declaro haber sido informado(a) que el establecimiento " },
+                    { text: jsonCI.NombreCentro, bold: true, decoration: 'underline' },
+                    { text: " ubicado en el domicilio " },
+                    { text: jsonCI.DomicilioDoc, bold: true },
+                    { text: " ofrece un tratamiento residencial por un tiempo de " },
+                    { text: jsonCI.Estancia, bold: true },
+                    { text: ", que tiene la finalidad de brindar atención para el consumo de alcohol o drogas de mi  " },
+                    { text: jsonCI.Parentesco, bold: true },
+                    { text: " de sexo " },
+                    { text: jsonCI.SexoPaciente, bold: true },
+                    { text: " con " },
+                    { text: jsonCI.EdadPaciente, bold: true },
+                    { text: " años de edad. Dicho tratamiento que personalmente he solicitado se basa en un modelo de tratamiento " },
+                    { text: jsonCI.TipoTratamiento, bold: true },
+                    { text: " cuyo objetivo consiste en lograr la abstinencia y la reinserción social, dividido en " },
+                    { text: jsonCI.FasesCantTratamiento, bold: true }, /* <- POSIBLE VARIABLE */
+                    { text: " fases " },
+                    { text: jsonCI.FasesTratamiento, bold: true }, /* <- POSIBLE VARIABLE */
+                    { text: "  con sus etapas y actividades complementarias." },
+                ], alignment: 'justify', fontSize: 12
+            },
+            { text: "\n" },
+            { text: "Estoy de acuerdo en participar activamente durante todo el proceso de tratamiento de mi familiar con la finalidad de lograr su recuperación y facilitar su reinserción, lo que implica proporcionar información veraz y fidedigna al momento de las evaluaciones, para lo cual asistiré a las sesiones que el equipo de atención me indique. En caso necesario y al no obtener los resultados esperados, acepto se me proporcione información por escrito o verbal respecto a otro tipo de alternativas de atención a donde puedo acudir yo o mi familiar.", alignment: 'justify', fontSize: 12 },
+            { text: "Tengo conocimiento de que la relación de mi persona y mi familiar con el personal del establecimiento será únicamente profesional. En caso de que mi familiar necesite atención médica cubriré los gastos que generen los honorarios médicos, los medicamentos que necesite y los servicios de traslado y hospitalización si es necesaria, también me han informado que se me notificará antes de realizar dichos gastos siempre y cuando no se trate de una emergencia, todo en beneficio de que mi familiar tenga acceso a servicios dignos y apropiados durante su estancia.", alignment: 'justify', fontSize: 12 },
+            { text: "\n" },
+            { text: "En el caso de cancelar la permanencia de mi familiar antes de haber cumplido con el período de tratamiento, estoy de acuerdo en cubrir los atrasos en mis aportaciones hasta el momento de su egreso y no reclamar devolución alguna de las aportaciones monetarias o aportaciones en especie dadas por mi persona, amigos, conocidos o familiares en mi nombre.", alignment: 'justify', fontSize: 12 },
+            { text: "\n" },
+            {
+                text: [
+                    { text: "Estoy de acuerdo en que el equipo de " },
+                    { text: jsonCI.NombreCentro, bold: true, decoration: 'underline' },
+                    { text: " recabe los datos, imágenes o videos de mi familiar para su seguridad, expediente electrónico o impreso. Estoy de acuerdo en que todos los datos que se recaben de mi familiar en evaluaciones, test, dinámicas, instrumentos y reportes se utilicen con fines estadísticos, de investigación, control de calidad y cualquier otra forma que considere pertinente, sin que se revele o publique la identidad personal, fotografías o videos de mi familiar, todo esto conforme a la Ley de Protección de Datos Personales. Estoy de acuerdo en visitar a mi familiar en los términos y condiciones que el equipo de " },
+                    { text: jsonCI.NombreCentro, bold: true, decoration: 'underline' },
+                    { text: " considere adecuados para para mi familiar, respetando sus derechos en todo momento." },
+                ], alignment: 'justify', fontSize: 12
+            },
+            { text: "\n" },
+            { text: "También, me comprometo a cumplir con las siguientes aportaciones monetarias: ", alignment: 'justify', fontSize: 12 },
+            { text: "\n" },
+            {
+                text: [
+                    { text: "- Aportación monetaria de ingreso de " },
+                    { text: "$ " + jsonCI.MontoPago.toFixed(2), bold: true, decoration: 'underline' },
+                    { text: ", misma que liquidaré al ingreso." },
+                ], alignment: 'justify', fontSize: 12
+            },
+            { text: "\n" },
+            { text: "En caso de que incumpla con el pago de las aportaciones, tanto de ingreso o periódicas a las cuales me he comprometido, acepto se me llame o requiera mi presencia por motivos de cobranza, en caso de que no acuda a las oficinas y liquide mi adeudo, estoy de acuerdo en que se suspenda el servicio que brinda este establecimiento a mi persona y el residencial a mi familiar, dando con esto por concluida la relación que tengo y tiene mi familiar con el establecimiento en cualquiera de las siguientes situaciones que se mencionan a continuación:", alignment: 'justify', fontSize: 12 },
+            { text: "\n" },
+            { text: "1. Adeudo en aportaciones periódicas o de ingreso por el equivalente a 4 semanas o más.", alignment: 'justify', fontSize: 11 },
+            { text: "2. Adeudo de más de 2 semanas en medicamento, atención médica, atención psicológica, atención psiquiátrica, alimentación especial, gasolina de traslados o cualquier gasto especial que realice el establecimiento en la atención a mi familiar o mi persona.", alignment: 'justify', fontSize: 11 },
+            { text: "\n" },
+            { text: "En caso de que mi familiar abandone las instalaciones del establecimiento sin autorización del responsable por cualquier motivo, se me ha informado que se respetará la aportación de ingreso durante el tiempo que falte para concluir el periodo de tratamiento desde la fecha de ingreso. Confirmo que he sido informado(a) respecto a las características del tratamiento en el que participará mi familiar, los procedimientos, los riesgos que implica, los costos, así como los beneficios esperados, y estoy de acuerdo en los requerimientos necesarios para su aplicación.", alignment: 'justify', fontSize: 12, pageBreak: 'after' },
+            {
+                text: [
+                    { text: "Info del: ", fontSize: 13 },
+                    { text: jsonCI.NombreCentro, fontSize: 13, bold: true }
+                ],
+            },
+            {
+                text: [
+                    { text: "Revisión: ", fontSize: 13 },
+                    { text: ContratoInvoluntarioRevision, fontSize: 13, bold: true }
+                ],
+            },
+            {
+                text: [
+                    { text: "Versión: ", fontSize: 13 },
+                    { text: ContratoInvoluntarioVersion, fontSize: 13, bold: true }
+                ],
+            },
+            { text: "\n\n" },
+            {
+                table: {
+                    widths: ['*', 120],
+                    body: [
+                        [
+                            { text: "Título", fontSize: 12, bold: true, alignment: 'left', fillColor: '#EAEDED' },
+                            { text: "Código", fontSize: 12, bold: true, alignment: 'left', fillColor: '#EAEDED' }
+                        ],
+                        [
+                            { text: "Consentimiento Informado", fontSize: 12 },
+                            { text: "FA-02", fontSize: 12 }
+                        ]
+                    ]
+                }
+            },
+            { text: "\n\n" },
+            { text: "Por parte del establecimiento:", fontSize: 14, bold: true },
+            { text: "\n" },
+            {
+                text: [
+                    { text: "---------------------------------------", color: 'white' },
+                    { text: jsonCI.NombreCentro, bold: true, decoration: 'underline' },
+                    { text: " se compromete a brindar un servicio de atención de calidad que facilite la recuperación y la reinserción del usuario a una vida productiva, garantizando en todo momento el respeto a la integridad del usuario y haciendo valer sus derechos. Se pone de manifiesto que los datos personales del usuario o datos que hagan posible su identificación son de carácter confidencial y sólo tendrán acceso a éstos el equipo involucrado en el proceso terapéutico, por lo que no se revelarán a ningún otro individuo, si no es bajo el consentimiento escrito del usuario, exceptuando los casos previstos por la ley y autoridades sanitarias." },
+                ], alignment: 'justify', fontSize: 12
+            },
+            { text: "\n" },
+            { text: "En el caso de que el usuario presente una condición médica previa al ingreso, el establecimiento dará continuidad al tratamiento médico o farmacológico, suministrando los medicamentos en las dosis y horarios indicados, siempre y cuando éstos sean proporcionados por prescripción médica y existan los estudios y recetas avaladas por un médico certificado y no se contraindique con el tratamiento recibido durante la estancia.", alignment: 'justify', fontSize: 12 },
+            { text: "\n" },
+            { text: "En caso de que el usuario requiera estudios complementarios o el servicio de un médico especializado, se le informará al respecto y se dará aviso a los familiares.", alignment: 'justify', fontSize: 12 },
+            { text: "\n" },
+            { text: "En el caso de que el usuario requiera atención médica urgente, se dará aviso inmediato a los familiares y se trasladará a algún hospital del siguiente nivel de atención.", alignment: 'justify', fontSize: 12 },
+            { text: "\n" },
+            { text: "En caso de que el usuario tenga que ser referido a otra institución, ya sea por el consejero, médico y/o psicólogo se le notificará al usuario, a la familia y/o representante legal.", alignment: 'justify', fontSize: 12 },
+            { text: "\n" },
+            {
+                text: [
+                    { text: "Por otro lado, el establecimiento se exime de toda responsabilidad por los actos en contra de la ley en que el usuario se haya visto involucrado, previo y posterior al tratamiento. En caso de que el usuario abandone las instalaciones sin autorización del responsable, se le notificara a su familia, el " },
+                    { text: jsonCI.NombreCentro, bold: true, decoration: 'underline' },
+                    { text: " se exime de toda responsabilidad en caso de que el usuario abandone las instalaciones sin autorización del responsable." },
+                ], alignment: 'justify', fontSize: 12
+            },
+            { text: "\n" },
+            {
+                text: [
+                    { text: "En el caso de que el usuario o sus familiares presenten alguna duda respecto al proceso de rehabilitación o a cualquier otro asunto relacionado con el mismo, " },
+                    { text: jsonCI.NombreCentro, bold: true, decoration: 'underline' },
+                    { text: " se compromete a aclararla y a proporcionar información relativa al estado de salud del usuario y evolución del tratamiento cada que el familiar directo o representante legal lo solicite." },
+                ], alignment: 'justify', fontSize: 12
+            },
+            { text: "\n" },
+            {
+                text: [
+                    { text: "Finalmente " },
+                    { text: jsonCI.NombreCentro, bold: true, decoration: 'underline' },
+                    { text: " se compromete a proporcionar y a dar lectura del reglamento interno del establecimiento al usuario, familiar y/o responsable legal." },
+                ], alignment: 'justify', fontSize: 12
+            },
+            { text: "\n" },
+            {
+                text: [
+                    { text: "Siendo el " },
+                    { text: CrearCadOracion(jsonCI.FechaFirma) + ", en ", bold: true },
+                    { text: jsonCI.Municipio + ", " + CrearCadOracion(jsonCI.Estado.toLowerCase()) + ", México", bold: true },
+                    { text: " y habiendo sido informado y aceptando los compromisos anteriormente expuestos. Firman el presente consentimiento." },
+                ], alignment: 'justify', fontSize: 12
+            },
+            { text: "\n\n\n\n\n" },
+            {
+                text: [
+                    { text: "____________________________________________\n" },
+                    { text: jsonCI.NombreCentro + "\n", bold: true, decoration: 'underline' },
+                    { text: jsonCI.NombreDirector, fontSize: 11, bold: true },
+                    { text: "\nDIRECTOR", fontSize: 10 },
+                ], alignment: 'center'
+            },
+            { text: "\n\n\n" },
+            {
+                table: {
+                    widths: ['*', '*'],
+                    body: [
+                        [
+                            {
+                                text: [
+                                    { text: "___________________________________\n" },
+                                    { text: jsonCI.NombrePaciente, bold: true },
+                                    { text: "\nPACIENTE", fontSize: 10 },
+                                ], alignment: 'center', border: [false, false, false, false]
+                            },
+                            {
+                                text: [
+                                    { text: "___________________________________\n" },
+                                    { text: jsonCI.Testigo, bold: true },
+                                    { text: "\nTESTIGO", fontSize: 10 },
+                                ], alignment: 'center', border: [false, false, false, false]
+                            },
+                        ]
+                    ]
+                }
+            },
+        ]
+    }
+    try {
+        pdfMake.createPdf(contrato).open();
+    } catch (e) {
+        ErrorLog(e.toString(), "Imprimir Contrato");
+    }
+}

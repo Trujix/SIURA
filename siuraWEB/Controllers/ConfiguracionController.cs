@@ -240,5 +240,54 @@ namespace siuraWEB.Controllers
                 return e.ToString();
             }
         }
+
+        // :::::::::::::: MENU CATALOGOS ::::::::::::::
+        // ENTRADA PRINCIPAL DE VISTA [ CATALOGOS ]
+        public ActionResult Catalogos()
+        {
+            return View();
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE MODELOS DE TRATAMIENTO [ CATALOGOS ]
+        public string ListaModelosTratamiento()
+        {
+            return MiConfiguracion.ListaModelosTratamiento((string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE DA DE ALTA UN NUEVO MODELO DE TRATAMIENTO [ CATALOGOS ]
+        public string GuardarModeloTratamiento(string NombreModelo)
+        {
+            return MiConfiguracion.GuardarModeloTratamiento(NombreModelo, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE ACTUALIZA UN MODELO DE TRATAMIENTO [ CATALOGOS ]
+        public string ActModeloTratamiento(MConfiguracion.ModelosTratamiento ModeloTratamientoInfo)
+        {
+            return MiConfiguracion.ActModeloTratamiento(ModeloTratamientoInfo, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE LOS FASES DE TRATAMIENTOS [ CATALOGOS ]
+        public string ListaFasesTratamientos()
+        {
+            return MiConfiguracion.ListaFasesTratamiento((string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE DEVUELVE LISTA DE FASES DE TRATAMIENTOS POR ID DE MODELO (INCLUIDO LOS NO ANEXADOS A MODELO) [ CATALOGOS ]
+        public string ListaFasesTratIdModelo(int IdModelo)
+        {
+            return MiConfiguracion.ListaFasesTratIdModelo(IdModelo, (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE GUARDA LOS VALORES DE LOS FASES DE TRATAMIENTO [ CATALOGOS ]
+        public string GuardarFasesTratamiento(MConfiguracion.Fases FasesInfo, MConfiguracion.FasesNombres[] FasesNombres, MConfiguracion.FasesTipos[] FasesTipo)
+        {
+            return MiConfiguracion.GuardarFasesTratamiento(FasesInfo, FasesNombres, FasesTipo, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE ELIMINA UN ESQUEMA DE FASES DE TRATAMIENTO [ CATALOGOS ]
+        public string ActDesFasesTratamiento(int IdFase, int Estatus)
+        {
+            return MiConfiguracion.ActDesFasesTratamiento(IdFase, Estatus,(string)Session["Token"], (string)Session["TokenCentro"]);
+        }
     }
 }

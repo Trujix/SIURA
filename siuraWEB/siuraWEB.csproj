@@ -2110,6 +2110,7 @@
     <Content Include="Views\Dinamicos\Pagos.cshtml" />
     <Content Include="Views\Configuracion\MiCentro.cshtml" />
     <Content Include="Views\Documentacion\PreRegistros.cshtml" />
+    <Content Include="Views\Configuracion\Catalogos.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -44,6 +44,26 @@ namespace siuraWEB.Models
             public string Municipio { get; set; }
             public string Director { get; set; }
         }
+        public class ModelosTratamiento
+        {
+            public int IdModeloTratamiento { get; set; }
+            public string NombreModelo { get; set; }
+            public int Estatus { get; set; }
+        }
+        public class Fases
+        {
+            public int IdFase { get; set; }
+            public int CantidadFases { get; set; }
+            public int IdModelo { get; set; }
+        }
+        public class FasesNombres
+        {
+            public string NombreFase { get; set; }
+        }
+        public class FasesTipos
+        {
+            public string NombreTipo { get; set; }
+        }
 
         // ----------- FUNCIONES GENERALES -----------
         // FUNCION QUE DEVUELVE LA INFO DEL CENTRO [ MI CENTRO ]
@@ -258,6 +278,470 @@ namespace siuraWEB.Models
                     new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = docinformativo.TokenUsuario }
                 };
                 SQL.commandoSQL.Parameters.AddRange(altaDocInformativo);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE DEVUELVE  LA LISTA DE MODELOS DE TRATAMIENTO [ CATALOGOS ]
+        public string ListaModelosTratamiento(string tokencentro){
+            try
+            {
+                SQL.comandoSQLTrans("ModelosTratamiento");
+                Dictionary<string, object> ModelosTratamientos = new Dictionary<string, object>();
+                List<object> ModeloTratamientoACT = new List<object>(), ModeloTratamientoDESC = new List<object>();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.modelostratamientos WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        if(int.Parse(lector["estatus"].ToString()) > 0)
+                        {
+                            ModeloTratamientoACT.Add(new Dictionary<string, object>()
+                            {
+                                { "IdTratamiento", int.Parse(lector["id"].ToString()) },
+                                { "NombreTratamiento", lector["nombretratamiento"].ToString() },
+                                { "Estatus", int.Parse(lector["estatus"].ToString()) },
+                            });
+                        }
+                        else
+                        {
+                            ModeloTratamientoDESC.Add(new Dictionary<string, object>()
+                            {
+                                { "NombreTratamiento", lector["nombretratamiento"].ToString() },
+                                { "Estatus", int.Parse(lector["estatus"].ToString()) },
+                            });
+                        }
+                    }
+                }
+                ModelosTratamientos = new Dictionary<string, object>() {
+                    { "Activos", ModeloTratamientoACT },
+                    { "Inactivo", ModeloTratamientoDESC }
+                };
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(ModelosTratamientos);
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ALMACENA UN NUEVO MODELO DE TRATAMIENTO [ CATALOGOS ]
+        public string GuardarModeloTratamiento(string nombremodelo, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ModeloTratamiento");
+                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.modelostratamientos (idcentro, nombretratamiento, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @NombreModeloParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam))", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] altaModeloTratamiento =
+                {
+                    new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro },
+                    new SqlParameter("@NombreModeloParam", SqlDbType.VarChar) { Value = nombremodelo },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = tokenusuario }
+                };
+                SQL.commandoSQL.Parameters.AddRange(altaModeloTratamiento);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ACTUALIZA UN MODELO DE TRATAMIENTO [ CATALOGOS ]
+        public string ActModeloTratamiento(ModelosTratamiento modelotratamientoinfo, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ActModeloTratamiento");
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.modelostratamientos SET nombretratamiento = @NombreModeloParam, estatus = @EstatusParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam) WHERE id = @IdModeloTratamientoParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam)", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] altaModeloTratamiento =
+                {
+                    new SqlParameter("@NombreModeloParam", SqlDbType.VarChar) { Value = modelotratamientoinfo.NombreModelo },
+                    new SqlParameter("@EstatusParam", SqlDbType.Int) { Value = modelotratamientoinfo.Estatus },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = tokenusuario },
+                    new SqlParameter("@IdModeloTratamientoParam", SqlDbType.Int) { Value = modelotratamientoinfo.IdModeloTratamiento },
+                    new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro },
+                };
+                SQL.commandoSQL.Parameters.AddRange(altaModeloTratamiento);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE FASESDE TRATAMIENTOS [ CATALOGOS ]
+        public string ListaFasesTratamiento(string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ListaFasesTratamiento");
+
+                List<Dictionary<string, object>> FasesTratamiento = new List<Dictionary<string, object>>();
+                List<Fases> FasesLista = new List<Fases>();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.fasestratamientos WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND estatus > 0", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        Fases Fase = new Fases();
+                        Fase.IdFase = int.Parse(lector["id"].ToString());
+                        Fase.CantidadFases = int.Parse(lector["cantidadfases"].ToString());
+                        Fase.IdModelo = int.Parse(lector["idmodelo"].ToString());
+                        FasesLista.Add(Fase);
+                    }
+                }
+
+                foreach(Fases fase in FasesLista)
+                {
+                    string ModeloNombre = "";
+                    if(fase.IdModelo > 0)
+                    {
+                        SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.modelostratamientos WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND id = (SELECT idmodelo FROM dbo.fasestratamientos WHERE id = @IDFaseDATA AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA))", SQL.conSQL, SQL.transaccionSQL);
+                        SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                        SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDFaseDATA", SqlDbType.Int) { Value = fase.IdFase });
+                        using (var lector = SQL.commandoSQL.ExecuteReader())
+                        {
+                            while (lector.Read())
+                            {
+                                ModeloNombre = lector["nombretratamiento"].ToString();
+                            }
+                        }
+                    }
+
+                    string FasesNombres = "";
+                    List<string> FasesNombresLista = new List<string>();
+                    SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.fasesnombres WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND idfases = @IDFaseDATA", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDFaseDATA", SqlDbType.Int) { Value = fase.IdFase });
+                    using (var lector = SQL.commandoSQL.ExecuteReader())
+                    {
+                        while (lector.Read())
+                        {
+                            if(FasesNombres!= "")
+                            {
+                                FasesNombres += ", ";
+                            }
+                            FasesNombres += lector["nombrefase"].ToString();
+                            FasesNombresLista.Add(lector["nombrefase"].ToString());
+                        }
+                    }
+
+                    string FasesTipo = "";
+                    List<string> FasesTipoLista = new List<string>();
+                    SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.fasestipos WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND idfases = @IDFaseDATA", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDFaseDATA", SqlDbType.Int) { Value = fase.IdFase });
+                    using (var lector = SQL.commandoSQL.ExecuteReader())
+                    {
+                        while (lector.Read())
+                        {
+                            if (FasesTipo != "")
+                            {
+                                FasesTipo += ", ";
+                            }
+                            FasesTipo += lector["nombretipo"].ToString();
+                            FasesTipoLista.Add(lector["nombretipo"].ToString());
+                        }
+                    }
+
+                    FasesTratamiento.Add(new Dictionary<string, object>()
+                    {
+                        { "IdFase", fase.IdFase },
+                        { "CantidadFases", fase.CantidadFases },
+                        { "IdModelo", fase.IdModelo },
+                        { "FasesNombres", FasesNombresLista },
+                        { "FasesNombresTxt", fase.CantidadFases.ToString() + " (" + FasesNombres + ")" + ((ModeloNombre != "") ? " - [" + ModeloNombre + "]" : "") },
+                        { "FasesTipos", FasesTipoLista },
+                        { "FasesTiposTxt", FasesTipo }
+                    });
+                }
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(FasesTratamiento);
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE DEVUELVE LISTA DE FASES DE TRATAMIENTOS POR ID DE MODELO (INCLUIDO LOS NO ANEXADOS A MODELO) [ CATALOGOS ]
+        public string ListaFasesTratIdModelo(int idmodelo, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ListaFasesTratIdModelo");
+
+                List<Fases> FasesModelo = new List<Fases>();
+                int fm = 0, fsm = 0;
+                List<Fases> FasesSinModelo = new List<Fases>();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.fasestratamientos WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND estatus > 0 AND (idmodelo = @IDModeloParam OR idmodelo = 0)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDModeloParam", SqlDbType.VarChar) { Value = idmodelo });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        Fases Fase = new Fases();
+                        Fase.IdFase = int.Parse(lector["id"].ToString());
+                        Fase.CantidadFases = int.Parse(lector["cantidadfases"].ToString());
+                        if(int.Parse(lector["idmodelo"].ToString()) == idmodelo)
+                        {
+                            FasesModelo.Add(Fase);
+                            fm++;
+                        }
+                        else
+                        {
+                            FasesSinModelo.Add(Fase);
+                            fsm++;
+                        }
+                    }
+                }
+
+                Dictionary<string, object> FasesJSON = new Dictionary<string, object>();
+                List<Dictionary<string, object>> FasesLista = new List<Dictionary<string, object>>();
+                if (fm > 0)
+                {
+                    foreach(Fases fase in FasesModelo)
+                    {
+                        string FasesNombres = "";
+                        SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.fasesnombres WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND idfases = @IDFaseDATA", SQL.conSQL, SQL.transaccionSQL);
+                        SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                        SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDFaseDATA", SqlDbType.Int) { Value = fase.IdFase });
+                        using (var lector = SQL.commandoSQL.ExecuteReader())
+                        {
+                            while (lector.Read())
+                            {
+                                if (FasesNombres != "")
+                                {
+                                    FasesNombres += ", ";
+                                }
+                                FasesNombres += lector["nombrefase"].ToString();
+                            }
+                        }
+                        FasesLista.Add(new Dictionary<string, object>()
+                        {
+                            { "IdFase", fase.IdFase },
+                            { "CantidadFases", fase.CantidadFases },
+                            { "FasesNombres", "(" + FasesNombres + ")" },
+                            { "FasesNombresTxt", fase.CantidadFases.ToString() + " (" + FasesNombres + ")" }
+                        });
+                    }
+                }
+                FasesJSON.Add("Relacionado", FasesLista);
+
+                FasesLista = new List<Dictionary<string, object>>();
+                if (fsm > 0)
+                {
+                    foreach (Fases fase in FasesSinModelo)
+                    {
+                        string FasesNombres = "";
+                        SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.fasesnombres WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND idfases = @IDFaseDATA", SQL.conSQL, SQL.transaccionSQL);
+                        SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                        SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDFaseDATA", SqlDbType.Int) { Value = fase.IdFase });
+                        using (var lector = SQL.commandoSQL.ExecuteReader())
+                        {
+                            while (lector.Read())
+                            {
+                                if (FasesNombres != "")
+                                {
+                                    FasesNombres += ", ";
+                                }
+                                FasesNombres += lector["nombrefase"].ToString();
+                            }
+                        }
+                        FasesLista.Add(new Dictionary<string, object>()
+                        {
+                            { "IdFase", fase.IdFase },
+                            { "CantidadFases", fase.CantidadFases },
+                            { "FasesNombres", "(" + FasesNombres + ")" },
+                            { "FasesNombresTxt", fase.CantidadFases.ToString() + " (" + FasesNombres + ")" }
+                        });
+                    }   
+                }
+                FasesJSON.Add("NoRelacionado", FasesLista);
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(FasesJSON);
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE GUARDA LAS FASES DE TRATAMIENTOS [ CATALOGOS ]
+        public string GuardarFasesTratamiento(Fases fasesinfo, FasesNombres[] fasesnombres, FasesTipos[] fasestipos, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("FaseTratamiento");
+                if(fasesinfo.IdFase > 0)
+                {
+
+                    SQL.commandoSQL = new SqlCommand("UPDATE dbo.fasestratamientos SET idmodelo = @IDModeloParam, cantidadfases = @CantFasesParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam) WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam) AND id = @IDFaseParam", SQL.conSQL, SQL.transaccionSQL);
+                    SqlParameter[] altaFaseNombre =
+                    {
+                        new SqlParameter("@CantFasesParam", SqlDbType.Int) { Value = fasesinfo.CantidadFases },
+                        new SqlParameter("@IDModeloParam", SqlDbType.Int) { Value = fasesinfo.IdModelo },
+                        new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                        new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = tokenusuario },
+                        new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro },
+                        new SqlParameter("@IDFaseParam", SqlDbType.Int) { Value = fasesinfo.IdFase },
+                    };
+                    SQL.commandoSQL.Parameters.AddRange(altaFaseNombre);
+                    SQL.commandoSQL.ExecuteNonQuery();
+
+                    SQL.commandoSQL = new SqlCommand("DELETE FROM dbo.fasesnombres WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam) AND idfases = @IDFaseParam", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro });
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDFaseParam", SqlDbType.Int) { Value = fasesinfo.IdFase });
+                    SQL.commandoSQL.ExecuteNonQuery();
+
+                    SQL.commandoSQL = new SqlCommand("DELETE FROM dbo.fasestipos WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam) AND idfases = @IDFaseParam", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro });
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDFaseParam", SqlDbType.Int) { Value = fasesinfo.IdFase });
+                    SQL.commandoSQL.ExecuteNonQuery();
+                }
+                else
+                {
+                    SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.fasestratamientos (idcentro, idmodelo, cantidadfases, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @IDModeloParam, @CantFasesParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam))", SQL.conSQL, SQL.transaccionSQL);
+                    SqlParameter[] altaFaseTratamiento =
+                    {
+                        new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro },
+                        new SqlParameter("@IDModeloParam", SqlDbType.Int) { Value = fasesinfo.IdModelo },
+                        new SqlParameter("@CantFasesParam", SqlDbType.Int) { Value = fasesinfo.CantidadFases },
+                        new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                        new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = tokenusuario },
+                    };
+                    SQL.commandoSQL.Parameters.AddRange(altaFaseTratamiento);
+                    SQL.commandoSQL.ExecuteNonQuery();
+                }
+
+                int IdFase = 0;
+                SQL.commandoSQL = new SqlCommand("SELECT MAX(id) AS Maximo FROM dbo.fasestratamientos", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        IdFase = int.Parse(lector["Maximo"].ToString());
+                    }
+                }
+
+                foreach (FasesNombres fasenombre in fasesnombres)
+                {
+                    SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.fasesnombres (idcentro, idfases, nombrefase, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @IDFaseParam, @NombreFaseParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam))", SQL.conSQL, SQL.transaccionSQL);
+                    SqlParameter[] altaFaseNombre =
+                    {
+                        new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro },
+                        new SqlParameter("@IDFaseParam", SqlDbType.Int) { Value = IdFase },
+                        new SqlParameter("@NombreFaseParam", SqlDbType.VarChar) { Value = fasenombre.NombreFase },
+                        new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                        new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = tokenusuario },
+                    };
+                    SQL.commandoSQL.Parameters.AddRange(altaFaseNombre);
+                    SQL.commandoSQL.ExecuteNonQuery();
+                }
+
+                if (fasestipos != null)
+                {
+                    foreach (FasesTipos fasetipo in fasestipos)
+                    {
+                        SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.fasestipos (idcentro, idfases, nombretipo, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @IDFaseParam, @NombreTipoParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam))", SQL.conSQL, SQL.transaccionSQL);
+                        SqlParameter[] altaFaseTipo =
+                        {
+                            new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro },
+                            new SqlParameter("@IDFaseParam", SqlDbType.Int) { Value = IdFase },
+                            new SqlParameter("@NombreTipoParam", SqlDbType.VarChar) { Value = fasetipo.NombreTipo },
+                            new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                            new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = tokenusuario },
+                        };
+                        SQL.commandoSQL.Parameters.AddRange(altaFaseTipo);
+                        SQL.commandoSQL.ExecuteNonQuery();
+                    }
+                }
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ELIMINA  UN ESQUEMA DE FASES DE TRATAMIENTOS [ CATALOGOS ]
+        public string ActDesFasesTratamiento(int idfase, int estatus, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ActDesFaseTratamiento");
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.fasestratamientos SET estatus = @EstatusParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioDATA) WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND id = @IDFaseParam", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] actDesFase =
+                {
+                    new SqlParameter("@EstatusParam", SqlDbType.Int) { Value = estatus },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioDATA", SqlDbType.VarChar) { Value = tokenusuario },
+                    new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro },
+                    new SqlParameter("@IDFaseParam", SqlDbType.Int) { Value = idfase },
+                };
+                SQL.commandoSQL.Parameters.AddRange(actDesFase);
                 SQL.commandoSQL.ExecuteNonQuery();
 
                 SQL.transaccionSQL.Commit();

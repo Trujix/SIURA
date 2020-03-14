@@ -45,8 +45,9 @@ namespace siuraWEB.Models
                     {
                         Dictionary<string, object> paciente = new Dictionary<string, object>()
                         {
-                            { "IdUsuario", int.Parse(lector["id"].ToString()) },
+                            { "IdPaciente", int.Parse(lector["id"].ToString()) },
                             { "Nombre", lector["nombre"].ToString() },
+                            { "ClavePaciente", lector["idpaciente"].ToString() },
                             { "ApellidoP", lector["apellidopaterno"].ToString() },
                             { "ApellidoM", lector["apellidomaterno"].ToString() },
                             { "Estatus", int.Parse(lector["estatus"].ToString()) },

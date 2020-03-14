@@ -75,6 +75,22 @@ namespace siuraWEB.Controllers
             return JsonConvert.SerializeObject(RespuestaLista);
         }
 
+        // FUNCION QUE REIMPRIME UN CONTRATO DE UN PACIENTE - PREREGISTRO [ REGISTRO PREVIO ]
+        public string ReimprimirContrato(int IDPaciente)
+        {
+            string Contrato = MiDocumentacion.ReimprimirContrato(IDPaciente, (string)Session["TokenCentro"]);
+            List<object> RespuestaLista = new List<object>();
+            if (Contrato.IndexOf("«~LOGOPERS~»") >= 0)
+            {
+                RespuestaLista.Add(System.IO.File.ReadAllText(Server.MapPath("~/Docs/" + (string)Session["TokenCentro"] + "/logocentro.json")));
+            }
+            else
+            {
+                RespuestaLista.Add(System.IO.File.ReadAllText(Server.MapPath("~/Media/logoalanon.json")));
+            }
+            RespuestaLista.Add(Contrato.Replace("«~LOGOPERS~»", "").Replace("«~LOGOALANON~»", ""));
+            return JsonConvert.SerializeObject(RespuestaLista);
+        }
 
         // ::::::::::::::::::::::::::: [ ADMINISTRACION ] :::::::::::::::::::::::::::
         // FUNCION QUE TRAE LA LISTA DE PACIENTES  CON PAGOS PENDITES
