@@ -7,6 +7,10 @@ var registroPacienteJSON = {};
 var registroIngresoJSON = {};
 var registroPacienteFinanzasJSON = {};
 
+var registroFasesModeloJSON = [];
+var registroFasesNoModeloJSON = [];
+var registroFasesNombresJSON = {};
+
 // --------------------------------------------------------
 // FUNCIONES TIPO DOCUMENT (BUTTONS, INPUTS, TEXTAREAS ETC)
 
@@ -149,7 +153,8 @@ $(document).on('click', '.reimprimircontrato', function () {
 
 // DOCUMENT - SELECT QUE CONTROLA LA SELECCION DE UN MODELO PARA TRAER ESQUEMAS DE FASES [ REGISTRO PREVIO ]
 $(document).on('change', '#pacienteModeloTratamiento', function () {
-    /*if (parseFloat($(this).val()) > 0) {
+    $('#pacienteFasesTratamiento').html('<option value="-1">- Eliga Fase de Tratamiento -</option>');
+    if (parseFloat($(this).val()) > 0) {
         $.ajax({
             type: "POST",
             contentType: "application/x-www-form-urlencoded",
@@ -158,16 +163,29 @@ $(document).on('change', '#pacienteModeloTratamiento', function () {
             data: { IdModelo: parseInt($('#pacienteModeloTratamiento').val()) },
             beforeSend: function () {
                 LoadingOn("Cargando Parametros...");
+                registroFasesNombresJSON = {};
             },
             success: function (data) {
-                console.log(data);
+                registroFasesModeloJSON = data.Relacionado;
+                registroFasesNoModeloJSON = data.NoRelacionado;
+                var conModelo = "", sinModelo = "", opciones = "";
+                $(data.Relacionado).each(function (key, value) {
+                    conModelo += '<option value="' + value.IdFase + '" cant="' + value.CantidadFases + '" fasesnombres="' + value.FasesNombres + '">' + value.FasesNombresTxt + '</option>';
+                    registroFasesNombresJSON["Fases_" + value.IdFase] = value.FasesNombres;
+                });
+                $(data.NoRelacionado).each(function (key, value) {
+                    sinModelo += '<option value="' + value.IdFase + '" cant="' + value.CantidadFases + '" fasesnombres="' + value.FasesNombres + '">' + value.FasesNombresTxt + '</option>';
+                    registroFasesNombresJSON["Fases_" + value.IdFase] = value.FasesNombres;
+                });
+                opciones = ((conModelo !== "") ? '<optgroup label="Relacionadas al Modelo">' + conModelo + '</optgroup>' : "") + ((sinModelo !== "") ? '<optgroup label="Sin Relacionar">' + sinModelo + '</optgroup>' : "");
+                $('#pacienteFasesTratamiento').append(opciones);
                 LoadingOff();
             },
             error: function (error) {
                 ErrorLog(error.responseText, "Lista Fases Tratamientos");
             }
         });
-    }*/
+    }
 });
 
 // --------------------------------------------------------
@@ -242,10 +260,10 @@ function generarPacienteDataV1() {
         TestigoNombre: $('#testigoPaciente').val(),
         TipoTratamiento: $('#pacienteModeloTratamiento option:selected').text(),
         TipoTratamientoIndx: $('#pacienteModeloTratamiento').val(),
-        FasesCantTratamiento: "3",
-        FasesCantTratamientoIndx: "FC1",
-        FasesTratamiento: "(INGRESO, PROGRESO, EGRESO)",
-        FasesTratamientoIndx: "FT1"
+        FasesCantTratamiento: $('#pacienteFasesTratamiento option:selected').attr("cant"),
+        FasesCantTratamientoIndx: $('#pacienteFasesTratamiento').val(),
+        FasesTratamiento: registroFasesNombresJSON["Fases_" + $('#pacienteFasesTratamiento').val()],
+        FasesTratamientoIndx: $('#pacienteFasesTratamiento').val()
     };
     registroPacienteFinanzasJSON = {
         MontoPagar: parseFloat($('#pacienteRegistroPago').val()),
