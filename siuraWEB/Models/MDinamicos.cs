@@ -20,6 +20,13 @@ namespace siuraWEB.Models
             public string TipoPago { get; set; }
             public string FolRefDesc { get; set; }
         }
+        // CLASE DE CARGOS ADICIONALES
+        public class CargoAdicional
+        {
+            public int IdFinanzas { get; set; }
+            public double Importe { get; set; }
+            public string Descripcion { get; set; }
+        }
 
         // ---------- FUNCIONES --------------
 
@@ -77,6 +84,41 @@ namespace siuraWEB.Models
             try
             {
                 SQL.comandoSQLTrans("PacientePagosLista");
+                bool Becario = false;
+                string BecaValor = "", BecaTipo = "";
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacienteregistrofinanzas WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND id = @IdFinanzasParam", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] pacienteFinanzasConsulta =
+                {
+                    new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar){Value = tokencentro },
+                    new SqlParameter("@IdFinanzasParam", SqlDbType.Int){Value = idfinanzas }
+                };
+                SQL.commandoSQL.Parameters.AddRange(pacienteFinanzasConsulta);
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        Becario = bool.Parse(lector["becario"].ToString());
+                        BecaValor = lector["becavalor"].ToString();
+                        BecaTipo = lector["becatipo"].ToString();
+                    }
+                }
+
+                string IDClavePaciente = "";
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacienteregistro WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND id = (SELECT idpaciente FROM dbo.pacienteregistrofinanzas WHERE id = @IdFinanzasParam)", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] pacienteInfoConsulta =
+                {
+                    new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar){Value = tokencentro },
+                    new SqlParameter("@IdFinanzasParam", SqlDbType.Int){Value = idfinanzas }
+                };
+                SQL.commandoSQL.Parameters.AddRange(pacienteInfoConsulta);
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        IDClavePaciente = lector["idpaciente"].ToString();
+                    }
+                }
+
                 List<Dictionary<string, object>> ListaPagos = new List<Dictionary<string, object>>();
                 SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacienteregistropagos WHERE idfinanzas = @IdFinanzasParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
                 SqlParameter[] pagosPacienteFinanzas =
@@ -102,8 +144,46 @@ namespace siuraWEB.Models
                     }
                 }
 
+                List<Dictionary<string, object>> ListaCargos = new List<Dictionary<string, object>>();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacientecargosadicionales WHERE idfinanzas = @IdFinanzasParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] cargosPacienteFinanzas =
+                {
+                    new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar){Value = tokencentro },
+                    new SqlParameter("@IdFinanzasParam", SqlDbType.Int){Value = idfinanzas }
+                };
+                SQL.commandoSQL.Parameters.AddRange(cargosPacienteFinanzas);
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        Dictionary<string, object> Cargo = new Dictionary<string, object>()
+                        {
+                            { "Folio", lector["folio"].ToString() },
+                            { "IdCargo", int.Parse(lector["id"].ToString()) },
+                            { "FechaRegistro", lector["fechahora"].ToString() },
+                            { "Descripcion", lector["descripcion"].ToString() },
+                            { "Importe", double.Parse(lector["importe"].ToString()) },
+                            { "CargoInicial", bool.Parse(lector["cargoinicial"].ToString()) },
+                            { "Pagado", bool.Parse(lector["pagado"].ToString()) }
+                        };
+                        ListaCargos.Add(Cargo);
+                    }
+                }
+
+                Dictionary<string, object> ListaFinanzasPaciente = new Dictionary<string, object>()
+                {
+                    { "Pagos", ListaPagos },
+                    { "Cargos", ListaCargos },
+                    { "Becario", Becario },
+                    { "BecaValor", BecaValor },
+                    { "BecaTipo", BecaTipo },
+                    { "BecaComprobante", "«~BECAçCOMPROBANTE~»" },
+                    { "UrlFolderUsuario", "«~URLçUSUARIO~»" },
+                    { "ClavePaciente", IDClavePaciente },
+                };
+
                 SQL.transaccionSQL.Commit();
-                return JsonConvert.SerializeObject(ListaPagos);
+                return JsonConvert.SerializeObject(ListaFinanzasPaciente) + "⌂" + IDClavePaciente;
             }
             catch (Exception e)
             {
@@ -255,6 +335,40 @@ namespace siuraWEB.Models
 
                 SQL.transaccionSQL.Commit();
                 return JsonConvert.SerializeObject(recibo) + LogoCad;
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE GENERA UN NUEVO CARGO ADICIONAL
+        public string NuevoCargoAdicional(CargoAdicional cargoadicional, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("NuevoCargoAdicional");
+                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.pacientecargosadicionales (idcentro, idfinanzas, folio, descripcion, importe, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA), @IdFinanzasParam, @FolioParam, @DescripcionParam, @ImporteParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenParam))", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] cargoAdicional =
+                {
+                    new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar){Value = tokencentro },
+                    new SqlParameter("@IdFinanzasParam", SqlDbType.Int){Value = cargoadicional.IdFinanzas },
+                    new SqlParameter("@FolioParam", SqlDbType.VarChar){Value = "CA-" + MISC.CrearCadAleatoria(2, 8).ToUpper() },
+                    new SqlParameter("@DescripcionParam", SqlDbType.VarChar){Value = cargoadicional.Descripcion },
+                    new SqlParameter("@ImporteParam", SqlDbType.Float){Value = cargoadicional.Importe },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime){Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenParam", SqlDbType.VarChar){Value = tokenusuario },
+                };
+                SQL.commandoSQL.Parameters.AddRange(cargoAdicional);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
             }
             catch (Exception e)
             {

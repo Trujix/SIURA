@@ -85,7 +85,7 @@ function imprimirReciboPago(reciboData, logoIMG) {
                             { text: "MONTO", alignment: 'center', border: [false, true, true, true] }
                         ],
                         [
-                            { text: "\n\nServicios de rehabilitación, atención médica y terapéutica\n\n\n\n", alignment: 'center', bold: true, border: [true, true, false, true] },
+                            { text: reciboData.ConceptoPago, alignment: 'center', bold: true, border: [true, true, false, true] },
                             { text: "$ " + reciboData.MontoPago.toFixed(2), fillColor: '#EAEDED', alignment: 'center', border: [false, true, true, true] }
                         ]
                     ]
@@ -190,6 +190,31 @@ function imprimirReciboPago(reciboData, logoIMG) {
 
 // FUNCION QUE IMPRIME CONTRATO DE TIPO VOLUNTARIO
 function imprimirContratoCV(jsonCV, logoIMG) {
+    var pagoPacienteJSON = {
+        text: [
+            { text: "Aportación monetaria de ingreso de " },
+            { text: "$ " + jsonCV.MontoPago.toFixed(2), bold: true, decoration: 'underline' },
+            { text: " " + jsonCV.TipoMoneda, bold: true },
+            { text: ", misma que liquidaré al ingreso." },
+        ], alignment: 'justify', fontSize: 12
+    };
+    if (jsonCV.Parcialidad) {
+        pagoPacienteJSON = {
+            text: [
+                { text: "Aportaciones monetarias con una periodicidad " },
+                { text: jsonCV.TipoPago, bold: true },
+                { text: " dividida en " },
+                { text: jsonCV.CantidadPagos.toString(), bold: true },
+                { text: " exhibiciones de " },
+                { text: "$ " + jsonCV.MontoPagoParcial.toFixed(2), bold: true, decoration: 'underline' },
+                { text: " " + jsonCV.TipoMoneda, bold: true },
+                { text: ", las cuales comenzarán el día " },
+                { text: CrearCadOracion(jsonCV.FechaInicioPago), bold: true },
+                { text: " y finalizan el día " },
+                { text: CrearCadOracion(jsonCV.FechaFinPago) + ".", bold: true },
+            ], alignment: 'justify', fontSize: 12
+        };
+    }
     var contrato = {
         pageSize: 'LETTER',
         pageMargins: [50, 60, 50, 70],
@@ -327,14 +352,9 @@ function imprimirContratoCV(jsonCV, logoIMG) {
             { text: "\n" },
             { text: "Por otra parte, me comprometo a cumplir con las siguientes aportaciones monetarias:", alignment: 'justify', fontSize: 12 },
             { text: "\n" },
-            {
-                text: [
-                    { text: "Aportación monetaria de ingreso de " },
-                    { text: "$ " + jsonCV.MontoPago.toFixed(2), bold: true },
-                    { text: " " + jsonCV.TipoMoneda, bold: true },
-                    { text: ", misma que liquidaré al ingreso." },
-                ], alignment: 'justify', fontSize: 12
-            },
+
+            pagoPacienteJSON,
+
             { text: "\n" },
             { text: "En caso de necesitar atención médica, previo aviso, cubriré los gastos que generen los honorarios médicos, los medicamentos que necesite y los servicios de traslado y hospitalización si es necesaria, todo en beneficio de tener acceso a servicios dignos y apropiados durante mi estancia.", alignment: 'justify', fontSize: 12 },
             { text: "\n" },
@@ -499,6 +519,30 @@ function imprimirContratoCV(jsonCV, logoIMG) {
 
 // FUNCION QUE IMPRIME CONTRATO DE TIPO INVOLUNTARIO
 function imprimirContratoCI(jsonCI, logoIMG) {
+    var pagoPacienteJSON = {
+        text: [
+            { text: "- Aportación monetaria de ingreso de " },
+            { text: "$ " + jsonCI.MontoPago.toFixed(2), bold: true, decoration: 'underline' },
+            { text: ", misma que liquidaré al ingreso." },
+        ], alignment: 'justify', fontSize: 12
+    };
+    if (jsonCI.Parcialidad) {
+        pagoPacienteJSON = {
+            text: [
+                { text: "Aportaciones monetarias con una periodicidad " },
+                { text: jsonCI.TipoPago, bold: true },
+                { text: " dividida en " },
+                { text: jsonCI.CantidadPagos.toString(), bold: true },
+                { text: " exhibiciones de " },
+                { text: "$ " + jsonCI.MontoPagoParcial.toFixed(2), bold: true, decoration: 'underline' },
+                { text: " " + jsonCI.TipoMoneda, bold: true },
+                { text: ", las cuales comenzarán el día " },
+                { text: CrearCadOracion(jsonCI.FechaInicioPago), bold: true },
+                { text: " y finalizan el día " },
+                { text: CrearCadOracion(jsonCI.FechaFinPago) + ".", bold: true },
+            ], alignment: 'justify', fontSize: 12
+        };
+    }
     var contrato = {
         pageSize: 'LETTER',
         pageMargins: [50, 60, 50, 70],
@@ -647,13 +691,9 @@ function imprimirContratoCI(jsonCI, logoIMG) {
             { text: "\n" },
             { text: "También, me comprometo a cumplir con las siguientes aportaciones monetarias: ", alignment: 'justify', fontSize: 12 },
             { text: "\n" },
-            {
-                text: [
-                    { text: "- Aportación monetaria de ingreso de " },
-                    { text: "$ " + jsonCI.MontoPago.toFixed(2), bold: true, decoration: 'underline' },
-                    { text: ", misma que liquidaré al ingreso." },
-                ], alignment: 'justify', fontSize: 12
-            },
+
+            pagoPacienteJSON,
+
             { text: "\n" },
             { text: "En caso de que incumpla con el pago de las aportaciones, tanto de ingreso o periódicas a las cuales me he comprometido, acepto se me llame o requiera mi presencia por motivos de cobranza, en caso de que no acuda a las oficinas y liquide mi adeudo, estoy de acuerdo en que se suspenda el servicio que brinda este establecimiento a mi persona y el residencial a mi familiar, dando con esto por concluida la relación que tengo y tiene mi familiar con el establecimiento en cualquiera de las siguientes situaciones que se mencionan a continuación:", alignment: 'justify', fontSize: 12 },
             { text: "\n" },

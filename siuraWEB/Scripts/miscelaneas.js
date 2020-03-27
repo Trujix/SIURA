@@ -53,6 +53,43 @@ function FechaInput() {
     return yyyy + '-' + mm + '-' + dd;
 }
 
+// FUNCION QUE DEVUELVE FECHA FORMATO DD/MM/YYYY DE  UNA FECHA CAD COMPLETA
+function crearFechaDDMMYYYY(fechaCad) {
+    var f = fechaCad.split(" ");
+    var meses = {
+        Jan: "01",
+        Feb: "02",
+        Mar: "03",
+        Apr: "04",
+        May: "05",
+        Jun: "06",
+        Jul: "07",
+        Aug: "08",
+        Sep: "09",
+        Oct: "10",
+        Nov: "11",
+        Dec: "12"
+    };
+    return f[2] + '/' + meses[f[1]] + '/' + f[3];
+}
+
+// FUNCION QUE AÑADE MESES A UNA FECHA
+function addMesesFecha(date, months) {
+    var d = date.getDate();
+    date.setMonth(date.getMonth() + +months);
+    if (date.getDate() != d) {
+        date.setDate(0);
+    }
+    return date;
+}
+
+// FUNCION QUE  AÑADE DIAS A UNA FECHA
+Date.prototype.addDiasFecha = function (days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+}
+
 // FUNCION QUE ORDENA UN JSON
 var JsonORDENADO;
 function OrdenarJSON(json, prop, tipo) {

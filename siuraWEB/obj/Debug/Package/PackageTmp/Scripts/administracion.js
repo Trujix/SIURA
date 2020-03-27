@@ -43,7 +43,6 @@ $(document).on('click', '#btnMostrarPreRegistros', function () {
         beforeSend: function () {
             $('#adminTablaPreRegistros').html('');
             LoadingOn("Cargando lista...");
-            //finanzasPacientesJSON = {};
             PreRegistrosJSON = {};
             idPacienteFinanzasGLOBAL = 0;
         },
@@ -56,10 +55,6 @@ $(document).on('click', '#btnMostrarPreRegistros', function () {
                         PreRegistrosJSON["PrePaciente_" + value.IdPaciente] = {
                             NombreCompleto: value.NombreCompleto
                         };
-                        /*finanzasPacientesJSON["Finanza_" + value.IdFinanzas] = {
-                            NombreCompleto: value.NombreCompleto,
-                            Monto: value.Monto
-                        };*/
                     });
                     $('#adminTablaPreRegistros').html(tabla);
                     LoadingOff();

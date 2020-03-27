@@ -54,6 +54,23 @@ namespace siuraWEB.Models
         {
             public double MontoPagar { get; set; }
             public string TipoMoneda { get; set; }
+            public bool Becario { get; set; }
+            public double BecaValor { get; set; }
+            public string BecaTipo { get; set; }
+            public bool Parcialidad { get; set; }
+            public int CantidadPagos { get; set; }
+            public double MontoPagoParcial { get; set; }
+            public string TipoPago { get; set; }
+            public int TipoPagoIndx { get; set; }
+            public int TipoPagoCantPers { get; set; }
+            public string FechaInicioPago { get; set; }
+            public string FechaFinPago { get; set; }
+        }
+        // CLASE DE REGISTRO DE CARGO ADICIONAL PARA PACIENTE
+        public class PacienteCargosAdicionales
+        {
+            public string Descripcion { get; set; }
+            public double Importe { get; set; }
         }
 
         // ----------- FUNCIONES GENERALES -----------
@@ -128,16 +145,17 @@ namespace siuraWEB.Models
         //----------------------------------------------------
 
         // FUNCION QUE GUARDA EL REGISTRO DEL PACIENTE [ PREVIO ] ( :: PACIENTES ::)
-        public string GuardarPacienteRegistro(PacienteData pacienteinfo, PacienteIngreso pacienteingreso, PacienteFinazasData pacientefinanzas, string tokenusuario, string tokencentro)
+        public string GuardarPacienteRegistro(PacienteData pacienteinfo, PacienteIngreso pacienteingreso, PacienteFinazasData pacientefinanzas, PacienteCargosAdicionales[] pacientecargos, string tokenusuario, string tokencentro)
         {
             try
             {
+                string IDClavePaciente = "IP-" + MISC.CrearCadAleatoria(2, 8).ToUpper();
                 SQL.comandoSQLTrans("RegistrarPaciente");
                 SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.pacienteregistro (idcentro, idpaciente, nombre, apellidopaterno, apellidomaterno, fechanacimiento, edad, sexo, sexosigno, curp, alias, parientenombre, parienteapellidop, parienteapellidom, parentesco, parentescoindx, telefonocasa, telefonopariente, telefonousuario, estatus, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @IDPacienteParam, @PacNombreParam, @PacApellidoPParam, @PacApellidoMParam, @FechaNacParam, @EdadParam, @SexoParam, @SexoSignoParam, @CURPParam, @AliasParam, @ParNombreParam, @ParApellidoPParam, @ParApellidoMParam, @ParentescoParam, @ParentescoIndxParam, @TelefonoCasaParam, @TelefonoParienteParam, @TelefonoUsuParam, @EstatusParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenParam))", SQL.conSQL, SQL.transaccionSQL);
                 SqlParameter[] registroPaciente =
                 {
                     new SqlParameter("@TokenCentroParam", SqlDbType.VarChar){Value = tokencentro },
-                    new SqlParameter("@IDPacienteParam", SqlDbType.VarChar){Value = "IP-" + MISC.CrearCadAleatoria(2, 8).ToUpper() },
+                    new SqlParameter("@IDPacienteParam", SqlDbType.VarChar){Value = IDClavePaciente },
                     new SqlParameter("@PacNombreParam", SqlDbType.VarChar){Value = pacienteinfo.Nombre },
                     new SqlParameter("@PacApellidoPParam", SqlDbType.VarChar){Value = pacienteinfo.PacienteApellidoP },
                     new SqlParameter("@PacApellidoMParam", SqlDbType.VarChar){Value = pacienteinfo.PacienteApellidoM },
@@ -193,7 +211,8 @@ namespace siuraWEB.Models
                 }
 
                 int IdPaciente = 0;
-                SQL.commandoSQL = new SqlCommand("SELECT MAX(id) AS PacienteNuevo FROM dbo.pacienteregistro", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL = new SqlCommand("SELECT MAX(id) AS PacienteNuevo FROM dbo.pacienteregistro WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro });
                 using (var lector = SQL.commandoSQL.ExecuteReader())
                 {
                     while (lector.Read())
@@ -226,19 +245,64 @@ namespace siuraWEB.Models
                 SQL.commandoSQL.Parameters.AddRange(registroPacienteIngreso);
                 SQL.commandoSQL.ExecuteNonQuery();
 
-                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.pacienteregistrofinanzas (idcentro, idpaciente, montototal, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @IdPacienteParam, @MontoTotalParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenParam))", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.pacienteregistrofinanzas (idcentro, idpaciente, montototal, becario,becavalor, becatipo, parcialidad, cantidadpagos, montopagoparcial, tipopago, tipopagoindx, tipopagocantpers, fechainiciopago, fechafinpago, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @IdPacienteParam, @MontoTotalParam, @BecarioParam, @BecaValorParam, @BecaTipoParam, @ParcialidadParam, @CantidadPagosParam, @MontoPagoParcialParam, @TipoPagoParam, @TipoPagoIndxParam, @TipoPagoCantPersParam, @FechaInicioPagoParam, @FechaFinPagoParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenParam))", SQL.conSQL, SQL.transaccionSQL);
                 SqlParameter[] registroPacienteFinanzas =
                 {
                     new SqlParameter("@TokenCentroParam", SqlDbType.VarChar){Value = tokencentro },
                     new SqlParameter("@IdPacienteParam", SqlDbType.Int){Value = IdPaciente },
                     new SqlParameter("@MontoTotalParam", SqlDbType.Float){Value = pacientefinanzas.MontoPagar },
+                    new SqlParameter("@BecarioParam", SqlDbType.Bit){Value = pacientefinanzas.Becario },
+                    new SqlParameter("@BecaValorParam", SqlDbType.Float){Value = pacientefinanzas.BecaValor },
+                    new SqlParameter("@BecaTipoParam", SqlDbType.VarChar){Value = pacientefinanzas.BecaTipo },
+                    new SqlParameter("@ParcialidadParam", SqlDbType.Bit){Value = pacientefinanzas.Parcialidad },
+                    new SqlParameter("@CantidadPagosParam", SqlDbType.Int){Value = pacientefinanzas.CantidadPagos },
+                    new SqlParameter("@MontoPagoParcialParam", SqlDbType.Float){Value = pacientefinanzas.MontoPagoParcial },
+                    new SqlParameter("@TipoPagoParam", SqlDbType.VarChar){Value = pacientefinanzas.TipoPago },
+                    new SqlParameter("@TipoPagoIndxParam", SqlDbType.Int){Value = pacientefinanzas.TipoPagoIndx },
+                    new SqlParameter("@TipoPagoCantPersParam", SqlDbType.Int){Value = pacientefinanzas.TipoPagoCantPers },
+                    new SqlParameter("@FechaInicioPagoParam", SqlDbType.VarChar){Value = pacientefinanzas.FechaInicioPago },
+                    new SqlParameter("@FechaFinPagoParam", SqlDbType.VarChar){Value = pacientefinanzas.FechaFinPago },
                     new SqlParameter("@FechaParam", SqlDbType.DateTime){Value = MISC.FechaHoy() },
                     new SqlParameter("@TokenParam", SqlDbType.VarChar){Value = tokenusuario }
                 };
                 SQL.commandoSQL.Parameters.AddRange(registroPacienteFinanzas);
                 SQL.commandoSQL.ExecuteNonQuery();
 
+                int IdFinanzas = 0;
+                SQL.commandoSQL = new SqlCommand("SELECT MAX(id) AS FinanzasNuevo FROM dbo.pacienteregistrofinanzas WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        IdFinanzas = int.Parse(lector["FinanzasNuevo"].ToString());
+                    }
+                }
+
+                if (pacientecargos != null)
+                {
+                    foreach(PacienteCargosAdicionales pacientecargo in pacientecargos)
+                    {
+                        SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.pacientecargosadicionales (idcentro, idfinanzas, folio, descripcion, importe, cargoinicial, pagado, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @IdFinanzasParam, @FolioParam, @DescripcionParam, @ImporteParam, @CargoInicialParam, @PagadoParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenParam))", SQL.conSQL, SQL.transaccionSQL);
+                        SqlParameter[] registroPacienteCargoAdic =
+                        {
+                            new SqlParameter("@TokenCentroParam", SqlDbType.VarChar){Value = tokencentro },
+                            new SqlParameter("@IdFinanzasParam", SqlDbType.Int){Value = IdFinanzas },
+                            new SqlParameter("@FolioParam", SqlDbType.VarChar){Value = "CA-" + MISC.CrearCadAleatoria(2, 8).ToUpper() },
+                            new SqlParameter("@DescripcionParam", SqlDbType.VarChar){Value = pacientecargo.Descripcion },
+                            new SqlParameter("@ImporteParam", SqlDbType.Float){Value = pacientecargo.Importe },
+                            new SqlParameter("@CargoInicialParam", SqlDbType.Bit){Value = true },
+                            new SqlParameter("@PagadoParam", SqlDbType.Bit){Value = true },
+                            new SqlParameter("@FechaParam", SqlDbType.DateTime){Value = MISC.FechaHoy() },
+                            new SqlParameter("@TokenParam", SqlDbType.VarChar){Value = tokenusuario }
+                        };
+                        SQL.commandoSQL.Parameters.AddRange(registroPacienteCargoAdic);
+                        SQL.commandoSQL.ExecuteNonQuery();
+                    }
+                }
+
                 Dictionary<string, object> Contrato = new Dictionary<string, object>() {
+                    { "ClavePaciente", IDClavePaciente },
                     { "TipoContrato", pacienteingreso.TipoIngreso },
                     { "FolioContrato", folioContrato },
                     { "NombrePaciente", pacienteinfo.Nombre.ToUpper() + " " + pacienteinfo.PacienteApellidoP.ToUpper() + " " + pacienteinfo.PacienteApellidoM.ToUpper() },
@@ -262,6 +326,12 @@ namespace siuraWEB.Models
                     { "NumeroExpediente", MISC.CadExpediente(IdPaciente) },
                     { "FasesCantTratamiento", pacienteingreso.FasesCantTratamiento },
                     { "FasesTratamiento", pacienteingreso.FasesTratamiento },
+                    { "Parcialidad", pacientefinanzas.Parcialidad },
+                    { "CantidadPagos", pacientefinanzas.CantidadPagos },
+                    { "MontoPagoParcial", pacientefinanzas.MontoPagoParcial },
+                    { "TipoPago", pacientefinanzas.TipoPago },
+                    { "FechaInicioPago", new DateTime(int.Parse(pacientefinanzas.FechaInicioPago.Split('/')[2]),int.Parse(pacientefinanzas.FechaInicioPago.Split('/')[1]),int.Parse(pacientefinanzas.FechaInicioPago.Split('/')[0])).ToString("dddd, dd MMMM yyyy") },
+                    { "FechaFinPago", new DateTime(int.Parse(pacientefinanzas.FechaFinPago.Split('/')[2]),int.Parse(pacientefinanzas.FechaFinPago.Split('/')[1]),int.Parse(pacientefinanzas.FechaFinPago.Split('/')[0])).ToString("dddd, dd MMMM yyyy") },
                 };
 
                 SQL.transaccionSQL.Commit();
@@ -356,7 +426,7 @@ namespace siuraWEB.Models
                 }
 
                 string TipoMoneda = "PESOS MEXICANOS";
-                double MontoPagar = 0;
+                double MontoPagar = 0, MontoPagoParcial = 0; bool Parcialidad = false; int CantidadPagos = 0; string TipoPago = "", FechaInicioPago = "", FechaFinPago = "";
                 SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacienteregistrofinanzas WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND idpaciente = @IDPacienteDATA", SQL.conSQL, SQL.transaccionSQL);
                 SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
                 SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDPacienteDATA", SqlDbType.Int) { Value = idpaciente });
@@ -365,6 +435,12 @@ namespace siuraWEB.Models
                     while (lector.Read())
                     {
                         MontoPagar = double.Parse(lector["montototal"].ToString());
+                        Parcialidad = bool.Parse(lector["parcialidad"].ToString());
+                        CantidadPagos = int.Parse(lector["cantidadpagos"].ToString());
+                        MontoPagoParcial = double.Parse(lector["montopagoparcial"].ToString());
+                        TipoPago = lector["tipopago"].ToString();
+                        FechaInicioPago = new DateTime(int.Parse(lector["fechainiciopago"].ToString().Split('/')[2]), int.Parse(lector["fechainiciopago"].ToString().Split('/')[1]), int.Parse(lector["fechainiciopago"].ToString().Split('/')[0])).ToString("dddd, dd MMMM yyyy");
+                        FechaFinPago = new DateTime(int.Parse(lector["fechafinpago"].ToString().Split('/')[2]), int.Parse(lector["fechafinpago"].ToString().Split('/')[1]), int.Parse(lector["fechafinpago"].ToString().Split('/')[0])).ToString("dddd, dd MMMM yyyy");
                     }
                 }
 
@@ -392,6 +468,13 @@ namespace siuraWEB.Models
                     { "NumeroExpediente", MISC.CadExpediente(idpaciente) },
                     { "FasesCantTratamiento", FasesCantTratamiento },
                     { "FasesTratamiento", FasesTratamiento },
+
+                    { "Parcialidad", Parcialidad },
+                    { "CantidadPagos", CantidadPagos },
+                    { "MontoPagoParcial", MontoPagoParcial },
+                    { "TipoPago", TipoPago },
+                    { "FechaInicioPago", FechaInicioPago },
+                    { "FechaFinPago", FechaFinPago },
                 };
 
                 SQL.transaccionSQL.Commit();

@@ -7,6 +7,8 @@ var estatusPacienteConsulta = 0;
 var finanzasPacientesJSON = {};
 var idPacienteFinanzasGLOBAL = 0;
 var PagosListaJSON = {};
+var BecaComprobanteURL = "";
+var IDClavePacienteGLOBAL = "";
 
 // --------------------------------------------------------
 // FUNCIONES TIPO DOCUMENT (BUTTONS, INPUTS, TEXTAREAS ETC)
@@ -51,6 +53,7 @@ $(document).on('click', '#modalBtnGenerarPago', function () {
                             dataPago["NombrePaciente"] = $('#modalPacienteNombre').text();
                             dataPago["TipoPago"] = $('#modalPacienteTipoPago option:selected').text();
                             dataPago["ReferenciaPago"] = (parseInt($('#modalPacienteTipoPago').val()) > 0 && parseInt($('#modalPacienteTipoPago').val()) !== 1) ? $('#modalTxtReferenciaPago').val() : "--";
+                            dataPago["ConceptoPago"] = "\n\nServicios de rehabilitación, atención médica y terapéutica\n\n\n\n";
 
                             imprimirReciboPago(dataPago, dataLogo.LogoCentro);
                             $('#modalPacientesPagos').modal('hide');
@@ -65,6 +68,82 @@ $(document).on('click', '#modalBtnGenerarPago', function () {
                 });
             }
         });
+    }
+});
+
+// DOCUMENT - BOTON QUE MANDA LLAMAR EL MODAL PARA GENERA NUEVO CARGO ADICIONAL
+$(document).on('click', '#modalBtnNuevoCargoAdicional', function () {
+    $('#modalNuevoCargoAdicional').modal('show');
+});
+
+// DOCUMENT - BOTON QUE CONTROLA EL GUARDADO DEL CARGO ADICIONAL
+$(document).on('click', '#modalGuardarCargoAdicional', function () {
+    if (validarFormNuevoCargoAdicional()) {
+        MsgPregunta("Generar Nuevo Cargo Adicional", "¿Desea continuar?", function (si) {
+            if (si) {
+                var cargoAdional = {
+                    IdFinanzas: idPacienteFinanzasGLOBAL,
+                    Importe: parseFloat($('#modalImporteCargoAdicional').val()),
+                    Descripcion: $('#modalDescripcionCargoAdicional').val().toUpperCase(),
+                };
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/x-www-form-urlencoded",
+                    url: "/Dinamicos/NuevoCargoAdicional",
+                    data: { CargoAdicional: cargoAdional },
+                    beforeSend: function () {
+                        LoadingOn("Guardando Cargo Adicional...");
+                    },
+                    success: function (data) {
+                        if (data === "true") {
+                            $('#modalPacientesPagos').modal('hide');
+                            $('#modalNuevoCargoAdicional').modal('hide');
+                            LoadingOff();
+                            MsgAlerta("Ok!", "<b>Cargo Adicional</b> generado <b>correctamente</b>", 2500, "success");
+                        } else {
+                            ErrorLog(data, "Nuevo Cargo Adicional");
+                        }
+                    },
+                    error: function (error) {
+                        ErrorLog(error, "Nuevo Cargo Adicional");
+                    }
+                });
+            }
+        });
+    }
+});
+
+// DOCUMENT - CONTROLA EL BOTON QUE PERMITE SUBIR UN COMPROBANTE DE BECA AL PACIENTE DESDE EL MODAL PAGOS
+$(document).on('click', '.modalsubirbecadoc', function () {
+    ArchivoComrpobanteBeca = undefined;
+    $('#modalPagosSubirBecaComprobante').click();
+});
+
+// DOCUMENT - CONTROLA EL INPUT FILE DEL ARCHIVO PARA SUBIR UN COMPORBANTE DE BECARIO
+$(document).on('change', '#modalPagosSubirBecaComprobante', function (e) {
+    ArchivoComrpobanteBeca = $(this).prop('files')[0];
+    if (ArchivoComrpobanteBeca !== undefined) {
+        var nombre = ArchivoComrpobanteBeca.name;
+        var extension = nombre.substring(nombre.lastIndexOf('.') + 1);
+        if (extension === "jpg" || extension === "jpeg" || extension === "png" || extension === "pdf") {
+            comprobanteBecaJSON.Nombre = nombre;
+            comprobanteBecaJSON.Extension = extension;
+            MsgPregunta("Guardar Comprobante Becario", "¿Desea continuar?", function (si) {
+                if (si) {
+                    altaBecaDoc(IDClavePacienteGLOBAL, function (doc) {
+                        if (doc) {
+                            $('#modalPacientesPagos').modal('hide');
+                            LoadingOff();
+                            MsgAlerta("Ok!", "<b>Comprobante Becario</b> guardado <b>correctamente</b>", 2000, "success");
+                        }
+                    });
+                }
+            });
+        } else {
+            ArchivoComrpobanteBeca = undefined;
+            MsgAlerta("Atención!", "Formato de archivo para <b>Comprobante</b> NO <b>válido</b>", 3500, "default");
+            $('#pacienteBecarioDoc').val('');
+        }
     }
 });
 
@@ -127,10 +206,10 @@ function consultarPagos() {
                     PagosListaJSON = {};
                 },
                 success: function (data) {
-                    if (Array.isArray(data)) {
+                    if (data.Pagos !== undefined) {
                         var montoActual = parseFloat(finanzasPacientesJSON["Finanza_" + idPacienteFinanzasGLOBAL].Monto);
                         var tablaPagos = "";
-                        $(data).each(function (key, value) {
+                        $(data.Pagos).each(function (key, value) {
                             montoActual = montoActual - parseFloat(value.Pago);
                             tablaPagos += "<tr><td>" + value.Folio + "</td><td>$ " + value.Pago.toFixed(2) + "</td><td>" + value.FechaRegistro + "</td><td style='text-align: center;'><button onclick='reimprimirPago(" + value.IdPago + ")' title='Reimprimir Recibo' class='btn badge badge-pill badge-secondary'><i class='fa fa-print'></i></button>&nbsp;&nbsp;<button onclick='mostrarInfoPago(" + value.IdPago + ")' title='Info de Pago' class='btn badge badge-pill badge-dark'><i class='fa fa-info-circle'></i></button></td></tr>";
                             PagosListaJSON["Pago_" + value.IdPago] = {
@@ -138,12 +217,44 @@ function consultarPagos() {
                                 ReferenciaPago: value.Referencia
                             };
                         });
+                        var montoCargos = 0, cargos = "";
+                        $(data.Cargos).each(function (key, value) {
+                            var opciones = '', clase = '';
+                            if (value.Pagado) {
+                                opciones = '<span class="badge badge-pill badge-secondary"><i class="fa fa-check-circle"></i></span>';
+                            } else {
+                                opciones = '<span class="badge badge-pill badge-success" onclick="pagarCargoAdicional(' + value.IdCargo + ');" style="cursor: pointer;" title="Pagar Cargo"><i class="fa fa-dollar-sign"></i></span>';
+                            }
+                            if (value.CargoInicial) {
+                                opciones = '<span class="badge badge-pill badge-secondary">--</span>';
+                                clase = ' class="table-warning"';
+                            }
+                            if (!value.CargoInicial && !value.Pagado) {
+                                montoCargos += value.Importe;
+                            }
+                            cargos += "<tr" + clase + "><td>" + value.Folio + "</td><td>" + value.Descripcion + "</td><td>$&nbsp;" + value.Importe.toFixed(2) + "</td><td>" + value.FechaRegistro + "</td><td style='text-align: center;'>" + opciones + "</td></tr>";
+                        });
                         $('#modalPacienteNombre').html(finanzasPacientesJSON["Finanza_" + idPacienteFinanzasGLOBAL].NombreCompleto);
                         $('#modalPacienteMontoInicial').html(finanzasPacientesJSON["Finanza_" + idPacienteFinanzasGLOBAL].Monto.toFixed(2));
                         $('#modalPacienteMontoActual').html(montoActual.toFixed(2));
-                        $('#modalPacientesPagos').modal('show');
+                        $('#modalPacienteCargoAdicional').html(montoCargos.toFixed(2));
                         $('#modalPacienteTipoPago').val("-1").change();
                         $('#modalTablaPacientesPagos').html(tablaPagos);
+                        $('#modalTablaCargosAdicionales').html(cargos);
+
+                        if (data.Becario) {
+                            var becaDoc = '<div class="col-sm-12"><button class="btn badge badge-danger modalsubirbecadoc"><i class="fa fa-times"></i>&nbsp;Agregar un comprobante</button><input id="modalPagosSubirBecaComprobante" type="file" style="visibility: hidden; font-size: 0px;"accept=".jpg, .jpeg, .png, .pdf" /></div>';
+                            if (data.BecaComprobante !== "SINIMG") {
+                                becaDoc = '<div class="col-sm-12"><button class="btn badge badge-success" onclick="mostrarBecaComprobante();"><i class="fa fa-folder-open"></i>&nbsp;Mostrar comprobante</button></div>';
+                            }
+                            $('#modalDivPacienteBecaInfo').html('<div class="col-sm-12"><span class="badge badge-pill badge-primary">Paciente Becario</span></div><div class="col-sm-12" style="padding-top: 8px;"><h6><b>Apoyo Beca:</b><br>' + ((data.BecaTipo === "%") ? data.BecaValor.toString() + data.BecaTipo.toString() : data.BecaTipo + " " + parseFloat(data.BecaValor).toFixed(2)) + '</h6></div>' + becaDoc);
+                            BecaComprobanteURL = data.UrlFolderUsuario.toString() + data.BecaComprobante.toString();
+                            IDClavePacienteGLOBAL = data.ClavePaciente;
+                        } else {
+                            $('#modalDivPacienteBecaInfo').html('<div class="col-sm-12"><span class="badge badge-pill badge-secondary">Paciente No Becario</span></div>');
+                        }
+
+                        $('#modalPacientesPagos').modal('show');
                         LoadingOff();
                     } else {
                         ErrorLog(data.responseText, "Lista Pagos Paciente");
@@ -159,6 +270,7 @@ function consultarPagos() {
 
             $('#modalPacientesPagos').on('hidden.bs.modal', function (e) {
                 $('#modalPacientesPagos').remove();
+                $('#modalNuevoCargoAdicional').remove();
             });
         },
         error: function (error) {
@@ -247,6 +359,24 @@ function validarFormPagoPaciente() {
     return correcto;
 }
 
+// FUNCION QUE VALIDA EL FORMULARIO DE NUEVO CARGO ADICIONAL
+function validarFormNuevoCargoAdicional() {
+    var correcto = true, msg = "";
+    if ($('#modalImporteCargoAdicional').val() === "" || parseFloat($('#modalImporteCargoAdicional').val()) < 1 || isNaN(parseFloat($('#modalImporteCargoAdicional').val()))) {
+        correcto = false;
+        $('#modalImporteCargoAdicional').focus();
+        msg = "El Importe es <b>Incorrecto</b> o <b>Inválido</b>";
+    } else if ($('#modalDescripcionCargoAdicional').val() === "") {
+        correcto = false;
+        $('#modalDescripcionCargoAdicional').focus();
+        msg = "Coloque la <b>Descripción</b>";
+    }
+    if (!correcto) {
+        MsgAlerta("Atención!", msg, 3000, "default");
+    }
+    return correcto;
+}
+
 // FUNCION QUE REIMPRIME EL RECIBO DE PAGO DEL PACIENTE
 function reimprimirPago(idPago) {
     $.ajax({
@@ -259,7 +389,6 @@ function reimprimirPago(idPago) {
             LoadingOn("Cargando Recibo...");
         },
         success: function (data) {
-            console.log(data);
             if (Array.isArray(data)) {
                 try {
                     var dataLogo = JSON.parse(data[0]);
@@ -267,6 +396,7 @@ function reimprimirPago(idPago) {
                     dataPago["NombrePaciente"] = $('#modalPacienteNombre').text();
                     dataPago["TipoPago"] = dataPago.TipoPago;
                     dataPago["ReferenciaPago"] = (parseInt($('#modalPacienteTipoPago').val()) > 0 && parseInt($('#modalPacienteTipoPago').val()) !== 1) ? $('#modalTxtReferenciaPago').val() : "--";
+                    dataPago["ConceptoPago"] = "\n\nServicios de rehabilitación, atención médica y terapéutica\n\n\n\n";
 
                     imprimirReciboPago(dataPago, dataLogo.LogoCentro);
                     LoadingOff();
@@ -286,4 +416,9 @@ function reimprimirPago(idPago) {
 // FUNCION QUE MUESTRA INFO SENCILLA DEL PAGO
 function mostrarInfoPago(idPago) {
     MsgAlerta("Info!", "Caracteristicas del pago:\n\n<b>Tipo: </b> " + PagosListaJSON["Pago_" + idPago].TipoPago + "\n\n<b>Referencia: </b> " + PagosListaJSON["Pago_" + idPago].ReferenciaPago, 8000, "info");
+}
+
+// FUNCION QUE MUESTRA / ANBRE EL COMPROBANTE DEL BECARIO DESDE EL PANEL DE PAGOS Y FINANZAS DEL PACIENTE
+function mostrarBecaComprobante() {
+    window.open(BecaComprobanteURL, '_blank');
 }

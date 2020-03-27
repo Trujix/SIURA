@@ -19,6 +19,7 @@ DROP TABLE IF EXISTS dbo.usuariodocumentos;
 DROP TABLE IF EXISTS dbo.pacienteregistro;
 DROP TABLE IF EXISTS dbo.pacienteingreso;
 DROP TABLE IF EXISTS dbo.pacienteregistrofinanzas;
+DROP TABLE IF EXISTS dbo.pacientecargosadicionales;
 DROP TABLE IF EXISTS dbo.pacienteregistropagos;
 
 CREATE TABLE [dbo].[centros](
@@ -193,10 +194,35 @@ CREATE TABLE [dbo].[pacienteregistrofinanzas](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[idcentro] [int] NOT NULL,
 	[idpaciente] [int] NOT NULL,
-	[montototal] [float] NULL,
+	[montototal] [float] NOT NULL DEFAULT 0,
+	[becario] [bit] NOT NULL DEFAULT 'False',
+	[becavalor] [float] NOT NULL DEFAULT 0,
+	[becatipo] [varchar](20) NULL,
+	[parcialidad] [bit] NOT NULL DEFAULT 'False',
+	[cantidadpagos] [int] NOT NULL,
+	[montopagoparcial] [float] NOT NULL DEFAULT 0,
+	[tipopago] [varchar](200) NULL,
+	[tipopagoindx] [int] NOT NULL,
+	[tipopagocantpers] [int] NOT NULL DEFAULT 0,
+	[fechainiciopago] [varchar](200) NULL,
+	[fechafinpago] [varchar](200) NULL,
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_PacienteRegistroFinanzas] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[pacientecargosadicionales](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[idfinanzas] [int] NOT NULL,
+	[folio] [varchar](200) NULL,
+	[descripcion] [varchar](200) NULL,
+	[importe] [float] NULL,
+	[cargoinicial] [bit] NOT NULL DEFAULT 'False',
+	[pagado] [bit] NOT NULL DEFAULT 'False',
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_PacienteCargosAdicionales] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
 CREATE TABLE [dbo].[pacienteregistropagos](

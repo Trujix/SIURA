@@ -34,7 +34,42 @@ namespace siuraWEB.Controllers
         // FUNCION QUE DEVUELVE LA LISTA DE LOS PAGOS DEL PACIENTE
         public string ListaPagosPaciente(int IdFinanzas)
         {
-            return MiDinamico.ListaPagosPaciente(IdFinanzas, (string)Session["TokenCentro"]);
+            try
+            {
+                string[] PagoPacienteInfo = MiDinamico.ListaPagosPaciente(IdFinanzas, (string)Session["TokenCentro"]).Split('⌂');
+                string BecaComprobante = "SINIMG";
+                if (System.IO.File.Exists(Server.MapPath("~/Docs/" + (string)Session["TokenCentro"] + "/" + PagoPacienteInfo[1] + "_becadoc.jpg")))
+                {
+                    BecaComprobante = PagoPacienteInfo[1] + "_becadoc.jpg";
+                }
+                else
+                {
+                    if (System.IO.File.Exists(Server.MapPath("~/Docs/" + (string)Session["TokenCentro"] + "/" + PagoPacienteInfo[1] + "_becadoc.jpeg")))
+                    {
+                        BecaComprobante = PagoPacienteInfo[1] + "_becadoc.jpeg";
+                    }
+                    else
+                    {
+                        if (System.IO.File.Exists(Server.MapPath("~/Docs/" + (string)Session["TokenCentro"] + "/" + PagoPacienteInfo[1] + "_becadoc.png")))
+                        {
+                            BecaComprobante = PagoPacienteInfo[1] + "_becadoc.png";
+                        }
+                        else
+                        {
+                            if (System.IO.File.Exists(Server.MapPath("~/Docs/" + (string)Session["TokenCentro"] + "/" + PagoPacienteInfo[1] + "_becadoc.pdf")))
+                            {
+                                BecaComprobante = PagoPacienteInfo[1] + "_becadoc.pdf";
+                            }
+                        }
+                    }
+                }
+                string PacientePagoReturn = PagoPacienteInfo[0].Replace("«~BECAçCOMPROBANTE~»", BecaComprobante).Replace("«~URLçUSUARIO~»", System.Web.HttpContext.Current.Request.Url.AbsoluteUri.Replace(System.Web.HttpContext.Current.Request.Url.AbsolutePath, "") + "/Docs/" + (string)Session["TokenCentro"] + "/");
+                return PacientePagoReturn;
+            }
+            catch (Exception e)
+            {
+                return e.ToString();
+            }
         }
 
         // FUNCION QUE GENERA UN PAGO DE UN PACIENTE
@@ -69,6 +104,12 @@ namespace siuraWEB.Controllers
             }
             RespuestaLista.Add(Recibo.Replace("«~LOGOPERS~»", "").Replace("«~LOGOALANON~»", ""));
             return JsonConvert.SerializeObject(RespuestaLista);
+        }
+
+        // FUNCION QUE GENERA UN NUEVO CARGO ADICIONAL
+        public string NuevoCargoAdicional(MDinamicos.CargoAdicional CargoAdicional)
+        {
+            return MiDinamico.NuevoCargoAdicional(CargoAdicional, (string)Session["Token"], (string)Session["TokenCentro"]);
         }
     }
 }

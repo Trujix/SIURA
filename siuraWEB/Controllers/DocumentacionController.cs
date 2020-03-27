@@ -59,9 +59,9 @@ namespace siuraWEB.Controllers
 
         // ::::::::::::::::::::::::::: [ PRE-REGISTROS ] :::::::::::::::::::::::::::
         // FUNCION QUE GUARDA UN PACIENTE [ REGISTRO PREVIO ]
-        public string GuardarPaciente(MDocumentacion.PacienteData PacienteInfo, MDocumentacion.PacienteIngreso PacienteIngreso, MDocumentacion.PacienteFinazasData PacienteFinanzas)
+        public string GuardarPaciente(MDocumentacion.PacienteData PacienteInfo, MDocumentacion.PacienteIngreso PacienteIngreso, MDocumentacion.PacienteFinazasData PacienteFinanzas, MDocumentacion.PacienteCargosAdicionales[] PacienteCargos)
         {
-            string Contrato = MiDocumentacion.GuardarPacienteRegistro(PacienteInfo, PacienteIngreso, PacienteFinanzas, (string)Session["Token"], (string)Session["TokenCentro"]);
+            string Contrato = MiDocumentacion.GuardarPacienteRegistro(PacienteInfo, PacienteIngreso, PacienteFinanzas, PacienteCargos, (string)Session["Token"], (string)Session["TokenCentro"]);
             List<object> RespuestaLista = new List<object>();
             if (Contrato.IndexOf("«~LOGOPERS~»") >= 0)
             {

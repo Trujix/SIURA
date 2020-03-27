@@ -167,6 +167,20 @@ namespace siuraWEB.Controllers
             }
         }
 
+        // FUNCION QUE GUARDA EL COMPROBANTE DEL BECARIO
+        public string AltaBecaComprobante(string Info)
+        {
+            try
+            {
+                ArchivoInfo archivoInfo = JsonConvert.DeserializeObject<ArchivoInfo>(Info);
+                return GuardarArchivo(archivoInfo.Nombre, archivoInfo.Extension, Request.Files["Archivo"]);
+            }
+            catch(Exception e)
+            {
+                return e.ToString();
+            }
+        }
+
         // FUNCION QUE ENVIA CORREO ELECTRONICO CON LOS [ DOCUMENTOS INFORMATIVOS ]
         public string EnviarCorreoDocsInf(string Correo)
         {

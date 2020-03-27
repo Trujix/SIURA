@@ -669,8 +669,8 @@ namespace siuraWEB.Models
                 }
 
                 int IdFase = 0;
-                SQL.commandoSQL = new SqlCommand("SELECT MAX(id) AS Maximo FROM dbo.fasestratamientos", SQL.conSQL, SQL.transaccionSQL);
-                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL = new SqlCommand("SELECT MAX(id) AS Maximo FROM dbo.fasestratamientos WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro });
                 using (var lector = SQL.commandoSQL.ExecuteReader())
                 {
                     while (lector.Read())
