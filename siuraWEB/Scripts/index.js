@@ -4,16 +4,27 @@
 // --------------------------------------------------------
 // VARIABLES GLOBALES
 var calendarioActividades;
+var vistasControllers = [
+    { Vista: "", Pagina: "" },
+    { Vista: "", Pagina: "" },
+    { Vista: "CMedica", Pagina: "MenuMedico" },
+    { Vista: "CPsicologica", Pagina: "MenuPsicologo" },
+    { Vista: "", Pagina: "" },
+    { Vista: "", Pagina: "" },
+    { Vista: "Documentacion", Pagina: "Ingreso" },
+    { Vista: "Documentacion", Pagina: "" },
+    { Vista: "Documentacion", Pagina: "Administracion" },
+];
 
 // --------------------------------------------------------
 // FUNCIONES TIPO DOCUMENT (BUTTONS, INPUTS, TEXTAREAS ETC)
 // DOCUMENT - CONTROLA LA SELECCION DEL MENU DE OPCIONES
 $(document).on('click', 'a[name="menuopc"]', function () {
-    var vista = CrearCadOracion($(this).attr("vista")), pagina = CrearCadOracion($(this).attr("pagina"));
+    var indx = parseInt($(this).attr("indx"));
     $.ajax({
         type: "POST",
         contentType: "application/x-www-form-urlencoded",
-        url: "/" + vista + "/" + pagina,
+        url: "/" + vistasControllers[indx].Vista + "/" + vistasControllers[indx].Pagina,
         beforeSend: function () {
             LoadingOn("Validando Usuario");
         },

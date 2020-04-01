@@ -140,7 +140,9 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\CMedicaController.cs" />
     <Compile Include="Controllers\ConfiguracionController.cs" />
+    <Compile Include="Controllers\CPsicologicaController.cs" />
     <Compile Include="Controllers\DinamicosController.cs" />
     <Compile Include="Controllers\DocumentacionController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -2111,6 +2113,11 @@
     <Content Include="Views\Configuracion\MiCentro.cshtml" />
     <Content Include="Views\Documentacion\PreRegistros.cshtml" />
     <Content Include="Views\Configuracion\Catalogos.cshtml" />
+    <Content Include="Views\Configuracion\Usuarios.cshtml" />
+    <Content Include="Views\Home\SinPermiso.cshtml" />
+    <Content Include="Views\Configuracion\MenuConfiguracionUsu.cshtml" />
+    <Content Include="Views\CMedica\MenuMedico.cshtml" />
+    <Content Include="Views\CPsicologica\MenuPsicologo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

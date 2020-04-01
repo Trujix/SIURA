@@ -8,10 +8,14 @@ USE siura;
 
 DROP TABLE IF EXISTS dbo.centros;
 DROP TABLE IF EXISTS dbo.usuarios;
+DROP TABLE IF EXISTS dbo.usuariosperfiles;
 DROP TABLE IF EXISTS dbo.modelostratamientos;
 DROP TABLE IF EXISTS dbo.fasestratamientos;
 DROP TABLE IF EXISTS dbo.fasesnombres;
 DROP TABLE IF EXISTS dbo.fasestipos;
+DROP TABLE IF EXISTS dbo.estadoalerta;
+DROP TABLE IF EXISTS dbo.nivelintoxicacion;
+DROP TABLE IF EXISTS dbo.estadoanimo;
 DROP TABLE IF EXISTS dbo.usuarioscentro;
 DROP TABLE IF EXISTS dbo.usuariomenuprincipal;
 DROP TABLE IF EXISTS dbo.menuprincipal;
@@ -30,19 +34,41 @@ CREATE TABLE [dbo].[centros](
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_CentrosID] PRIMARY KEY CLUSTERED ([clave] ASC)
 );
-INSERT INTO centros (clave,tokencentro,fechahora,admusuario) VALUES ('1234','1a2b3c4d','2017-08-09','Manuel');
+INSERT INTO centros (clave,tokencentro,fechahora,admusuario) VALUES ('1234','1a2b3c4d','2017-08-09','SiuraMTG');
 
 CREATE TABLE [dbo].[usuarios](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[usuario] [varchar](200) NOT NULL,
 	[tokenusuario] [varchar](200) NOT NULL,
 	[tokencentro] [varchar](200) NOT NULL,
-	[pass] [varchar](200) NULL,
+	[nombre] [varchar](200) NOT NULL,
+	[apellido] [varchar](200) NOT NULL,
+	[correo] [varchar](200) NOT NULL,
+	[pass] [varchar](200) NOT NULL,
+	[administrador] [bit] NOT NULL DEFAULT 'False',
+	[activo] [int] NOT NULL DEFAULT 1,
+	[estatus] [int] NOT NULL DEFAULT 1,
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
-		CONSTRAINT [PK_UsuarioID] PRIMARY KEY CLUSTERED ([usuario] ASC)
+		CONSTRAINT [PK_UsuarioID] PRIMARY KEY CLUSTERED ([id] ASC)
 );
-INSERT INTO usuarios (usuario,tokenusuario,tokencentro,pass,fechahora,admusuario) VALUES ('adm','75996de9e8471c8a7dd7b05ff064b34d','1a2b3c4d','202cb962ac59075b964b07152d234b70','2017-08-09','Admin');
+INSERT INTO usuarios (usuario,tokenusuario,tokencentro,nombre,apellido,correo,pass,administrador,fechahora,admusuario) VALUES ('adm','75996de9e8471c8a7dd7b05ff064b34d','1a2b3c4d','Admin','Siura','correo@mail.com','202cb962ac59075b964b07152d234b70','true','2017-08-09','SiuraMTG');
+
+CREATE TABLE [dbo].[usuariosperfiles](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idusuario] [int] NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[alanon] [bit] NOT NULL DEFAULT 'False',
+	[coorddeportiva] [bit] NOT NULL DEFAULT 'False',
+	[coordmedica] [bit] NOT NULL DEFAULT 'False',
+	[coordpsicologica] [bit] NOT NULL DEFAULT 'False',
+	[coordespiritual] [bit] NOT NULL DEFAULT 'False',
+	[coorddocepasos] [bit] NOT NULL DEFAULT 'False',
+	[documentacion] [bit] NOT NULL DEFAULT 'False',
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_UsuarioPerfil] PRIMARY KEY CLUSTERED ([id] ASC)
+);
 
 CREATE TABLE [dbo].[modelostratamientos](
 	[id] [int] IDENTITY(1,1) NOT NULL,
@@ -85,6 +111,36 @@ CREATE TABLE [dbo].[fasestipos](
 		CONSTRAINT [PK_FasesTipoID] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
+CREATE TABLE [dbo].[estadoalerta](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[nombreestadoalerta] [varchar](200) NOT NULL,
+	[estatus] [int] NOT NULL DEFAULT 1,
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_EstadosAlertaID] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[nivelintoxicacion](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[nombrenivelintoxicacion] [varchar](200) NOT NULL,
+	[estatus] [int] NOT NULL DEFAULT 1,
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_NivelIntoxicacionID] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[estadoanimo](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[nombreestadoanimo] [varchar](200) NOT NULL,
+	[estatus] [int] NOT NULL DEFAULT 1,
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_EstadoAnimoID] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
 CREATE TABLE [dbo].[usuarioscentro](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[idcentro] [int] NOT NULL,
@@ -107,7 +163,7 @@ CREATE TABLE [dbo].[usuarioscentro](
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_UsuarioCentroID] PRIMARY KEY CLUSTERED ([id] ASC)
 );
-INSERT INTO usuarioscentro (idcentro,siglalegal,fechahora,admusuario) VALUES ('1','AA','2017-08-09','Manuel');
+INSERT INTO usuarioscentro (idcentro,siglalegal,fechahora,admusuario) VALUES ('1','AA','2017-08-09','SiuraMTG');
 
 CREATE TABLE [dbo].[usuariomenuprincipal](
 	[id] [int] IDENTITY(1,1) NOT NULL,
@@ -185,6 +241,12 @@ CREATE TABLE [dbo].[pacienteingreso](
 	[fasescantratamientoindx] [varchar](200) NOT NULL,
 	[fasestratamiento] [varchar](200) NOT NULL,
 	[fasestratamientoindx] [varchar](200) NOT NULL,
+	[estadoalerta] [varchar](200) NOT NULL DEFAULT '--',
+	[estadoalertaindx] [int] NOT NULL DEFAULT 0,
+	[nivelintoxicacion] [varchar](200) NOT NULL DEFAULT '--',
+	[nivelintoxicacionindx] [int] NOT NULL DEFAULT 0,
+	[estadoanimo] [varchar](200) NOT NULL DEFAULT '--',
+	[estadoanimoindx] [int] NOT NULL DEFAULT 0,
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_PacienteIngreso] PRIMARY KEY CLUSTERED ([id] ASC)
@@ -220,6 +282,8 @@ CREATE TABLE [dbo].[pacientecargosadicionales](
 	[importe] [float] NULL,
 	[cargoinicial] [bit] NOT NULL DEFAULT 'False',
 	[pagado] [bit] NOT NULL DEFAULT 'False',
+	[tipopago] [varchar](200) NOT NULL DEFAULT '--',
+	[folrefdesc] [varchar](200) NOT NULL DEFAULT '--',
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_PacienteCargosAdicionales] PRIMARY KEY CLUSTERED ([id] ASC)

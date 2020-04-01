@@ -111,5 +111,39 @@ namespace siuraWEB.Controllers
         {
             return MiDinamico.NuevoCargoAdicional(CargoAdicional, (string)Session["Token"], (string)Session["TokenCentro"]);
         }
+
+        // FUNCION QUE GENERA UN PAGO DE UN CARGO ADICIONAL
+        public string GenerarPagoCargo(MDinamicos.PagoCargoAdicional CargoPago)
+        {
+            string Respuesta = MiDinamico.GenerarPagoCargo(CargoPago, (string)Session["Token"], (string)Session["TokenCentro"]);
+            List<object> RespuestaLista = new List<object>();
+            if (Respuesta.IndexOf("«~LOGOPERS~»") >= 0)
+            {
+                RespuestaLista.Add(System.IO.File.ReadAllText(Server.MapPath("~/Docs/" + (string)Session["TokenCentro"] + "/logocentro.json")));
+            }
+            else
+            {
+                RespuestaLista.Add(System.IO.File.ReadAllText(Server.MapPath("~/Media/logoalanon.json")));
+            }
+            RespuestaLista.Add(Respuesta.Replace("«~LOGOPERS~»", "").Replace("«~LOGOALANON~»", ""));
+            return JsonConvert.SerializeObject(RespuestaLista);
+        }
+
+        // FUNCION QUE REIMPRIME UN RECIBO DE PAGO DE  UN CARGO ADICIONAL
+        public string ReimprimirPagoCargo(int IDCargo)
+        {
+            string Respuesta = MiDinamico.ReimprimirPagoCargo(IDCargo, (string)Session["Token"], (string)Session["TokenCentro"]);
+            List<object> RespuestaLista = new List<object>();
+            if (Respuesta.IndexOf("«~LOGOPERS~»") >= 0)
+            {
+                RespuestaLista.Add(System.IO.File.ReadAllText(Server.MapPath("~/Docs/" + (string)Session["TokenCentro"] + "/logocentro.json")));
+            }
+            else
+            {
+                RespuestaLista.Add(System.IO.File.ReadAllText(Server.MapPath("~/Media/logoalanon.json")));
+            }
+            RespuestaLista.Add(Respuesta.Replace("«~LOGOPERS~»", "").Replace("«~LOGOALANON~»", ""));
+            return JsonConvert.SerializeObject(RespuestaLista);
+        }
     }
 }

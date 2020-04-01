@@ -43,6 +43,12 @@ namespace siuraWEB.Controllers
             return View();
         }
 
+        // VISTA QUE DEVUELVE LA VISTA DE "NO PERMISO"
+        public ActionResult SinPermiso()
+        {
+            return View();
+        }
+
         // FUNCION QUE DEVUELVE LOS PARAMETROS DEL USUARIO
         public string UsuarioParametros()
         {

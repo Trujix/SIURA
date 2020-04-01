@@ -33,12 +33,23 @@ namespace siuraWEB.Controllers
         public string IniciarSesion(MLogin.LoginInfo LoginData)
         {
             string respuesta = MiLogin.LoginFuncion(LoginData);
-            if (JsonConvert.DeserializeObject<MLogin.LoginRespuesta>(respuesta).Respuesta)
+            MLogin.LoginRespuesta RespuestaJSON = JsonConvert.DeserializeObject<MLogin.LoginRespuesta>(respuesta);
+            if (RespuestaJSON.Respuesta)
             {
                 Session["IdSession"] = MISC.CrearIdSession();
                 Session["IdUsuario"] = LoginData.Usuario;
-                Session["Token"] = JsonConvert.DeserializeObject<MLogin.LoginRespuesta>(respuesta).Token;
-                Session["TokenCentro"] = JsonConvert.DeserializeObject<MLogin.LoginRespuesta>(respuesta).TokenCentro;
+                Session["Token"] = RespuestaJSON.Token;
+                Session["TokenCentro"] = RespuestaJSON.TokenCentro;
+                Session["ClaveCentro"] = LoginData.ClaveCentro;
+                Session["Id"] = RespuestaJSON.IdUsuario;
+                Session["Administrador"] = RespuestaJSON.Administrador;
+                Session["AlAnon"] = RespuestaJSON.AlAnon;
+                Session["CoordDeportiva"] = RespuestaJSON.CoordDeportiva;
+                Session["CoordMedica"] = RespuestaJSON.CoordMedica;
+                Session["CoordPsicologica"] = RespuestaJSON.CoordPsicologica;
+                Session["CoordEspiritual"] = RespuestaJSON.CoordEspiritual;
+                Session["Cord12Pasos"] = RespuestaJSON.Cord12Pasos;
+                Session["Documentacion"] = RespuestaJSON.Documentacion;
             }
             return respuesta;
         }

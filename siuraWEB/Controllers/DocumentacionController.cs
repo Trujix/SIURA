@@ -15,13 +15,27 @@ namespace siuraWEB.Controllers
         // FUNCION QUE DEVUELVE LA VISTA DE [ INGRESO - PRINCIPAL ]
         public ActionResult Ingreso()
         {
-            return View();
+            if ((bool)Session["Documentacion"])
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("SinPermiso", "Home");
+            }
         }
 
         // FUNCION QUE DEVUELVE LA VISTA DE ADMINISTRACION [ MENU PRINCIPAL ]
         public ActionResult Administracion()
         {
-            return View();
+            if ((bool)Session["Documentacion"])
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("SinPermiso", "Home");
+            }
         }
 
         // FUNCION QUE DEVUELVE LA VISTA DEL FORMULARIO DE [ NUEVO PACIENTE ]
@@ -92,11 +106,19 @@ namespace siuraWEB.Controllers
             return JsonConvert.SerializeObject(RespuestaLista);
         }
 
+        // ::::::::::::::::::::::::::: [ INGRESO PACIENTES ] :::::::::::::::::::::::::::
+        // FUNCION QUE ACTUALIZA LOS PARAMETROS DE PARAMETROS DE INGRESO DEL PACIENTE AL CENTRO
+        public string ActIngresoPaciente(MDocumentacion.PacienteIngreso PacienteIngreso)
+        {
+            return MiDocumentacion.ActIngresoPaciente(PacienteIngreso, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
         // ::::::::::::::::::::::::::: [ ADMINISTRACION ] :::::::::::::::::::::::::::
         // FUNCION QUE TRAE LA LISTA DE PACIENTES  CON PAGOS PENDITES
         public string ListaPacientesPagosPend(string Consulta)
         {
             return MiDocumentacion.ListaPacientesPagosPendientes(Consulta, (string)Session["TokenCentro"]);
         }
+
     }
 }

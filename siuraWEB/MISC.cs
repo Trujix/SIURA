@@ -106,5 +106,11 @@ namespace siuraWEB
         {
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time (Mexico)"));
         }
+
+        // FUNCION QUE DEVUELVE DE MANERA GLOBAL LA ESTRUCTURA DEL  HTML CORREO
+        public static string MailHTML()
+        {
+            return "<!DOCTYPE html><html lang='es'><head><meta charset='UTF-8' /></head><body style='font-family: -apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;'><center><div align='left' style='width: 600px; position: relative;display: -webkit-box;display: -ms-flexbox;display: flex;-webkit-box-orient: vertical;-webkit-box-direction: normal;-ms-flex-direction: column;flex-direction: column;min-width: 0;word-wrap: break-word;background-color: #fff;background-clip: border-box;border: 1px solid rgba(0,0,0,.125);border-radius: .25rem;'><div style='-webkit-box-flex: 1;-ms-flex: 1 1 auto;flex: 1 1 auto;padding: 1.25rem;'><img src='https://drive.google.com/uc?export=view&id=1JcTqF6LPm_9TY-rCZcbS3-i2WFkHINmd' style='height: 50px;' /><br /><hr />×ØCUERPOMAILØ×<br /><h6>Correo generado automáticamente desde el sistema SIURA &copy;" + DateTime.Now.ToString("yyyy") + ". No es necesario contestar a este correo, ya que no recibirá respuesta. Si desea información, consulte con el usuario administrador de su centro.</h6></div></div></center></body></html>";
+        }
     }
 }

@@ -173,7 +173,7 @@ function imprimirReciboPago(reciboData, logoIMG) {
                             { text: "MONTO", alignment: 'center', border: [false, true, true, true] }
                         ],
                         [
-                            { text: "\n\nServicios de rehabilitación, atención médica y terapéutica\n\n\n\n", alignment: 'center', bold: true, border: [true, true, false, true] },
+                            { text: reciboData.ConceptoPago, alignment: 'center', bold: true, border: [true, true, false, true] },
                             { text: "$ " + reciboData.MontoPago.toFixed(2), fillColor: '#EAEDED', alignment: 'center', border: [false, true, true, true] }
                         ]
                     ]

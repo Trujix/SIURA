@@ -14,6 +14,37 @@ namespace siuraWEB.Models
 
         // ::::::::::::::::::::::::: [ CONFIGUACRION - DOCUMENTOS ] :::::::::::::::::::::::::
         // --------- CLASES PUBLICAS ---------
+        // CLASES DE USUARIOS
+        public class Usuarios
+        {
+            public int IdUsuario { get; set; }
+            public string Usuario { get; set; }
+            public string Nombre { get; set; }
+            public string Apellido { get; set; }
+            public string Correo { get; set; }
+            public string Pass { get; set; }
+            public int Activo { get; set; }
+            public bool Administrador { get; set; }
+            public int Estatus { get; set; }
+            public PerfilesUsuario Perfiles { get; set; }
+        }
+        public class PerfilesUsuario
+        {
+            public int IdUsuario { get; set; }
+            public bool AlAnon { get; set; }
+            public bool CoordDeportiva { get; set; }
+            public bool CoordMedica { get; set; }
+            public bool CoordPsicologica { get; set; }
+            public bool CoordEspiritual { get; set; }
+            public bool Cord12Pasos { get; set; }
+            public bool Documentacion { get; set; }
+        }
+        public class UsuarioPass
+        {
+            public string NuevaPass { get; set; }
+            public string AntiguaPass { get; set; }
+        }
+        // CLASES DE DOCUMENTOS (ARCHIVERO)
         public class DocsLista
         {
             public List<Dictionary<string, object>> DocsInformativos { get; set; }
@@ -44,6 +75,7 @@ namespace siuraWEB.Models
             public string Municipio { get; set; }
             public string Director { get; set; }
         }
+        // CLASES DE CATALOGOS
         public class ModelosTratamiento
         {
             public int IdModeloTratamiento { get; set; }
@@ -63,6 +95,24 @@ namespace siuraWEB.Models
         public class FasesTipos
         {
             public string NombreTipo { get; set; }
+        }
+        public class EstadoAlerta
+        {
+            public int IdEstadoAlerta { get; set; }
+            public string NombreEstadoAlerta { get; set; }
+            public int Estatus { get; set; }
+        }
+        public class NivelIntoxicacion
+        {
+            public int IdNivelesIntoxicacion { get; set; }
+            public string NombreNivelIntoxicacion { get; set; }
+            public int Estatus { get; set; }
+        }
+        public class EstadoAnimo
+        {
+            public int IdEstadoAnimo { get; set; }
+            public string NombreEstadoAnimo { get; set; }
+            public int Estatus { get; set; }
         }
 
         // ----------- FUNCIONES GENERALES -----------
@@ -424,10 +474,11 @@ namespace siuraWEB.Models
                 {
                     while (lector.Read())
                     {
-                        Fases Fase = new Fases();
-                        Fase.IdFase = int.Parse(lector["id"].ToString());
-                        Fase.CantidadFases = int.Parse(lector["cantidadfases"].ToString());
-                        Fase.IdModelo = int.Parse(lector["idmodelo"].ToString());
+                        Fases Fase = new Fases() {
+                            IdFase = int.Parse(lector["id"].ToString()),
+                            CantidadFases = int.Parse(lector["cantidadfases"].ToString()),
+                            IdModelo = int.Parse(lector["idmodelo"].ToString()),
+                        };
                         FasesLista.Add(Fase);
                     }
                 }
@@ -528,9 +579,10 @@ namespace siuraWEB.Models
                 {
                     while (lector.Read())
                     {
-                        Fases Fase = new Fases();
-                        Fase.IdFase = int.Parse(lector["id"].ToString());
-                        Fase.CantidadFases = int.Parse(lector["cantidadfases"].ToString());
+                        Fases Fase = new Fases() {
+                            IdFase = int.Parse(lector["id"].ToString()),
+                            CantidadFases = int.Parse(lector["cantidadfases"].ToString()),
+                        };
                         if(int.Parse(lector["idmodelo"].ToString()) == idmodelo)
                         {
                             FasesModelo.Add(Fase);
@@ -746,6 +798,730 @@ namespace siuraWEB.Models
 
                 SQL.transaccionSQL.Commit();
                 return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE ESTADOS DE ALERTA [ CATALOGOS ]
+        public string ListaEstadosAlerta(string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("EstadosAlerta");
+                Dictionary<string, object> EstadosAlerta = new Dictionary<string, object>();
+                List<object> EstadosAlertaACT = new List<object>(), EstadosAlertaDESC = new List<object>();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.estadoalerta WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        if (int.Parse(lector["estatus"].ToString()) > 0)
+                        {
+                            EstadosAlertaACT.Add(new Dictionary<string, object>()
+                            {
+                                { "IdEstadoAlerta", int.Parse(lector["id"].ToString()) },
+                                { "NombreEstadoAlerta", lector["nombreestadoalerta"].ToString() },
+                                { "Estatus", int.Parse(lector["estatus"].ToString()) },
+                            });
+                        }
+                        else
+                        {
+                            EstadosAlertaDESC.Add(new Dictionary<string, object>()
+                            {
+                                { "NombreEstadoAlerta", lector["nombreestadoalerta"].ToString() },
+                                { "Estatus", int.Parse(lector["estatus"].ToString()) },
+                            });
+                        }
+                    }
+                }
+                EstadosAlerta = new Dictionary<string, object>() {
+                    { "Activos", EstadosAlertaACT },
+                    { "Inactivo", EstadosAlertaDESC }
+                };
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(EstadosAlerta);
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ALMACENA UN NUEVO ESTADO DE ALERTA [ CATALOGOS ]
+        public string GuardarEstadoAlerta(string nombreestadoalerta, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("EstadoAlerta");
+                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.estadoalerta (idcentro, nombreestadoalerta, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @NombreEstadoAlertaParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam))", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] altaEstadoAlerta =
+                {
+                    new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro },
+                    new SqlParameter("@NombreEstadoAlertaParam", SqlDbType.VarChar) { Value = nombreestadoalerta },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = tokenusuario }
+                };
+                SQL.commandoSQL.Parameters.AddRange(altaEstadoAlerta);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ACTUALIZA UN ESTADO DE ALERTA [ CATALOGOS ]
+        public string ActEstadoAlerta(EstadoAlerta estadoalertainfo, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ActEstadoAlerta");
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.estadoalerta SET nombreestadoalerta = @NombreEstadoAlertaParam, estatus = @EstatusParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam) WHERE id = @IdEstadoAlertaParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam)", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] actEstadoAlerta =
+                {
+                    new SqlParameter("@NombreEstadoAlertaParam", SqlDbType.VarChar) { Value = estadoalertainfo.NombreEstadoAlerta },
+                    new SqlParameter("@EstatusParam", SqlDbType.Int) { Value = estadoalertainfo.Estatus },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = tokenusuario },
+                    new SqlParameter("@IdEstadoAlertaParam", SqlDbType.Int) { Value = estadoalertainfo.IdEstadoAlerta },
+                    new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro },
+                };
+                SQL.commandoSQL.Parameters.AddRange(actEstadoAlerta);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE NIVELES DE INTOXICACION [ CATALOGOS ]
+        public string ListaNivelIntoxicacion(string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("NivelesIntoxicacion");
+                Dictionary<string, object> NivelesIntoxicacion = new Dictionary<string, object>();
+                List<object> NivelesIntoxicacionACT = new List<object>(), NivelesIntoxicacionDESC = new List<object>();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.nivelintoxicacion WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        if (int.Parse(lector["estatus"].ToString()) > 0)
+                        {
+                            NivelesIntoxicacionACT.Add(new Dictionary<string, object>()
+                            {
+                                { "IdNivelesIntoxicacion", int.Parse(lector["id"].ToString()) },
+                                { "NombreNivelIntoxicacion", lector["nombrenivelintoxicacion"].ToString() },
+                                { "Estatus", int.Parse(lector["estatus"].ToString()) },
+                            });
+                        }
+                        else
+                        {
+                            NivelesIntoxicacionDESC.Add(new Dictionary<string, object>()
+                            {
+                                { "NombreNivelIntoxicacion", lector["nombrenivelintoxicacion"].ToString() },
+                                { "Estatus", int.Parse(lector["estatus"].ToString()) },
+                            });
+                        }
+                    }
+                }
+                NivelesIntoxicacion = new Dictionary<string, object>() {
+                    { "Activos", NivelesIntoxicacionACT },
+                    { "Inactivo", NivelesIntoxicacionDESC }
+                };
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(NivelesIntoxicacion);
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ALMACENA UN NUEVO NIVEL DE INTOXICACION [ CATALOGOS ]
+        public string GuardarNivelIntoxicacion(string nombrenivelintoxicacion, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("NivelIntoxicacion");
+                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.nivelintoxicacion (idcentro, nombrenivelintoxicacion, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @NombreNivelIntoxicacionParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam))", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] altaNivelIntoxicacion =
+                {
+                    new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro },
+                    new SqlParameter("@NombreNivelIntoxicacionParam", SqlDbType.VarChar) { Value = nombrenivelintoxicacion },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = tokenusuario }
+                };
+                SQL.commandoSQL.Parameters.AddRange(altaNivelIntoxicacion);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ACTUALIZA UN NIVEL DE INTOXICACION [ CATALOGOS ]
+        public string ActNivelIntoxicacion(NivelIntoxicacion estadonivelintoxicacion, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ActNivelIntoxicacion");
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.nivelintoxicacion SET nombrenivelintoxicacion = @NombreNivelIntoxicacionParam, estatus = @EstatusParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam) WHERE id = @IdNivelIntoxicacionParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam)", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] actNivelIntoxicacion =
+                {
+                    new SqlParameter("@NombreNivelIntoxicacionParam", SqlDbType.VarChar) { Value = estadonivelintoxicacion.NombreNivelIntoxicacion },
+                    new SqlParameter("@EstatusParam", SqlDbType.Int) { Value = estadonivelintoxicacion.Estatus },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = tokenusuario },
+                    new SqlParameter("@IdNivelIntoxicacionParam", SqlDbType.Int) { Value = estadonivelintoxicacion.IdNivelesIntoxicacion },
+                    new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro },
+                };
+                SQL.commandoSQL.Parameters.AddRange(actNivelIntoxicacion);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE ESTADOS DE ANIMO [ CATALOGOS ]
+        public string ListaEstadosAnimo(string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("EstadosAnimo");
+                Dictionary<string, object> EstadosAnimo = new Dictionary<string, object>();
+                List<object> EstadosAnimoACT = new List<object>(), EstadosAnimoDESC = new List<object>();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.estadoanimo WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        if (int.Parse(lector["estatus"].ToString()) > 0)
+                        {
+                            EstadosAnimoACT.Add(new Dictionary<string, object>()
+                            {
+                                { "IdEstadoAnimo", int.Parse(lector["id"].ToString()) },
+                                { "NombreEstadoAnimo", lector["nombreestadoanimo"].ToString() },
+                                { "Estatus", int.Parse(lector["estatus"].ToString()) },
+                            });
+                        }
+                        else
+                        {
+                            EstadosAnimoDESC.Add(new Dictionary<string, object>()
+                            {
+                                { "NombreEstadoAnimo", lector["nombreestadoanimo"].ToString() },
+                                { "Estatus", int.Parse(lector["estatus"].ToString()) },
+                            });
+                        }
+                    }
+                }
+                EstadosAnimo = new Dictionary<string, object>() {
+                    { "Activos", EstadosAnimoACT },
+                    { "Inactivo", EstadosAnimoDESC }
+                };
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(EstadosAnimo);
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ALMACENA UN NUEVO ESTADO DE ANIMO [ CATALOGOS ]
+        public string GuardarEstadoAnimo(string nombreestadoanimo, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("EstadoAnimo");
+                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.estadoanimo (idcentro, nombreestadoanimo, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @NombreEstadoAnimoParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam))", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] altaEstadoAnimo =
+                {
+                    new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro },
+                    new SqlParameter("@NombreEstadoAnimoParam", SqlDbType.VarChar) { Value = nombreestadoanimo },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = tokenusuario }
+                };
+                SQL.commandoSQL.Parameters.AddRange(altaEstadoAnimo);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ACTUALIZA UN ESTADO DE ANIMO [ CATALOGOS ]
+        public string ActEstadoAnimo(EstadoAnimo estadoanimoinfo, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ActEstadoAnimo");
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.estadoanimo SET nombreestadoanimo = @NombreEstadoAnimoParam, estatus = @EstatusParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam) WHERE id = @IdEstadoAnimoParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam)", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] actEstadoAnimo =
+                {
+                    new SqlParameter("@NombreEstadoAnimoParam", SqlDbType.VarChar) { Value = estadoanimoinfo.NombreEstadoAnimo },
+                    new SqlParameter("@EstatusParam", SqlDbType.Int) { Value = estadoanimoinfo.Estatus },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = tokenusuario },
+                    new SqlParameter("@IdEstadoAnimoParam", SqlDbType.Int) { Value = estadoanimoinfo.IdEstadoAnimo },
+                    new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro },
+                };
+                SQL.commandoSQL.Parameters.AddRange(actEstadoAnimo);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE USUARIOS REGISTRADOS [ USUARIOS ]
+        public string CargarUsuarios(string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ListaUsuarios");
+                List<Usuarios> ListaUsuarioAux = new List<Usuarios>();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.usuarios WHERE tokencentro = @TokenCentroDATA AND administrador <> 'True' AND estatus > 0", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        ListaUsuarioAux.Add(new Usuarios()
+                        {
+                            IdUsuario = int.Parse(lector["id"].ToString()),
+                            Usuario = lector["usuario"].ToString(),
+                            Nombre = lector["nombre"].ToString(),
+                            Apellido = lector["apellido"].ToString(),
+                            Correo = lector["correo"].ToString(),
+                            Administrador = bool.Parse(lector["administrador"].ToString()),
+                            Activo = int.Parse(lector["activo"].ToString()),
+                        });
+                    }
+                }
+
+                List<Usuarios> ListaUsuarios = new List<Usuarios>();
+                foreach(Usuarios usuario in ListaUsuarioAux)
+                {
+                    PerfilesUsuario ListaPerfiles = new PerfilesUsuario();
+                    SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.usuariosperfiles WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND idusuario = @IDUsuarioDATA", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDUsuarioDATA", SqlDbType.Int) { Value = usuario.IdUsuario });
+                    using (var lector = SQL.commandoSQL.ExecuteReader())
+                    {
+                        while (lector.Read())
+                        {
+                            ListaPerfiles = new PerfilesUsuario()
+                            {
+                                IdUsuario = usuario.IdUsuario,
+                                AlAnon = bool.Parse(lector["alanon"].ToString()),
+                                CoordDeportiva = bool.Parse(lector["coorddeportiva"].ToString()),
+                                CoordMedica = bool.Parse(lector["coordmedica"].ToString()),
+                                CoordPsicologica = bool.Parse(lector["coordpsicologica"].ToString()),
+                                CoordEspiritual = bool.Parse(lector["coordespiritual"].ToString()),
+                                Cord12Pasos = bool.Parse(lector["coorddocepasos"].ToString()),
+                                Documentacion = bool.Parse(lector["documentacion"].ToString()),
+                            };
+                        }
+                        ListaUsuarios.Add(new Usuarios()
+                        {
+                            IdUsuario = usuario.IdUsuario,
+                            Usuario = usuario.Usuario,
+                            Nombre = usuario.Nombre,
+                            Apellido = usuario.Apellido,
+                            Correo = usuario.Correo,
+                            Administrador = usuario.Administrador,
+                            Activo = usuario.Activo,
+                            Perfiles = ListaPerfiles
+                        });
+                    }
+                }
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(ListaUsuarios);
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE GUARDA UN USUARIO [ USUARIOS ]
+        public string GuardarUsuario(Usuarios usuarioinfo, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("GuardarUsuario");
+                if(usuarioinfo.IdUsuario > 0)
+                {
+                    SQL.commandoSQL = new SqlCommand("UPDATE dbo.usuarios SET nombre = @NombreParam, apellido = @ApellidoParam, correo = @CorreoParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioDATA) WHERE tokencentro = @TokenCentroDATA AND id = @IDUsuarioParam", SQL.conSQL, SQL.transaccionSQL);
+                    SqlParameter[] actUsuario =
+                    {
+                        new SqlParameter("@NombreParam", SqlDbType.VarChar) { Value = usuarioinfo.Nombre },
+                        new SqlParameter("@ApellidoParam", SqlDbType.VarChar) { Value = usuarioinfo.Apellido },
+                        new SqlParameter("@CorreoParam", SqlDbType.VarChar) { Value = usuarioinfo.Correo },
+                        new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                        new SqlParameter("@TokenUsuarioDATA", SqlDbType.VarChar) { Value = tokenusuario },
+                        new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro },
+                        new SqlParameter("@IDUsuarioParam", SqlDbType.Int) { Value = usuarioinfo.IdUsuario },
+                    };
+                    SQL.commandoSQL.Parameters.AddRange(actUsuario);
+                    SQL.commandoSQL.ExecuteNonQuery();
+
+                    PerfilesUsuario perfilUsuario = usuarioinfo.Perfiles;
+                    SQL.commandoSQL = new SqlCommand("UPDATE dbo.usuariosperfiles SET alanon = @AlAnonParam, coorddeportiva = @CDeportivaParam, coordmedica = @CMedicaParam, coordpsicologica = @CPsicologicaParam, coordespiritual = @CEspiritualParam, coorddocepasos = @CDocePasosParam, documentacion = @CDocumentacionParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioDATA) WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND idusuario = @IDUsuarioParam", SQL.conSQL, SQL.transaccionSQL);
+                    SqlParameter[] actUsuarioPerfiles =
+                    {
+                        new SqlParameter("@AlAnonParam", SqlDbType.Bit) { Value = perfilUsuario.AlAnon },
+                        new SqlParameter("@CDeportivaParam", SqlDbType.Bit) { Value = perfilUsuario.CoordDeportiva },
+                        new SqlParameter("@CMedicaParam", SqlDbType.Bit) { Value = perfilUsuario.CoordMedica },
+                        new SqlParameter("@CPsicologicaParam", SqlDbType.Bit) { Value = perfilUsuario.CoordPsicologica },
+                        new SqlParameter("@CEspiritualParam", SqlDbType.Bit) { Value = perfilUsuario.CoordEspiritual },
+                        new SqlParameter("@CDocePasosParam", SqlDbType.Bit) { Value = perfilUsuario.Cord12Pasos },
+                        new SqlParameter("@CDocumentacionParam", SqlDbType.Bit) { Value = perfilUsuario.Documentacion },
+                        new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                        new SqlParameter("@TokenUsuarioDATA", SqlDbType.VarChar) { Value = tokenusuario },
+                        new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro },
+                        new SqlParameter("@IDUsuarioParam", SqlDbType.Int) { Value = usuarioinfo.IdUsuario },
+                    };
+                    SQL.commandoSQL.Parameters.AddRange(actUsuarioPerfiles);
+                    SQL.commandoSQL.ExecuteNonQuery();
+                }
+                else
+                {
+                    SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.usuarios (usuario, tokenusuario, tokencentro, nombre, apellido, correo, pass, fechahora, admusuario) VALUES (@UsuarioParam, @TokenUsuarioParam, @TokenCentroDATA, @NombreParam, @ApellidoParam, @CorreoParam, @PassParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioDATA))", SQL.conSQL, SQL.transaccionSQL);
+                    SqlParameter[] nuevoUsuario =
+                    {
+                        new SqlParameter("@UsuarioParam", SqlDbType.VarChar) { Value = usuarioinfo.Usuario },
+                        new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) { Value = MISC.CrearMD5(MISC.CrearCadAleatoria(2, 8)) },
+                        new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro },
+                        new SqlParameter("@NombreParam", SqlDbType.VarChar) { Value = usuarioinfo.Nombre },
+                        new SqlParameter("@ApellidoParam", SqlDbType.VarChar) { Value = usuarioinfo.Apellido },
+                        new SqlParameter("@CorreoParam", SqlDbType.VarChar) { Value = usuarioinfo.Correo },
+                        new SqlParameter("@PassParam", SqlDbType.VarChar) { Value = MISC.CrearMD5(usuarioinfo.Pass) },
+                        new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                        new SqlParameter("@TokenUsuarioDATA", SqlDbType.VarChar) { Value = tokenusuario },
+                    };
+                    SQL.commandoSQL.Parameters.AddRange(nuevoUsuario);
+                    SQL.commandoSQL.ExecuteNonQuery();
+
+                    int IDUsuario = 0;
+                    SQL.commandoSQL = new SqlCommand("SELECT MAX(id) AS Maximo FROM dbo.usuarios WHERE tokencentro = @TokenCentroParam", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) { Value = tokencentro });
+                    using (var lector = SQL.commandoSQL.ExecuteReader())
+                    {
+                        while (lector.Read())
+                        {
+                            IDUsuario = int.Parse(lector["Maximo"].ToString());
+                        }
+                    }
+
+                    PerfilesUsuario perfilUsuario = usuarioinfo.Perfiles;
+                    SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.usuariosperfiles (idusuario, idcentro, alanon, coorddeportiva, coordmedica, coordpsicologica, coordespiritual, coorddocepasos, documentacion, fechahora, admusuario) VALUES (@IDUsuarioParam, (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA), @AlAnonParam, @CDeportivaParam, @CMedicaParam, @CPsicologicaParam, @CEspiritualParam, @CDocePasosParam, @CDocumentacionParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioDATA))", SQL.conSQL, SQL.transaccionSQL);
+                    SqlParameter[] nuevoUsuarioPerfiles =
+                    {
+                        new SqlParameter("@IDUsuarioParam", SqlDbType.Int) { Value = IDUsuario },
+                        new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro },
+                        new SqlParameter("@AlAnonParam", SqlDbType.Bit) { Value = perfilUsuario.AlAnon },
+                        new SqlParameter("@CDeportivaParam", SqlDbType.Bit) { Value = perfilUsuario.CoordDeportiva },
+                        new SqlParameter("@CMedicaParam", SqlDbType.Bit) { Value = perfilUsuario.CoordMedica },
+                        new SqlParameter("@CPsicologicaParam", SqlDbType.Bit) { Value = perfilUsuario.CoordPsicologica },
+                        new SqlParameter("@CEspiritualParam", SqlDbType.Bit) { Value = perfilUsuario.CoordEspiritual },
+                        new SqlParameter("@CDocePasosParam", SqlDbType.Bit) { Value = perfilUsuario.Cord12Pasos },
+                        new SqlParameter("@CDocumentacionParam", SqlDbType.Bit) { Value = perfilUsuario.Documentacion },
+                        new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                        new SqlParameter("@TokenUsuarioDATA", SqlDbType.VarChar) { Value = tokenusuario },
+                    };
+                    SQL.commandoSQL.Parameters.AddRange(nuevoUsuarioPerfiles);
+                    SQL.commandoSQL.ExecuteNonQuery();
+                }
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ACTUALIZA LA  CONTRASEÑA DEL USUARIO [ USUARIOS ]
+        public string NuevaPassUsuario(Usuarios usuarioinfo, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("NuevaPassUsuario");
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.usuarios SET pass = @PassParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioDATA) WHERE tokencentro = @TokenCentroDATA AND id = @IDUsuarioParam", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] actPassUsuario =
+                {
+                    new SqlParameter("@PassParam", SqlDbType.VarChar) { Value = MISC.CrearMD5(usuarioinfo.Pass) },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioDATA", SqlDbType.VarChar) { Value = tokenusuario },
+                    new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro },
+                    new SqlParameter("@IDUsuarioParam", SqlDbType.Int) { Value = usuarioinfo.IdUsuario },
+                };
+                SQL.commandoSQL.Parameters.AddRange(actPassUsuario);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ACTIVA / DESACTIVA UN USUARIO [ USUARIOS ]
+        public string ActivarDesactivarUsuario(Usuarios usuarioinfo, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ActDesUsuario");
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.usuarios SET activo = @ActivoParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioDATA) WHERE tokencentro = @TokenCentroDATA AND id = @IDUsuarioParam", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] actDesUsuario =
+                {
+                    new SqlParameter("@ActivoParam", SqlDbType.Int) { Value = usuarioinfo.Activo },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioDATA", SqlDbType.VarChar) { Value = tokenusuario },
+                    new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro },
+                    new SqlParameter("@IDUsuarioParam", SqlDbType.Int) { Value = usuarioinfo.IdUsuario },
+                };
+                SQL.commandoSQL.Parameters.AddRange(actDesUsuario);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE DEVUELVE LA INFO DEL USUARIO INDIVIDUAL LOGGEADO [ MENU USUARIO INDIVIDUAL ]
+        public string InfoUsuarioIndividual(string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ActualizarUsuario");
+                Dictionary<string, object> UsuarioInfo = new Dictionary<string, object>();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam AND tokencentro = @TokenCentroParam", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] UsuarioConsulta =
+                {
+                    new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) {Value = tokenusuario },
+                    new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) {Value = tokencentro },
+                };
+                SQL.commandoSQL.Parameters.AddRange(UsuarioConsulta);
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        UsuarioInfo = new Dictionary<string, object>()
+                        {
+                            { "IdUsuario", int.Parse(lector["id"].ToString()) },
+                            { "Nombre", lector["nombre"].ToString() },
+                            { "Apellido", lector["apellido"].ToString() },
+                            { "Correo", lector["correo"].ToString() },
+                        };
+                    }
+                }
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(UsuarioInfo);
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE MODIFICA LA INFO GENERAL DEL USUARIO [ MENU USUARIO INDIVIDUAL ]
+        public string ActUsuarioInfo(Usuarios usuarioinfo, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ActualizarUsuario");
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.usuarios SET nombre = @NombreParam, apellido = @ApellidoParam, correo = @CorreoParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioDATA) WHERE tokencentro = @TokenCentroDATA AND tokenusuario = @TokenUsuarioDATA", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] actUsuario =
+                {
+                    new SqlParameter("@NombreParam", SqlDbType.VarChar) { Value = usuarioinfo.Nombre },
+                    new SqlParameter("@ApellidoParam", SqlDbType.VarChar) { Value = usuarioinfo.Apellido },
+                    new SqlParameter("@CorreoParam", SqlDbType.VarChar) { Value = usuarioinfo.Correo },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioDATA", SqlDbType.VarChar) { Value = tokenusuario },
+                    new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro },
+                };
+                SQL.commandoSQL.Parameters.AddRange(actUsuario);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE MODIFICA CONTRASEÑA DEL USUARIO [ MENU USUARIO INDIVIDUAL ]
+        public string ActUsuarioPass(UsuarioPass usuariopass, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ActualizarUsuarioPass");
+                string respuesta = "true";
+                int UsuarioVerif = 0;
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.usuarios WHERE pass = @PassParam AND tokenusuario = @TokenUsuarioParam AND tokencentro = @TokenCentroParam", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] UsuarioVerifPass =
+                {
+                    new SqlParameter("@PassParam", SqlDbType.VarChar) {Value = MISC.CrearMD5(usuariopass.AntiguaPass) },
+                    new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar) {Value = tokenusuario },
+                    new SqlParameter("@TokenCentroParam", SqlDbType.VarChar) {Value = tokencentro },
+                };
+                SQL.commandoSQL.Parameters.AddRange(UsuarioVerifPass);
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        UsuarioVerif++;
+                    }
+                }
+
+                if(UsuarioVerif > 0)
+                {
+                    SQL.commandoSQL = new SqlCommand("UPDATE dbo.usuarios SET pass = @PassParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioDATA) WHERE tokencentro = @TokenCentroDATA AND tokenusuario = @TokenUsuarioDATA", SQL.conSQL, SQL.transaccionSQL);
+                    SqlParameter[] actPassUsuario =
+                    {
+                        new SqlParameter("@PassParam", SqlDbType.VarChar) { Value = MISC.CrearMD5(usuariopass.NuevaPass) },
+                        new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
+                        new SqlParameter("@TokenUsuarioDATA", SqlDbType.VarChar) { Value = tokenusuario },
+                        new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro },
+                    };
+                    SQL.commandoSQL.Parameters.AddRange(actPassUsuario);
+                    SQL.commandoSQL.ExecuteNonQuery();
+                }
+                else
+                {
+                    respuesta = "errorPass";
+                }
+
+                SQL.transaccionSQL.Commit();
+                return respuesta;
             }
             catch (Exception e)
             {

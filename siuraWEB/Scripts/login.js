@@ -56,7 +56,7 @@ $(document).on('click', '.cerrarSesion', function () {
                 contentType: "application/x-www-form-urlencoded",
                 url: "/Login/CerrarSesion",
                 beforeSend: function () {
-                    LoadingOn("Cerrarndo Sesión");
+                    LoadingOn("Cerrando Sesión");
                 },
                 success: function (data) {
                     if (CrearBoolValor(data)) {

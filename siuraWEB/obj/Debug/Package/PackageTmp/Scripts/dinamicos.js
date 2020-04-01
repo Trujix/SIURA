@@ -7,8 +7,11 @@ var estatusPacienteConsulta = 0;
 var finanzasPacientesJSON = {};
 var idPacienteFinanzasGLOBAL = 0;
 var PagosListaJSON = {};
+var CargosAdicionalesListaJSON = {};
 var BecaComprobanteURL = "";
 var IDClavePacienteGLOBAL = "";
+var IdCargoAdicionalGLOBAL = 0;
+var ListaPacientesConsultaJSON = [];
 
 // --------------------------------------------------------
 // FUNCIONES TIPO DOCUMENT (BUTTONS, INPUTS, TEXTAREAS ETC)
@@ -46,7 +49,6 @@ $(document).on('click', '#modalBtnGenerarPago', function () {
                         LoadingOn("Generando Pago...");
                     },
                     success: function (data) {
-                        console.log(data);
                         try {
                             var dataLogo = JSON.parse(data[0]);
                             var dataPago = JSON.parse(data[1]);
@@ -74,6 +76,15 @@ $(document).on('click', '#modalBtnGenerarPago', function () {
 // DOCUMENT - BOTON QUE MANDA LLAMAR EL MODAL PARA GENERA NUEVO CARGO ADICIONAL
 $(document).on('click', '#modalBtnNuevoCargoAdicional', function () {
     $('#modalNuevoCargoAdicional').modal('show');
+});
+
+// DOCUMENT - BOTON TIPO SELECT QUE CONTROLA LA SELECCIONDE DE UN TIPO DE  PAGO
+$(document).on('change', '#modalPacienteTipoPago', function () {
+    $('#modalDivReferenciaPago').hide();
+    if (parseInt($(this).val()) !== 1 && parseInt($(this).val()) > 0) {
+        $('#modalDivReferenciaPago').val("");
+        $('#modalDivReferenciaPago').show();
+    }
 });
 
 // DOCUMENT - BOTON QUE CONTROLA EL GUARDADO DEL CARGO ADICIONAL
@@ -147,9 +158,69 @@ $(document).on('change', '#modalPagosSubirBecaComprobante', function (e) {
     }
 });
 
-// DOCUMENT - QUE CONTROLA EL BOTON PARA EDITAR UN PACIENTE DE PRE-REGISTRO
-$(document).on('click', '.editarPrePaciente', function () {
-    alert('EN ELABORACION')
+// DOCUMENT - BOTON TIPO SELECT QUE CONTROLA LA SELECCIONDE DE UN TIPO DE PAGO (PAGO DE CARGO ADICIONAL)
+$(document).on('change', '#modalPagoCargoTipoPago', function () {
+    $('#modalFolDescRefPagoCargo').hide();
+    if (parseInt($(this).val()) !== 1 && parseInt($(this).val()) > 0) {
+        $('#modalFolDescRefPagoCargo').val("");
+        $('#modalFolDescRefPagoCargo').show();
+    }
+});
+
+// DOCUMENT - BOTON QUE CONTROLA EL PAGO DEL CARGO ADICIONAL UNA VEZ CONFIGURADO EL FORM DEL MODAL
+$(document).on('click', '#modalGuardarPagoCargoAdicional', function () {
+    if (validarFormPagarCargoAdicional()) {
+        MsgPregunta("Generar Pago Cargo", "¿Desea continuar?", function (si) {
+            if (si) {
+                var cargoPago = {
+                    IdCargo: IdCargoAdicionalGLOBAL,
+                    TipoPago: $('#modalPagoCargoTipoPago option:selected').text().toUpperCase(),
+                    DescFolRefPago: (($('#modalFolDescRefPagoCargo').val() !== "") ? $('#modalFolDescRefPagoCargo').val() : "--")
+                };
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/x-www-form-urlencoded",
+                    url: "/Dinamicos/GenerarPagoCargo",
+                    data: { CargoPago: cargoPago },
+                    dataType: 'JSON',
+                    beforeSend: function () {
+                        LoadingOn("Generando Pago...");
+                    },
+                    success: function (data) {
+                        if (Array.isArray(data)) {
+                            try {
+                                $('#modalPagoCargoAdicional').modal('hide');
+                                LoadingOff();
+                                MsgPregunta("Comprobante de Pago", "¿Desea imprimir comprobante?", function (si) {
+                                    if (si) {
+                                        LoadingOn("Imprimiendo comprobante...");
+                                        var dataLogo = JSON.parse(data[0]);
+                                        var dataPago = JSON.parse(data[1]);
+                                        dataPago["NombrePaciente"] = $('#modalPacienteNombre').text();
+                                        dataPago["TipoPago"] = dataPago.TipoPago;
+                                        dataPago["ReferenciaPago"] = dataPago.ReferenciaPago;
+
+                                        imprimirReciboPago(dataPago, dataLogo.LogoCentro);
+                                        LoadingOff();
+                                        $('#modalPacientesPagos').modal('hide');
+                                    } else {
+                                        $('#modalPacientesPagos').modal('hide');
+                                    }
+                                });
+                            } catch (e) {
+                                ErrorLog(e.toString(), "Imprimir Cargo Pago");
+                            }
+                        } else {
+                            ErrorLog(data.responseText, "Pagar Cargo Adicional");
+                        }
+                    },
+                    error: function (error) {
+                        ErrorLog(error.responseText, "Pagar Cargo Adicional");
+                    }
+                });
+            }
+        });
+    }
 });
 
 // --------------------------------------------------------
@@ -204,6 +275,7 @@ function consultarPagos() {
                 beforeSend: function () {
                     LoadingOn("Obteniendo info Paciente...");
                     PagosListaJSON = {};
+                    CargosAdicionalesListaJSON = {};
                 },
                 success: function (data) {
                     if (data.Pagos !== undefined) {
@@ -221,7 +293,8 @@ function consultarPagos() {
                         $(data.Cargos).each(function (key, value) {
                             var opciones = '', clase = '';
                             if (value.Pagado) {
-                                opciones = '<span class="badge badge-pill badge-secondary"><i class="fa fa-check-circle"></i></span>';
+                                opciones = '<span class="badge badge-pill badge-dark" onclick="reimprimirPagoCargoAdicional(' + value.IdCargo + ');" style="cursor: pointer;" title="Imprimir Recibo de Pago"><i class="fa fa-print"></i></span>';
+                                clase = ' class="table-success"';
                             } else {
                                 opciones = '<span class="badge badge-pill badge-success" onclick="pagarCargoAdicional(' + value.IdCargo + ');" style="cursor: pointer;" title="Pagar Cargo"><i class="fa fa-dollar-sign"></i></span>';
                             }
@@ -233,6 +306,10 @@ function consultarPagos() {
                                 montoCargos += value.Importe;
                             }
                             cargos += "<tr" + clase + "><td>" + value.Folio + "</td><td>" + value.Descripcion + "</td><td>$&nbsp;" + value.Importe.toFixed(2) + "</td><td>" + value.FechaRegistro + "</td><td style='text-align: center;'>" + opciones + "</td></tr>";
+                            CargosAdicionalesListaJSON["Cargo_" + value.IdCargo] = {
+                                Importe: value.Importe,
+                                Descripcion: value.Descripcion
+                            };
                         });
                         $('#modalPacienteNombre').html(finanzasPacientesJSON["Finanza_" + idPacienteFinanzasGLOBAL].NombreCompleto);
                         $('#modalPacienteMontoInicial').html(finanzasPacientesJSON["Finanza_" + idPacienteFinanzasGLOBAL].Monto.toFixed(2));
@@ -271,6 +348,7 @@ function consultarPagos() {
             $('#modalPacientesPagos').on('hidden.bs.modal', function (e) {
                 $('#modalPacientesPagos').remove();
                 $('#modalNuevoCargoAdicional').remove();
+                $('#modalPagoCargoAdicional').remove();
             });
         },
         error: function (error) {
@@ -290,6 +368,7 @@ function llenarTablaConsultaPacientes() {
         data: { PacienteConsulta: $('#modalTxtPacienteBusqueda').val().toUpperCase(), Estatus: estatusPacienteConsulta },
         dataType: "JSON",
         beforeSend: function () {
+            ListaPacientesConsultaJSON = [];
             LoadingOn("Cargando pacientes...");
         },
         success: function (data) {
@@ -298,14 +377,23 @@ function llenarTablaConsultaPacientes() {
                     var tabla = "<div class='col-sm-12'><div class='table scrollestilo' style='max-height: 40vh; overflow: scroll;'><table class='table table-sm table-bordered'><thead><tr class='table-active'><th>Nombre Paciente</th><th style='text-align: center;'>Nivel</th><th style='text-align: center;'>Opciones</th></tr></thead><tbody>óê%TABLA%óê</tbody></table></div></div>";
                     var pacientes = "";
                     $(data).each(function (key, value) {
-                        var boton = "", nivel = "";
+                        var id = cadAleatoria(8), boton = "", nivel = "";
                         if (value.Estatus == 1) {
-                            boton = "<button class='btn badge badge-pill badge-warning editarPrePaciente'><i class='fa fa-user-edit' title='Editar Pre-registro'></i></button>&nbsp;<button class='btn badge badge-pill badge-dark reimprimircontrato' idpaciente='" + value.IdPaciente + "'><i class='fa fa-print' title='Reimprimir Contrato'></i></button>";
+                            boton = "<button class='btn badge badge-pill badge-warning editarPrePaciente' title='Editar Pre-registro'><i class='fa fa-user-edit'></i></button>&nbsp;<button class='btn badge badge-pill badge-dark reimprimircontrato' idpaciente='" + value.IdPaciente + "' title='Reimprimir Contrato'><i class='fa fa-print'></i></button>";
                             nivel = "<span class='badge badge-dark'>Pre-registro</span>";
                         } else if (value.Estatus == 2) {
+                            boton = "<button class='btn badge badge-pill badge-warning configurarPacienteIngreso' idpaciente='" + id + "' title='Configurar Ingreso'><i class='fa fa-user-cog'></i>&nbsp;Configurar Ingreso</button>";
+                            nivel = "<span class='badge badge-dark'>Pre-Ingreso</span>";
+                        } else if (value.Estatus == 3) {
 
                         }
                         pacientes += "<tr><td>" + value.NombreCompleto + "</td><td style='text-align: center;'>" + nivel + "</td><td style='text-align: center;'>" + boton + "</td></tr>";
+                        ListaPacientesConsultaJSON.push({
+                            Id: id,
+                            IdPaciente: value.IdPaciente,
+                            NombreCompleto: value.NombreCompleto,
+                            ClavePaciente: value.ClavePaciente,
+                        });
                     });
                     LoadingOff();
                     $('#modalTxtPacienteBusqueda').focus();
@@ -421,4 +509,64 @@ function mostrarInfoPago(idPago) {
 // FUNCION QUE MUESTRA / ANBRE EL COMPROBANTE DEL BECARIO DESDE EL PANEL DE PAGOS Y FINANZAS DEL PACIENTE
 function mostrarBecaComprobante() {
     window.open(BecaComprobanteURL, '_blank');
+}
+
+// FUNCION QUE GENERA EL PAGO DE UN CARGO ADICIONAL
+function pagarCargoAdicional(idCargo) {
+    IdCargoAdicionalGLOBAL = idCargo;
+    $('#modalPagoCargoTipoPago').val("1");
+    $('#modalFolDescRefPagoCargo').hide();
+    $('#modalPagoCargoAdicional').modal('show');
+    $('#modalPagoCargoImporte').html("$ " + CargosAdicionalesListaJSON["Cargo_" + idCargo].Importe.toFixed(2));
+    $('#modalPagoCargoDescripcion').html(CargosAdicionalesListaJSON["Cargo_" + idCargo].Descripcion);
+}
+
+// FUNCION QUE VALIDA EL FORMULARIO DEL PAGO DE CARGO ADICIONAL
+function validarFormPagarCargoAdicional() {
+    var correcto = true, msg = "";
+    if (parseInt($('#modalPagoCargoTipoPago').val()) > 0 && parseInt($('#modalPagoCargoTipoPago').val()) !== 1 && $('#modalFolDescRefPagoCargo').val() === "") {
+        $('#modalFolDescRefPagoCargo').focus();
+        msg = "Coloque <b>Referencia, Folio o Descripción</b>";
+        correcto = false;
+    }
+
+    if (!correcto) {
+        MsgAlerta("Atención!", msg, 3000, "default");
+    }
+    return correcto;
+}
+
+// FUNCION QUE REIMPRIME EL RECIBO DE PAGO DEL CARGO ADICIONAL
+function reimprimirPagoCargoAdicional(idCargo) {
+    $.ajax({
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/Dinamicos/ReimprimirPagoCargo",
+        data: { IDCargo: idCargo },
+        dataType: 'JSON',
+        beforeSend: function () {
+            LoadingOn("Generando Recibo...");
+        },
+        success: function (data) {
+            if (Array.isArray(data)) {
+                try {
+                    var dataLogo = JSON.parse(data[0]);
+                    var dataPago = JSON.parse(data[1]);
+                    dataPago["NombrePaciente"] = $('#modalPacienteNombre').text();
+                    dataPago["TipoPago"] = dataPago.TipoPago;
+                    dataPago["ReferenciaPago"] = dataPago.ReferenciaPago;
+
+                    imprimirReciboPago(dataPago, dataLogo.LogoCentro);
+                    LoadingOff();
+                } catch (e) {
+                    ErrorLog(e.toString(), "Reimprimir Cargo Pago");
+                }
+            } else {
+                ErrorLog(data.responseText, "Reimprimir Cargo Pago");
+            }
+        },
+        error: function (error) {
+            ErrorLog(error.responseText, "Reimprimir Cargo Pago");
+        }
+    });
 }

@@ -1,0 +1,248 @@
+﻿@{
+    Layout = null;
+}
+<div class="row" style="padding-top: 5px;">
+    <div class="col-sm-6">
+        <button id="agregarNuevoUsuario" class="btn badge badge-pill badge-info"><i class="fa fa-plus"></i>&nbsp;Agregar Nuevo Usuario</button>
+    </div>
+    <div class="col-sm-6" align="right">
+        <button id="configurarUsuarioAdmin" class="btn badge badge-pill badge-primary"><i class="fa fa-user-cog"></i>&nbsp;Configurar Info. Administrador</button>
+    </div>
+</div>
+<div class="row scrollestilo" style="padding-top: 5px; height: 75vh; overflow: scroll;">
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="table table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr class="table-active">
+                                <th style="text-align: center;">Usuario</th>
+                                <th style="text-align: center;">Nombre</th>
+                                <th style="text-align: center;">Activo</th>
+                                <th style="text-align: center;">Opciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaListaUsuarios"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalUsuarios" class="modal fade" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Configurar Usuario</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row scrollestilo" style="height: 70vh;">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h6>Usuario:&nbsp;<span id="modalUsuario" class="badge badge-primary">--</span></h6>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div id="modalUsuarioAlerta" class="alert alert-warning alert-dismissible fade show" role="alert">
+                                    <strong><i class="fa fa-info-circle"></i></strong> El Usuario se genera automáticamente
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="modalNombreUsuario"><b><i class="fa fa-user"></i>&nbsp;Nombre:</b></label>
+                                    <input id="modalNombreUsuario" type="text" class="form-control form-control-sm usuariotxtform" placeholder="Nombre del Usuario">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="modalApellidoUsuario"><b><i class="fa fa-user"></i>&nbsp;Apellido:</b></label>
+                                    <input id="modalApellidoUsuario" type="text" class="form-control form-control-sm usuariotxtform" placeholder="Apellido del Usuario">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="modalCorreoUsuario"><b><i class="fa fa-at"></i>&nbsp;Correo Electrónico:</b></label>
+                                    <input id="modalCorreoUsuario" type="text" class="form-control form-control-sm usuariotxtform" placeholder="Correo del Usuario">
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h5>Perfiles (Permisos de Usuario):</h5>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-check pl-0">
+                                                    <input id="modalUsuAlAnon" name="modalcheckpermisos" type="checkbox" data-on="Si" data-off="No" checked data-toggle="toggle" data-size="xs" data-onstyle="outline-success" data-offstyle="outline-danger" autocomplete="off">
+                                                    <label class="form-check-label"><b>Al Anon</b></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-check pl-0">
+                                                    <input id="modalUsuDeportiva" name="modalcheckpermisos" type="checkbox" data-on="Si" data-off="No" checked data-toggle="toggle" data-size="xs" data-onstyle="outline-success" data-offstyle="outline-danger" autocomplete="off">
+                                                    <label class="form-check-label"><b>C. Deportiva</b></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="padding-top: 10px;">
+                                            <div class="col-sm-6">
+                                                <div class="form-check pl-0">
+                                                    <input id="modalUsuMedica" name="modalcheckpermisos" type="checkbox" data-on="Si" data-off="No" checked data-toggle="toggle" data-size="xs" data-onstyle="outline-success" data-offstyle="outline-danger" autocomplete="off">
+                                                    <label class="form-check-label"><b>C. Médica</b></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-check pl-0">
+                                                    <input id="modalUsuPsicologica" name="modalcheckpermisos" type="checkbox" data-on="Si" data-off="No" checked data-toggle="toggle" data-size="xs" data-onstyle="outline-success" data-offstyle="outline-danger" autocomplete="off">
+                                                    <label class="form-check-label"><b>C. Psicológica</b></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="padding-top: 10px;">
+                                            <div class="col-sm-6">
+                                                <div class="form-check pl-0">
+                                                    <input id="modalUsuEspiritual" name="modalcheckpermisos" type="checkbox" data-on="Si" data-off="No" checked data-toggle="toggle" data-size="xs" data-onstyle="outline-success" data-offstyle="outline-danger" autocomplete="off">
+                                                    <label class="form-check-label"><b>C. Espiritual</b></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-check pl-0">
+                                                    <input id="modalUsuDocepasos" name="modalcheckpermisos" type="checkbox" data-on="Si" data-off="No" checked data-toggle="toggle" data-size="xs" data-onstyle="outline-success" data-offstyle="outline-danger" autocomplete="off">
+                                                    <label class="form-check-label"><b>C. 12 Pasos</b></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="padding-top: 10px;">
+                                            <div class="col-sm-6">
+                                                <div class="form-check pl-0">
+                                                    <input id="modalUsuDocumentacion" name="modalcheckpermisos" type="checkbox" data-on="Si" data-off="No" checked data-toggle="toggle" data-size="xs" data-onstyle="outline-success" data-offstyle="outline-danger" autocomplete="off">
+                                                    <label class="form-check-label"><b>Documentación</b></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modalGuardarUsuario" type="button" class="btn btn-sm btn-success">Guardar Usuario</button>
+                <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalNuevaPassUsuario" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Generar Nueva Contraseña</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning" role="alert">
+                            <strong><i class="fa fa-info-circle"></i></strong> <b>Atención!</b>
+                            <p>Se le generará una <b>nueva contraseña</b> al usuario <b id="modalUsuarioNuevaPass"></b> - <b id="modalNombreNuevaPass"></b> y se le enviará al siguiente correo:</p>
+                            <center><p><b id="modalCorreoNuevaPass"></b></p></center>
+                            <p>Es importante verificar que la cuenta de correo sea correcta.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modalBtnNuevaPasUsuario" type="button" class="btn btn-sm btn-success"><i class="fa fa-envelope"></i>&nbsp;Generar Contraseña y Enviar</button>
+                <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalConfigAdmin" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Configurar Info. Administrador</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row scrollestilo" style="height: 80vh; overflow: scroll;">
+                    <div class="col-sm-12">
+                        <h5>Datos Personales</h5>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label for="configUsuNombre"><b><i class="fa fa-user"></i>&nbsp;Nombre:</b></label>
+                                    <input id="configUsuNombre" type="text" class="form-control form-control-sm usuarioindtxtform" placeholder="Nombre del Usuario" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label for="configUsuApellido"><b><i class="fa fa-user"></i>&nbsp;Apellido:</b></label>
+                                    <input id="configUsuApellido" type="text" class="form-control form-control-sm usuarioindtxtform" placeholder="Apellido del Usuario" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label for="configUsuCorreo"><b><i class="fa fa-at"></i>&nbsp;Correo:</b></label>
+                                    <input id="configUsuCorreo" type="text" class="form-control form-control-sm usuarioindtxtform" placeholder="Correo del Usuario" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <button id="btnConfigUsuGuardar" class="btn btn-block btn-sm btn-success"><i class="fa fa-save"></i> Guardar Valores</button>
+                            </div>
+                        </div>
+                        <hr />
+                        <h5>Cambiar Contraseña</h5>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label for="configUsuNuevaPass"><b><i class="fa fa-lock-open"></i>&nbsp;Nueva Contraseña:</b></label>
+                                    <input id="configUsuNuevaPass" type="password" class="form-control form-control-sm usuarioindtxtform" placeholder="Nueva Contraseña" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label for="configUsuConfirmPass"><b><i class="fa fa-lock"></i>&nbsp;Repetir Contraseña:</b></label>
+                                    <input id="configUsuConfirmPass" type="password" class="form-control form-control-sm usuarioindtxtform" placeholder="Repetir Nueva Contraseña" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label for="configUsuAntPass"><b><i class="fa fa-lock"></i>&nbsp;Antigua Contraseña:</b></label>
+                                    <input id="configUsuAntPass" type="password" class="form-control form-control-sm usuarioindtxtform" placeholder="Antigua Contraseña" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <button id="btnConfigUsuGuardarPass" class="btn btn-block btn-sm btn-success"><i class="fa fa-save"></i> Guardar Contraseña</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cerrar Configuración</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -24,8 +24,21 @@ namespace siuraWEB.Controllers
         }
 
         // -------------- FUNCIONES PRINCIPALES --------------
-        // FUNCION QUE DEVUELVE LA VISTA PRINCIPAL
+        // FUNCION QUE DEVUELVE LA VISTA PRINCIPAL (EXCLUSIVA DEL ADMINISTRADOR)
         public ActionResult MenuConfiguracion()
+        {
+            if ((bool)Session["Administrador"])
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("MenuConfiguracionUsu");
+            }
+        }
+
+        // FUNCION QUE DEVUELVE LA VISTA DE LA CONFIGURACION PARA UN USUARIO
+        public ActionResult MenuConfiguracionUsu()
         {
             return View();
         }
@@ -301,7 +314,184 @@ namespace siuraWEB.Controllers
         // FUNCION QUE ELIMINA UN ESQUEMA DE FASES DE TRATAMIENTO [ CATALOGOS ]
         public string ActDesFasesTratamiento(int IdFase, int Estatus)
         {
-            return MiConfiguracion.ActDesFasesTratamiento(IdFase, Estatus,(string)Session["Token"], (string)Session["TokenCentro"]);
+            return MiConfiguracion.ActDesFasesTratamiento(IdFase, Estatus, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE ESTADOS DE ALERTA [ CATALOGOS ]
+        public string ListaEstadosAlerta()
+        {
+            return MiConfiguracion.ListaEstadosAlerta((string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE DA DE ALTA UN NUEVO ESTADO DE ALERTA [ CATALOGOS ]
+        public string GuardarEstadoAlerta(string NombreEstadoAlerta)
+        {
+            return MiConfiguracion.GuardarEstadoAlerta(NombreEstadoAlerta, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE ACTUALIZA UN ESTADO DE ALERTA [ CATALOGOS ]
+        public string ActEstadoAlerta(MConfiguracion.EstadoAlerta EstadoAlertaInfo)
+        {
+            return MiConfiguracion.ActEstadoAlerta(EstadoAlertaInfo, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE NIVELES DE INTOXICACION [ CATALOGOS ]
+        public string ListaNivelIntoxicacion()
+        {
+            return MiConfiguracion.ListaNivelIntoxicacion((string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE DA DE ALTA UN NUEVO NIVEL DE INTOXICACIÓN [ CATALOGOS ]
+        public string GuardarNivelIntoxicacion(string NombreNivelIntoxicacion)
+        {
+            return MiConfiguracion.GuardarNivelIntoxicacion(NombreNivelIntoxicacion, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE ACTUALIZA UN NIVEL DE INTOXICACION [ CATALOGOS ]
+        public string ActNivelIntoxicacion(MConfiguracion.NivelIntoxicacion NivelIntoxicacionInfo)
+        {
+            return MiConfiguracion.ActNivelIntoxicacion(NivelIntoxicacionInfo, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE ESTADOS DE ANIMO [ CATALOGOS ]
+        public string ListaEstadosAnimo()
+        {
+            return MiConfiguracion.ListaEstadosAnimo((string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE DA DE ALTA UN NUEVO ESTADO DE ANIMO [ CATALOGOS ]
+        public string GuardarEstadoAnimo(string NombreEstadoAnimo)
+        {
+            return MiConfiguracion.GuardarEstadoAnimo(NombreEstadoAnimo, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE ACTUALIZA UN ESTADO DE ANIMO [ CATALOGOS ]
+        public string ActEstadoAnimo(MConfiguracion.EstadoAnimo EstadoAnimoInfo)
+        {
+            return MiConfiguracion.ActEstadoAnimo(EstadoAnimoInfo, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // :::::::::::::: MENU USUARIOS ::::::::::::::
+        // FUNCION QUE DEVUELVE LA VISTA GENERAL DE USUARIOS [ USUARIOS ]
+        public ActionResult Usuarios()
+        {
+            return View();
+        }
+
+        // FUNCION QUE DEVUELVE LA  LISTA DE USUARIOS REGISTRADOS [ USUARIOS ]
+        public string CargarUsuarios()
+        {
+            return MiConfiguracion.CargarUsuarios((string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE GUARDA EL NUEVO USUARIO [ USUARIOS ]
+        public string GuardarUsuario(MConfiguracion.Usuarios UsuarioInfo)
+        {
+            UsuarioInfo.Pass = MISC.CrearCadAleatoria(3, 4);
+            string UsuarioAccion = MiConfiguracion.GuardarUsuario(UsuarioInfo, (string)Session["Token"], (string)Session["TokenCentro"]);
+            if(UsuarioInfo.IdUsuario == 0 && UsuarioAccion == "true")
+            {
+                EnviarCorreoUsuarioPass(UsuarioInfo.Correo, UsuarioInfo.Pass, UsuarioInfo.Usuario, UsuarioInfo.Nombre + " " + UsuarioInfo.Apellido);
+            }
+            return UsuarioAccion;
+        }
+
+        // FUNCION QUE GENERA UNA NUEVA PASS Y ENVIA CORREO AL USUARIO [ USUARIOS ]
+        public string NuevaPassUsuario(MConfiguracion.Usuarios UsuarioInfo)
+        {
+            UsuarioInfo.Pass = MISC.CrearCadAleatoria(3, 4);
+            string UsuarioAccion = MiConfiguracion.NuevaPassUsuario(UsuarioInfo, (string)Session["Token"], (string)Session["TokenCentro"]);
+            if (UsuarioAccion == "true")
+            {
+                EnviarCorreoUsuarioNuevaPass(UsuarioInfo.Correo, UsuarioInfo.Pass, UsuarioInfo.Nombre + " " + UsuarioInfo.Apellido);
+            }
+            return UsuarioAccion;
+        }
+
+        // FUNCION QUE ACTIVA O DESACTIVA UN USUARIO [ USUARIOS ]
+        public string ActivarDesactivarUsuario(MConfiguracion.Usuarios UsuarioInfo)
+        {
+            return MiConfiguracion.ActivarDesactivarUsuario(UsuarioInfo, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE ENVIA CORREO ELECTRONICO CON LOS [ USUARIOS ]
+        public string EnviarCorreoUsuarioPass(string Correo, string Pass, string Usuario, string NombreUsuario)
+        {
+            try
+            {
+                string UrlUsuarioDocs = System.Web.HttpContext.Current.Request.Url.AbsoluteUri.Replace(System.Web.HttpContext.Current.Request.Url.AbsolutePath, "") + "/Docs/" + (string)Session["TokenCentro"] + "/";
+                string correoHTML = "<p>Estimado <b>" + NombreUsuario + "</b></p><br /><p>Le damos la bienvenida al sistema <b>SIUR-A</b> anunciándole que su registro, realizado por el administrador, se ha realizado correctamente. A continuación le damos a conocer los valores de acceso para que inicie sesión en el sistema:</p><br><p><b>Usuario: </b>" + Usuario + "</p><p><b>Contraseña: </b>" + Pass + "</p><p><b>Clave Centro: </b>" + (string)Session["ClaveCentro"] + "</p>";
+
+                var smtpUsuario = new SmtpClient("smtp.gmail.com", 587)
+                {
+                    Credentials = new NetworkCredential("siura.adm.gestionmail@gmail.com", "siura2020"),
+                    EnableSsl = true
+                };
+                MailMessage msg = new MailMessage();
+                MailAddress mailKiosko = new MailAddress("siura.adm.gestionmail@gmail.com");
+                MailAddress mailCategorie = new MailAddress(Correo);
+                msg.From = mailKiosko;
+                msg.To.Add(mailCategorie);
+                msg.Subject = "Info. Inicio de Sesión";
+                msg.Body = MISC.MailHTML().Replace("×ØCUERPOMAILØ×", correoHTML);
+                msg.IsBodyHtml = true;
+                smtpUsuario.Send(msg);
+                return "true";
+            }
+            catch (Exception e)
+            {
+                return e.ToString();
+            }
+        }
+
+        // FUNCION QUE ENVIA CORREO ELECTRONICO CON NUEVA CONTRASEÑA DE USUARIO [ USUARIOS ]
+        public string EnviarCorreoUsuarioNuevaPass(string Correo, string Pass, string NombreUsuario)
+        {
+            try
+            {
+                string UrlUsuarioDocs = System.Web.HttpContext.Current.Request.Url.AbsoluteUri.Replace(System.Web.HttpContext.Current.Request.Url.AbsolutePath, "") + "/Docs/" + (string)Session["TokenCentro"] + "/";
+                string correoHTML = "<p>Estimado <b>" + NombreUsuario + "</b></p><br /><p>Hemos recibido una solicitud de reestablecimiento de su contraseña de acceso al sistema SIURA por parte de su usuario <b>administrador</b>. Su nueva clave de acceso es:</p><p><b>Nueva Contraseña: </b>" + Pass + "</p><br /><p>Una vez iniciado sesión le recomendamos ampliamente personalizarla desde el menú <b>Configuración.</b></p>";
+
+                var smtpUsuario = new SmtpClient("smtp.gmail.com", 587)
+                {
+                    Credentials = new NetworkCredential("siura.adm.gestionmail@gmail.com", "siura2020"),
+                    EnableSsl = true
+                };
+                MailMessage msg = new MailMessage();
+                MailAddress mailKiosko = new MailAddress("siura.adm.gestionmail@gmail.com");
+                MailAddress mailCategorie = new MailAddress(Correo);
+                msg.From = mailKiosko;
+                msg.To.Add(mailCategorie);
+                msg.Subject = "Nueva Contraseña";
+                msg.Body = MISC.MailHTML().Replace("×ØCUERPOMAILØ×", correoHTML);
+                msg.IsBodyHtml = true;
+                smtpUsuario.Send(msg);
+                return "true";
+            }
+            catch (Exception e)
+            {
+                return e.ToString();
+            }
+        }
+
+
+        // :::::::::::::: MENU USUARIO INDIVIDUAL (INCLUYENDO EL USUARIO ADMIN) ::::::::::::::
+        // FUNCION QUE DEVUELVE LA INFO DEL USUARIO LOGEADO [ MENU USUARIO INDIVIDUAL ]
+        public string InfoUsuarioIndividual()
+        {
+            return MiConfiguracion.InfoUsuarioIndividual((string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE MODIFICA LA INFO GENERAL DEL USUARIO [ MENU USUARIO INDIVIDUAL ]
+        public string ActUsuarioInfo(MConfiguracion.Usuarios UsuarioInfo)
+        {
+            return MiConfiguracion.ActUsuarioInfo(UsuarioInfo, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE MODIFICA LA CONTRASEÑA DEL USUARIO [ MENU USUARIO INDIVIDUAL ]
+        public string ActUsuarioPass(MConfiguracion.UsuarioPass UsuarioPass)
+        {
+            return MiConfiguracion.ActUsuarioPass(UsuarioPass, (string)Session["Token"], (string)Session["TokenCentro"]);
         }
     }
 }

@@ -135,13 +135,53 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-12">
-                        <input id="modalDescripcionCargoAdicional" type="text" class="form-control form-control-sm" placeholder="Descripcion del Cargo" />
+                        <input id="modalDescripcionCargoAdicional" type="text" class="form-control form-control-sm" placeholder="Descripcion del Cargo" autocomplete="off" />
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cancelar</button>
                 <button id="modalGuardarCargoAdicional" type="button" class="btn btn-sm btn-success">Guardar Cargo</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalPagoCargoAdicional" class="modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Opciones de Pago</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h6><span class="badge badge-primary">Cargo:</span>&nbsp;<i id="modalPagoCargoImporte"></i></h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h6><span class="badge badge-primary">Descripción:</span>&nbsp;<i id="modalPagoCargoDescripcion"></i></h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <select id="modalPagoCargoTipoPago" class="form-control form-control-sm">
+                            <option value="1">Efectivo</option>
+                            <option value="2">Transferencia Bancaria</option>
+                            <option value="3">Cheque</option>
+                            <option value="4">Deposito</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12" style="padding-top: 10px;">
+                        <textarea id="modalFolDescRefPagoCargo" class="form-control form-control-sm" placeholder="Descripción / Folio / Referencia"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cancelar</button>
+                <button id="modalGuardarPagoCargoAdicional" type="button" class="btn btn-sm btn-success">Generar Pago</button>
             </div>
         </div>
     </div>

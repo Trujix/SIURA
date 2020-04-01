@@ -37,6 +37,7 @@ namespace siuraWEB.Models
         // CLASE DE REGISTRO DE INGRESO DEL PACIENTE
         public class PacienteIngreso
         {
+            public int IdPaciente { get; set; }
             public string TipoIngreso { get; set; }
             public int TiempoEstancia { get; set; }
             public string TipoEstancia { get; set; }
@@ -48,6 +49,12 @@ namespace siuraWEB.Models
             public string FasesCantTratamientoIndx { get; set; }
             public string FasesTratamiento { get; set; }
             public string FasesTratamientoIndx { get; set; }
+            public string EstadoAlerta { get; set; }
+            public int EstadoAlertaIndx { get; set; }
+            public string NivelIntoxicacion { get; set; }
+            public int NivelIntoxicacionIndx { get; set; }
+            public string EstadoAnimo { get; set; }
+            public int EstadoAnimoIndx { get; set; }
         }
         // CLASE DE REGISTRO DE FINANZAS DEL PACIENTE
         public class PacienteFinazasData
@@ -330,8 +337,8 @@ namespace siuraWEB.Models
                     { "CantidadPagos", pacientefinanzas.CantidadPagos },
                     { "MontoPagoParcial", pacientefinanzas.MontoPagoParcial },
                     { "TipoPago", pacientefinanzas.TipoPago },
-                    { "FechaInicioPago", new DateTime(int.Parse(pacientefinanzas.FechaInicioPago.Split('/')[2]),int.Parse(pacientefinanzas.FechaInicioPago.Split('/')[1]),int.Parse(pacientefinanzas.FechaInicioPago.Split('/')[0])).ToString("dddd, dd MMMM yyyy") },
-                    { "FechaFinPago", new DateTime(int.Parse(pacientefinanzas.FechaFinPago.Split('/')[2]),int.Parse(pacientefinanzas.FechaFinPago.Split('/')[1]),int.Parse(pacientefinanzas.FechaFinPago.Split('/')[0])).ToString("dddd, dd MMMM yyyy") },
+                    { "FechaInicioPago", (pacientefinanzas.FechaInicioPago != "--") ? new DateTime(int.Parse(pacientefinanzas.FechaInicioPago.Split('/')[2]),int.Parse(pacientefinanzas.FechaInicioPago.Split('/')[1]),int.Parse(pacientefinanzas.FechaInicioPago.Split('/')[0])).ToString("dddd, dd MMMM yyyy") : "--" },
+                    { "FechaFinPago", (pacientefinanzas.FechaFinPago != "--") ? new DateTime(int.Parse(pacientefinanzas.FechaFinPago.Split('/')[2]),int.Parse(pacientefinanzas.FechaFinPago.Split('/')[1]),int.Parse(pacientefinanzas.FechaFinPago.Split('/')[0])).ToString("dddd, dd MMMM yyyy") : "--" },
                 };
 
                 SQL.transaccionSQL.Commit();
@@ -479,6 +486,49 @@ namespace siuraWEB.Models
 
                 SQL.transaccionSQL.Commit();
                 return JsonConvert.SerializeObject(Contrato) + LogoCad;
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ACTUALIZA LOS PARAMETROS DE PARAMETROS DE INGRESO DEL PACIENTE AL CENTRO [ INGRESO PACIENTES ]
+        public string ActIngresoPaciente(PacienteIngreso pacienteingreso, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ActIngresoPaciente");
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.pacienteregistro SET estatus = @EstatusDATA WHERE id = @IDPacienteDATA AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@EstatusDATA", SqlDbType.Int) { Value = 3 });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDPacienteDATA", SqlDbType.Int) { Value = pacienteingreso.IdPaciente });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.pacienteingreso SET estadoalerta = @EstadoAlertaParam, estadoalertaindx = @EstadoAlertaIndxParam, nivelintoxicacion = @NivelIntoxicacionParam, nivelintoxicacionindx = @NivelIntoxicacionIndxParam, estadoanimo = @EstadoAnimoParam, estadoanimoindx = @EstadoAnimoIndxParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam) WHERE id = @IDPacienteDATA AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] actIngresoPaciente =
+                {
+                    new SqlParameter("@EstadoAlertaParam", SqlDbType.VarChar){Value = pacienteingreso.EstadoAlerta },
+                    new SqlParameter("@EstadoAlertaIndxParam", SqlDbType.Int){Value = pacienteingreso.EstadoAlertaIndx },
+                    new SqlParameter("@NivelIntoxicacionParam", SqlDbType.VarChar){Value = pacienteingreso.NivelIntoxicacion },
+                    new SqlParameter("@NivelIntoxicacionIndxParam", SqlDbType.Int){Value = pacienteingreso.NivelIntoxicacionIndx },
+                    new SqlParameter("@EstadoAnimoParam", SqlDbType.VarChar){Value = pacienteingreso.EstadoAnimo },
+                    new SqlParameter("@EstadoAnimoIndxParam", SqlDbType.Int){Value = pacienteingreso.EstadoAnimoIndx },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime){Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar){Value = tokenusuario },
+                    new SqlParameter("@IDPacienteDATA", SqlDbType.Int){Value = pacienteingreso.IdPaciente },
+                    new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar){Value = tokencentro },
+                };
+                SQL.commandoSQL.Parameters.AddRange(actIngresoPaciente);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
             }
             catch (Exception e)
             {

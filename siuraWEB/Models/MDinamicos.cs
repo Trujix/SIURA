@@ -27,6 +27,13 @@ namespace siuraWEB.Models
             public double Importe { get; set; }
             public string Descripcion { get; set; }
         }
+        // CLASE DE PAGOS DE CARGO ADICIONAL
+        public class PagoCargoAdicional
+        {
+            public int IdCargo { get; set; }
+            public string TipoPago { get; set; }
+            public string DescFolRefPago { get; set; }
+        }
 
         // ---------- FUNCIONES --------------
 
@@ -369,6 +376,182 @@ namespace siuraWEB.Models
 
                 SQL.transaccionSQL.Commit();
                 return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE GENERA UN PAGO A UN CARGO ADICIONAL
+        public string GenerarPagoCargo(PagoCargoAdicional pagocargo, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("PagoCargo");
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.pacientecargosadicionales SET pagado = 'True', tipopago = @TipoCargoParam, folrefdesc = @FolRefDescParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenParam) WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND id = @IDCargoParam", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] cargoAdicionalPagar =
+                {
+                    new SqlParameter("@TipoCargoParam", SqlDbType.VarChar){Value = pagocargo.TipoPago },
+                    new SqlParameter("@FolRefDescParam", SqlDbType.VarChar){Value = pagocargo.DescFolRefPago },
+                    new SqlParameter("@TokenParam", SqlDbType.VarChar){Value = tokenusuario },
+                    new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar){Value = tokencentro },
+                    new SqlParameter("@IDCargoParam", SqlDbType.Int){Value = pagocargo.IdCargo },
+                };
+                SQL.commandoSQL.Parameters.AddRange(cargoAdicionalPagar);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                int IdFinanzas = 0; double MontoCargo = 0; string FolioCargo = "", ConceptoPago = "";
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacientecargosadicionales WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND id = @IDCargoParam", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDCargoParam", SqlDbType.Int) { Value = pagocargo.IdCargo });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        IdFinanzas = int.Parse(lector["idfinanzas"].ToString());
+                        MontoCargo = double.Parse(lector["importe"].ToString());
+                        FolioCargo = lector["folio"].ToString();
+                        ConceptoPago = lector["descripcion"].ToString();
+                    }
+                }
+
+                string ClavePaciente = "";
+                SQL.commandoSQL = new SqlCommand("SELECT P.idpaciente FROM dbo.pacienteregistrofinanzas PF JOIN dbo.pacienteregistro P ON P.id = PF.idpaciente WHERE PF.id = @IDFinanzasParam AND PF.idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDFinanzasParam", SqlDbType.Int) { Value = IdFinanzas });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        ClavePaciente = lector["idpaciente"].ToString();
+                    }
+                }
+
+                Dictionary<string, object> respuesta = new Dictionary<string, object>();
+                string LogoCad = "";
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.usuarioscentro WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        respuesta = new Dictionary<string, object>() {
+                            { "FolioPago", FolioCargo },
+                            { "MontoPago", MontoCargo },
+                            { "NombreCentro", lector["nombrecentro"].ToString() },
+                            { "Clave", lector["clavecentro"].ToString() },
+                            { "FechaEmision", MISC.FechaHoy().ToString("dddd, dd MMMM yyyy HH:mm:ss") },
+                            { "Telefono", double.Parse(lector["telefono"].ToString()) },
+                            { "Estado", lector["estado"].ToString() },
+                            { "Municipio", lector["municipio"].ToString() },
+                            { "DireccionCentro", lector["direccion"].ToString() },
+                            { "CedulaPaciente", ClavePaciente },
+                            { "ConceptoPago", "\n\n" + ConceptoPago + "\n\n\n\n" },
+                            { "TipoPago", pagocargo.TipoPago },
+                            { "ReferenciaPago", pagocargo.DescFolRefPago },
+                        };
+                        if (bool.Parse(lector["logopersonalizado"].ToString()))
+                        {
+                            LogoCad = "«~LOGOPERS~»";
+                        }
+                        if (bool.Parse(lector["alanonlogo"].ToString()))
+                        {
+                            LogoCad = "«~LOGOALANON~»";
+                        }
+                    }
+                }
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(respuesta) + LogoCad;
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE  REIMPRIME  UN RECIBO DE PAGO DE CARGO ADICIONAL
+        public string ReimprimirPagoCargo(int idcargo, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ImprimirPagoCargo");
+                int IdFinanzas = 0; double MontoCargo = 0; string FolioCargo = "", ConceptoPago = "", TipoPago = "", DescFolRefPago = "";
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacientecargosadicionales WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND id = @IDCargoParam", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDCargoParam", SqlDbType.Int) { Value = idcargo });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        IdFinanzas = int.Parse(lector["idfinanzas"].ToString());
+                        MontoCargo = double.Parse(lector["importe"].ToString());
+                        FolioCargo = lector["folio"].ToString();
+                        ConceptoPago = lector["descripcion"].ToString();
+                        TipoPago = lector["tipopago"].ToString();
+                        DescFolRefPago = lector["folrefdesc"].ToString();
+                    }
+                }
+
+                string ClavePaciente = "";
+                SQL.commandoSQL = new SqlCommand("SELECT P.idpaciente FROM dbo.pacienteregistrofinanzas PF JOIN dbo.pacienteregistro P ON P.id = PF.idpaciente WHERE PF.id = @IDFinanzasParam AND PF.idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDFinanzasParam", SqlDbType.Int) { Value = IdFinanzas });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        ClavePaciente = lector["idpaciente"].ToString();
+                    }
+                }
+
+                Dictionary<string, object> respuesta = new Dictionary<string, object>();
+                string LogoCad = "";
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.usuarioscentro WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        respuesta = new Dictionary<string, object>() {
+                            { "FolioPago", FolioCargo },
+                            { "MontoPago", MontoCargo },
+                            { "NombreCentro", lector["nombrecentro"].ToString() },
+                            { "Clave", lector["clavecentro"].ToString() },
+                            { "FechaEmision", MISC.FechaHoy().ToString("dddd, dd MMMM yyyy HH:mm:ss") },
+                            { "Telefono", double.Parse(lector["telefono"].ToString()) },
+                            { "Estado", lector["estado"].ToString() },
+                            { "Municipio", lector["municipio"].ToString() },
+                            { "DireccionCentro", lector["direccion"].ToString() },
+                            { "CedulaPaciente", ClavePaciente },
+                            { "ConceptoPago", "\n\n" + ConceptoPago + "\n\n\n\n" },
+                            { "TipoPago", TipoPago },
+                            { "ReferenciaPago", DescFolRefPago },
+                        };
+                        if (bool.Parse(lector["logopersonalizado"].ToString()))
+                        {
+                            LogoCad = "«~LOGOPERS~»";
+                        }
+                        if (bool.Parse(lector["alanonlogo"].ToString()))
+                        {
+                            LogoCad = "«~LOGOALANON~»";
+                        }
+                    }
+                }
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(respuesta) + LogoCad;
             }
             catch (Exception e)
             {

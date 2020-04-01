@@ -72,14 +72,6 @@ $(document).on('click', '#btnMostrarPreRegistros', function () {
     });
 });
 
-// DOCUMENT - BOTON TIPO SELECT QUE CONTROLA LA SELECCIONDE DE UN TIPO DE  PAGO
-$(document).on('change', '#modalPacienteTipoPago', function () {
-    $('#modalDivReferenciaPago').hide();
-    if (parseInt($(this).val()) !== 1 && parseInt($(this).val()) > 0) {
-        $('#modalDivReferenciaPago').show();
-    }
-});
-
 // DOCUMENT - BOTON QUE ACEPTA DESDE EL MODAL EL CONTRATO DEL PACIENTE
 $(document).on('click', '#btnModalAceptarContrato', function () {
     MsgPregunta("Aceptar Contrato", "¿Desea continuar?", function (si) {

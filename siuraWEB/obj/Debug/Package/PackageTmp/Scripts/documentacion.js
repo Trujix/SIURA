@@ -19,6 +19,7 @@ var comprobanteBecaJSON = {
 };
 var msgBecarioInfo = "";
 
+var IdPacienteSelecGLOBAL = 0;
 var registroFasesModeloJSON = [];
 var registroFasesNoModeloJSON = [];
 var registroFasesNombresJSON = {};
@@ -118,6 +119,7 @@ $(document).on('change', '#pacientePagosParciales', function () {
 
 // DOCUMENT - BOTON QUE GUARDA EL [ REGISTRO DEL PACIENTE ]
 $(document).on('click', '#btnRegistroPacienteGuardar', function () {
+    console.log($('#divPacienteDatos').prop('outerHTML'));
     MsgPregunta("Registrar Paciente", "¿Los datos ingresados son correctos?", function (si) {
         if (si) {
             generarPacienteDataV1();
@@ -353,6 +355,130 @@ $(document).on('change keyup', '#fechaInicioPagoParcial', function () {
     pacienteEsquemaPagos();
 });
 
+// DOCUMENT - QUE CONTROLA EL BOTON PARA EDITAR UN PACIENTE DE PRE-REGISTRO - [ REGISTRO PREVIO - (VIENE DE DINAMICO)  ]
+$(document).on('click', '.editarPrePaciente', function () {
+    alert('EN ELABORACION');
+});
+
+// DOCUMENT - QUE CONTROLA EL BOTON QUE PERMITE CONFIGURAR EL INGRESO DEL PACIENTE - [ PRE-INGRESO - (VIENE DE DINAMICO) ]
+$(document).on('click', '.configurarPacienteIngreso', function () {
+    var idPaciente = $(this).attr("idpaciente");
+    LoadingOn("Cargando Parametros...");
+    $('#modalPacienteBusqueda').modal('hide');
+    setTimeout(function () {
+        $.ajax({
+            type: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            url: "/Configuracion/ListaEstadosAlerta",
+            dataType: 'JSON',
+            beforeSend: function () {
+                $('#divMaestro').append(modalPacienteIngreso.replace(/×ØIDPACIENTEØ×/gi, idPaciente));
+                $('#modalIngresoPaciente').modal('show');
+                LoadingOn("Estados Alerta...");
+            },
+            success: function (data) {
+                var estadosalerta = "<option value='-1'>- Eliga un Estado de Alerta -</option>";
+                $(data.Activos).each(function (key, value) {
+                    estadosalerta += "<option value='" + value.IdEstadoAlerta + "'>" + value.NombreEstadoAlerta + "</option>";
+                });
+                $('#modalIngresoEstAlerta').html(estadosalerta);
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/x-www-form-urlencoded",
+                    url: "/Configuracion/ListaNivelIntoxicacion",
+                    dataType: 'JSON',
+                    beforeSend: function () {
+                        LoadingOn("Niveles Intoxicacion...");
+                    },
+                    success: function (data) {
+                        var nintoxicacion = "<option value='-1'>- Eliga un Nivel de Intoxicación -</option>";
+                        $(data.Activos).each(function (key, value) {
+                            nintoxicacion += "<option value='" + value.IdNivelesIntoxicacion + "'>" + value.NombreNivelIntoxicacion + "</option>";
+                        });
+                        $('#modalIngresoNivIntoxicacion').html(nintoxicacion);
+                        $.ajax({
+                            type: "POST",
+                            contentType: "application/x-www-form-urlencoded",
+                            url: "/Configuracion/ListaEstadosAnimo",
+                            dataType: 'JSON',
+                            beforeSend: function () {
+                                LoadingOn("Estados Animo...");
+                            },
+                            success: function (data) {
+                                var estadoanimo = "<option value='-1'>- Eliga un Estado de Animo -</option>";
+                                $(data.Activos).each(function (key, value) {
+                                    estadoanimo += "<option value='" + value.IdEstadoAnimo + "'>" + value.NombreEstadoAnimo + "</option>";
+                                });
+                                $('#modalIngresoEstAnimo').html(estadoanimo);
+
+                                $('#modalIngresoPaciente').on('hidden.bs.modal', function (e) {
+                                    $('#modalIngresoPaciente').remove();
+                                });
+                                LoadingOff();
+                            },
+                            error: function (error) {
+                                ErrorLog(error.responseText, "Lista Estados Animo");
+                            }
+                        });
+                    },
+                    error: function (error) {
+                        ErrorLog(error.responseText, "Lista Niveles Intoxicacion");
+                    }
+                });
+            },
+            error: function (error) {
+                ErrorLog(error.responseText, "Lista Estados Alerta");
+            }
+        });
+    }, 2000);
+});
+
+// DOCUMENT - BOTON QUE GUARDA LA CONFIGURACION DE INGRESO DEL PACIENTE - [ PRE-INGRESO - (VIENE DE DINAMICO) ]
+$(document).on('click', '#modalIngresoPacienteGuardar', function () {
+    var idPaciente = $(this).attr("idpaciente");
+    if (validarFormIngresoPaciente()) {
+        MsgPregunta("Guardar Ingreso de Paciente", "¿Desea continuar?", function (si) {
+            if (si) {
+                $(ListaPacientesConsultaJSON).each(function (key, value) {
+                    if (idPaciente === value.Id) {
+                        IdPacienteSelecGLOBAL = value.IdPaciente;
+                    }
+                });
+                var pacienteIngreso = {
+                    IdPaciente: IdPacienteSelecGLOBAL,
+                    EstadoAlerta: $('#modalIngresoEstAlerta option:selected').text(),
+                    EstadoAlertaIndx: parseInt($('#modalIngresoEstAlerta').val()),
+                    NivelIntoxicacion: $('#modalIngresoNivIntoxicacion option:selected').text(),
+                    NivelIntoxicacionIndx: parseInt($('#modalIngresoNivIntoxicacion').val()),
+                    EstadoAnimo: $('#modalIngresoEstAnimo option:selected').text(),
+                    EstadoAnimoIndx: parseInt($('#modalIngresoEstAnimo').val()),
+                };
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/x-www-form-urlencoded",
+                    url: "/Documentacion/ActIngresoPaciente",
+                    data: { PacienteIngreso: pacienteIngreso },
+                    beforeSend: function () {
+                        LoadingOn("Guardando Configuración...");
+                    },
+                    success: function (data) {
+                        if (data === "true") {
+                            $('#modalIngresoPaciente').modal('hide');
+                            LoadingOff();
+                            MsgAlerta("Ok!", "Configuracion almacenada <b>correctamente</b>", 2500, "success");
+                        } else {
+                            ErrorLog(error, "Act. Ingreso Paciente");
+                        }
+                    },
+                    error: function (error) {
+                        ErrorLog(error, "Act. Ingreso Paciente");
+                    }
+                });
+            }
+        });
+    }
+});
+
 // --------------------------------------------------------
 // FUNCIONES GENERALES
 
@@ -529,68 +655,72 @@ function validarFormPagosLista() {
 
 // FUNCION QUE EMPAQUETA LOS DATOS EN EL JSON PARA GUARDAR REGISTRO PACIENTE [ FASE DE COBRO ]
 function generarPacienteDataV1() {
-    var becario = $('#pacienteRegistroBecario').is(":checked"), parcialidad = $('#pacientePagosParciales').is(":checked");
-    registroPacienteJSON = {
-        Nombre: ($('#ingresoPacienteNombre').val().trim() !== "") ? $('#ingresoPacienteNombre').val().trim().trim() : "--",
-        PacienteApellidoP: ($('#ingresoPacienteApellidoP').val() !== "") ? $('#ingresoPacienteApellidoP').val().trim() : "--",
-        PacienteApellidoM: ($('#ingresoPacienteApellidoM').val() !== "") ? $('#ingresoPacienteApellidoM').val().trim() : "--",
-        PacienteFechaNac: ($('#nacimientoPaciente').val() !== "") ? $('#nacimientoPaciente').val() : "--",
-        Edad: (parseInt($('#edadPaciente').val()) > 0) ? parseInt($('#edadPaciente').val()) : 0,
-        Sexo: $('#sexoPaciente option:selected').text(),
-        SexoSigno: $('#sexoPaciente').val(),
-        CURP: ($('#curpPaciente').val() !== "") ? $('#curpPaciente').val() : "--",
-        PacienteAlias: ($('#apodoPaciente').val() !== "") ? $('#apodoPaciente').val() : "--",
-        ParienteNombre: ($('#ingresoParienteNombre').val().trim() !== "") ? $('#ingresoParienteNombre').val().trim() : "--",
-        ParienteApellidoP: ($('#ingresoParienteApellidoP').val().trim() !== "") ? $('#ingresoParienteApellidoP').val().trim() : "--",
-        ParienteApellidoM: ($('#ingresoParienteApellidoM').val().trim() !== "") ? $('#ingresoParienteApellidoM').val().trim() : "--",
-        ParentescoIndx: $('#parentescoPaciente').val(),
-        Parentesco: $('#parentescoPaciente option:selected').text(),
-        TelefonoCasa: (parseFloat($('#ingresoTelefonoCasa').val()) > 0) ? parseFloat($('#ingresoTelefonoCasa').val()) : 0,
-        TelefonoPariente: (parseFloat($('#ingresoTelefonoPariente').val()) > 0) ? parseFloat($('#ingresoTelefonoPariente').val()) : 0,
-        TelefonoUsuario: (parseFloat($('#ingresoTelefonoUsuario').val()) > 0) ? parseFloat($('#ingresoTelefonoUsuario').val()) : 0,
-        Estatus: 1
-    };
-    var tipoIngreso = "";
-    $('input[name="contratoradio"]').each(function () {
-        if ($(this).is(":checked")) {
-            tipoIngreso = $(this).attr("opcion");
-        }
-    });
-    registroIngresoJSON = {
-        TipoIngreso: tipoIngreso,
-        TiempoEstancia: (parseInt($('#tiempoEstanciaCantidad').val()) > 0) ? parseInt($('#tiempoEstanciaCantidad').val()) : 0,
-        TipoEstancia: $('#tiempoEstanciaTipo option:selected').text(),
-        TipoEstanciaIndx: $('#tiempoEstanciaTipo').val(),
-        TestigoNombre: $('#testigoPaciente').val(),
-        TipoTratamiento: $('#pacienteModeloTratamiento option:selected').text(),
-        TipoTratamientoIndx: $('#pacienteModeloTratamiento').val(),
-        FasesCantTratamiento: $('#pacienteFasesTratamiento option:selected').attr("cant"),
-        FasesCantTratamientoIndx: $('#pacienteFasesTratamiento').val(),
-        FasesTratamiento: registroFasesNombresJSON["Fases_" + $('#pacienteFasesTratamiento').val()],
-        FasesTratamientoIndx: $('#pacienteFasesTratamiento').val()
-    };
-    registroPacienteFinanzasJSON = {
-        MontoPagar: MontoTotalPaciente/*parseFloat($('#pacienteRegistroPago').val())*/,
-        TipoMoneda: "PESOS MEXICANOS",
-        Becario: becario,
-        BecaValor: (becario) ? parseFloat($('#becarioPorcentajeMonto').val()) : 0,
-        BecaTipo: ($('#pacienteBecarioPorcMonto').is(":checked")) ? "$" : "%",
-        Parcialidad: parcialidad,
-        CantidadPagos: (parcialidad) ? listaPagosConfig.CantidadPagos : 0,
-        MontoPagoParcial: (parcialidad) ? listaPagosConfig.MontoPago : 0,
-        TipoPago: (parcialidad) ? listaPagosConfig.TipoPago : "--",
-        TipoPagoIndx: (parcialidad) ? listaPagosConfig.TipoPagoIndx : 0,
-        TipoPagoCantPers: 0,
-        FechaInicioPago: (parcialidad) ? listaPagosConfig.FechaInicio : "--",
-        FechaFinPago: (parcialidad) ? listaPagosConfig.FechaFin : "--",
-    };
-    registroPacienteCargosJSON = [];
-    $(listaCargosAdicionales).each(function (key, value) {
-        registroPacienteCargosJSON.push({
-            Descripcion: value.Descripcion,
-            Importe: value.Importe
-        })
-    });
+    try {
+        var becario = $('#pacienteRegistroBecario').is(":checked"), parcialidad = $('#pacientePagosParciales').is(":checked");
+        registroPacienteJSON = {
+            Nombre: ($('#ingresoPacienteNombre').val().trim() !== "") ? $('#ingresoPacienteNombre').val().trim().trim() : "--",
+            PacienteApellidoP: ($('#ingresoPacienteApellidoP').val() !== "") ? $('#ingresoPacienteApellidoP').val().trim() : "--",
+            PacienteApellidoM: ($('#ingresoPacienteApellidoM').val() !== "") ? $('#ingresoPacienteApellidoM').val().trim() : "--",
+            PacienteFechaNac: ($('#nacimientoPaciente').val() !== "") ? $('#nacimientoPaciente').val() : "--",
+            Edad: (parseInt($('#edadPaciente').val()) > 0) ? parseInt($('#edadPaciente').val()) : 0,
+            Sexo: $('#sexoPaciente option:selected').text(),
+            SexoSigno: $('#sexoPaciente').val(),
+            CURP: ($('#curpPaciente').val() !== "") ? $('#curpPaciente').val() : "--",
+            PacienteAlias: ($('#apodoPaciente').val() !== "") ? $('#apodoPaciente').val() : "--",
+            ParienteNombre: ($('#ingresoParienteNombre').val().trim() !== "") ? $('#ingresoParienteNombre').val().trim() : "--",
+            ParienteApellidoP: ($('#ingresoParienteApellidoP').val().trim() !== "") ? $('#ingresoParienteApellidoP').val().trim() : "--",
+            ParienteApellidoM: ($('#ingresoParienteApellidoM').val().trim() !== "") ? $('#ingresoParienteApellidoM').val().trim() : "--",
+            ParentescoIndx: $('#parentescoPaciente').val(),
+            Parentesco: $('#parentescoPaciente option:selected').text(),
+            TelefonoCasa: (parseFloat($('#ingresoTelefonoCasa').val()) > 0) ? parseFloat($('#ingresoTelefonoCasa').val()) : 0,
+            TelefonoPariente: (parseFloat($('#ingresoTelefonoPariente').val()) > 0) ? parseFloat($('#ingresoTelefonoPariente').val()) : 0,
+            TelefonoUsuario: (parseFloat($('#ingresoTelefonoUsuario').val()) > 0) ? parseFloat($('#ingresoTelefonoUsuario').val()) : 0,
+            Estatus: 1
+        };
+        var tipoIngreso = "";
+        $('input[name="contratoradio"]').each(function () {
+            if ($(this).is(":checked")) {
+                tipoIngreso = $(this).attr("opcion");
+            }
+        });
+        registroIngresoJSON = {
+            TipoIngreso: tipoIngreso,
+            TiempoEstancia: (parseInt($('#tiempoEstanciaCantidad').val()) > 0) ? parseInt($('#tiempoEstanciaCantidad').val()) : 0,
+            TipoEstancia: $('#tiempoEstanciaTipo option:selected').text(),
+            TipoEstanciaIndx: $('#tiempoEstanciaTipo').val(),
+            TestigoNombre: $('#testigoPaciente').val(),
+            TipoTratamiento: $('#pacienteModeloTratamiento option:selected').text(),
+            TipoTratamientoIndx: $('#pacienteModeloTratamiento').val(),
+            FasesCantTratamiento: $('#pacienteFasesTratamiento option:selected').attr("cant"),
+            FasesCantTratamientoIndx: $('#pacienteFasesTratamiento').val(),
+            FasesTratamiento: registroFasesNombresJSON["Fases_" + $('#pacienteFasesTratamiento').val()],
+            FasesTratamientoIndx: $('#pacienteFasesTratamiento').val()
+        };
+        registroPacienteFinanzasJSON = {
+            MontoPagar: MontoTotalPaciente,
+            TipoMoneda: "PESOS MEXICANOS",
+            Becario: becario,
+            BecaValor: (becario) ? parseFloat($('#becarioPorcentajeMonto').val()) : 0,
+            BecaTipo: ($('#pacienteBecarioPorcMonto').is(":checked")) ? "$" : "%",
+            Parcialidad: parcialidad,
+            CantidadPagos: (parcialidad) ? listaPagosConfig.CantidadPagos : 0,
+            MontoPagoParcial: (parcialidad) ? listaPagosConfig.MontoPago : 0,
+            TipoPago: (parcialidad) ? listaPagosConfig.TipoPago : "--",
+            TipoPagoIndx: (parcialidad) ? listaPagosConfig.TipoPagoIndx : 0,
+            TipoPagoCantPers: 0,
+            FechaInicioPago: (parcialidad) ? listaPagosConfig.FechaInicio : "--",
+            FechaFinPago: (parcialidad) ? listaPagosConfig.FechaFin : "--",
+        };
+        registroPacienteCargosJSON = [];
+        $(listaCargosAdicionales).each(function (key, value) {
+            registroPacienteCargosJSON.push({
+                Descripcion: value.Descripcion,
+                Importe: value.Importe
+            })
+        });
+    } catch (e) {
+        console.log(e.toString());
+    }
 }
 
 // FUNCION QUE MUESTRA EL MENSAJE DEL DOCUMENTO RELACIONADO CON EL PACIENTE BECARIO
@@ -636,3 +766,71 @@ function altaBecaDoc(nombreArchivo, callback) {
         callback(true);
     }
 }
+
+// FUNCION QUE VALIDA EL FORMULARIO DE INGRESO DEL PACIENTE
+function validarFormIngresoPaciente() {
+    var correcto = true, msg = "";
+    if ($('#modalIngresoEstAlerta').val() === "-1") {
+        correcto = false;
+        msg = "Elige <b>Estado de Alerta</b>";
+        $('#modalIngresoEstAlerta').focus();
+    } else if ($('#modalIngresoNivIntoxicacion').val() === "-1") {
+        correcto = false;
+        msg = "Elige <b>Nivel de Intoxicación</b>";
+        $('#modalIngresoNivIntoxicacion').focus();
+    } else if ($('#modalIngresoEstAnimo').val() === "-1") {
+        correcto = false;
+        msg = "Elige <b>Estado de Ánimo</b>";
+        $('#modalIngresoEstAnimo').focus();
+    }
+    if (!correcto) {
+        MsgAlerta("Atención!", msg, 2800, "default");
+    }
+    return correcto;
+}
+
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+// ----------------- [ ELEMENTOS Y OBJETOS COMPLEJOS (ELEMENTOS DOM Y DINAMICOS) ] -----------------
+var modalPacienteIngreso = '' +
+    '<div id="modalIngresoPaciente" class="modal fade" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">'+
+        '<div class="modal-dialog" role="document">'+
+            '<div class="modal-content">'+
+                '<div class="modal-header">'+
+                    '<h5 class="modal-title">Configurar Ingreso</h5>'+
+                    '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+                '</div>'+
+                '<div class="modal-body">' +
+
+                    '<div class="row">' +
+                        '<div class="col-sm-12">' +
+                            '<div class="form-group">' +
+                                '<label for="modalIngresoEstAlerta"><b><i class="fa fa-exclamation"></i>&nbsp;Estado de Alerta:</b></label>' +
+                                '<select id="modalIngresoEstAlerta" class="form-control form-control-sm"></select>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="row">' +
+                        '<div class="col-sm-12">' +
+                            '<div class="form-group">' +
+                                '<label for="modalIngresoNivIntoxicacion"><b><i class="fa fa-pills"></i>&nbsp;Nivel de Intoxicacíón:</b></label>' +
+                                '<select id="modalIngresoNivIntoxicacion" class="form-control form-control-sm"></select>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="row">' +
+                        '<div class="col-sm-12">' +
+                            '<div class="form-group">' +
+                                '<label for="modalIngresoEstAnimo"><b><i class="fa fa-smile"></i>&nbsp;Estado de Ánimo:</b></label>' +
+                                '<select id="modalIngresoEstAnimo" class="form-control form-control-sm"></select>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+
+                '</div>' +
+                '<div class="modal-footer">'+
+                    '<button id="modalIngresoPacienteGuardar" idpaciente="×ØIDPACIENTEØ×" type="button" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Guardar Configuración</button>' +
+                    '<button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cancelar</button>' +
+                '</div>'+
+            '</div>'+
+        '</div>'+
+    '</div>';

@@ -26,6 +26,19 @@ var FasesInfoALTA = {};
 var FasesNombres = [];
 var FasesTiposALTA = [];
 
+var IdUsuarioSelecGLOBAL = 0;
+var UsuarioGeneradoGLOBAL = "";
+var IDUsuariosARRAY = [];
+var UsuarioDataJSON = {};
+var UsuariosListaJSON = [];
+
+var IdEstadoAnimoGLOBAL = 0;
+var estadosAnimoJSON = {};
+var IdNivelIntoxicacionGLOBAL = 0;
+var nivelesIntoxicacionJSON = {};
+var IdEstadoAlertaGLOBAL = 0;
+var estadosAlertaJSON = {};
+
 // --------------------------------------------------------
 // FUNCIONES TIPO DOCUMENT (BUTTONS, INPUTS, TEXTAREAS ETC)
 
@@ -40,7 +53,11 @@ $(document).on('click', '#menuConfiguracion', function () {
         },
         success: function (data) {
             $('#divMaestro').html(data);
-            LoadingOff();
+            if (data.indexOf("<!-- USUARIO CONFIG -->") >= 0) {
+                cargarUsuarioIndInfo(true);
+            } else {
+                LoadingOff();
+            }
         },
         error: function (error) {
             ErrorLog(error, "Abrir Menu Config.");
@@ -55,7 +72,8 @@ $(document).on('click', 'a[name="opcDoc"]', function () {
     var opciones = {
         documentos: "Documentos",
         catalogos: "Catalogos",
-        micentro: "MiCentro"
+        micentro: "MiCentro",
+        usuarios: "Usuarios",
     };
     $.ajax({
         type: "POST",
@@ -71,7 +89,9 @@ $(document).on('click', 'a[name="opcDoc"]', function () {
             } else if (opcion === "catalogos") {
                 cargarConfigCatalogos();
             } else if (opcion === "documentos") {
-                cargarDocumentos(false); 
+                cargarDocumentos(false);
+            } else if (opcion === "usuarios") {
+                cargarUsuarios(true);
             }
         },
         error: function (error) {
@@ -667,6 +687,461 @@ $(document).on('click', '#eliminarFaseTratamiento', function () {
     }
 });
 
+// DOCUMENT - BOTON QUE CONTROLA LA FUNCION QUE ABRE EL MODAL PARA NUEVO ESTADO DE ALERTA [ CATALOGOS ]
+$(document).on('click', '#nuevoEstadoAlerta', function () {
+    IdEstadoAlertaGLOBAL = 0;
+    $('#modalEstadosAlertaTitulo').html("Nuevo Estado Alerta");
+    $('#modalEstadosAlertaNombre').val("");
+    $('#modalEstadosAlerta').modal('show');
+});
+
+// DOCUMENT - BOTON QUE CONTROLA EL GUARDADO DE UN ESTADO DE ALERTA [ CATALOGOS ]
+$(document).on('click', '#modalEstadosAlertaGuardar', function () {
+    if ($('#modalEstadosAlertaNombre').val() !== "") {
+        var url = "GuardarEstadoAlerta", data = { NombreEstadoAlerta: $('#modalEstadosAlertaNombre').val().trim().toUpperCase() }, msg = "Guardar";
+        if (IdEstadoAlertaGLOBAL > 0) {
+            url = "ActEstadoAlerta";
+            msg = "Editar";
+            data = {
+                IdEstadoAlerta: IdEstadoAlertaGLOBAL,
+                NombreEstadoAlerta: $('#modalEstadosAlertaNombre').val().trim().toUpperCase(),
+                Estatus: 1
+            };
+        }
+        MsgPregunta(msg + " Estado Alerta", "¿Desea continuar?", function (si) {
+            if (si) {
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/x-www-form-urlencoded",
+                    url: "/Configuracion/" + url,
+                    data: data,
+                    beforeSend: function () {
+                        LoadingOn("Guardando Estado Alerta...");
+                    },
+                    success: function (data) {
+                        if (data === "true") {
+                            cargarConfigCatalogos();
+                            $('#modalEstadosAlerta').modal('hide');
+                            MsgAlerta("Ok!", "Estado Alerta <b>Guardado correctamente</b>", 2000, "success");
+                        } else {
+                            ErrorLog(data, msg + " Estado Alerta");
+                        }
+                    },
+                    error: function (error) {
+                        ErrorLog(error, msg + " Estado Alerta");
+                    }
+                });
+            }
+        });
+    } else {
+        MsgAlerta("Atención!", "Coloque el <b>Nombre del Estado de Alerta</b>", 3000, "default");
+        $('#modalEstadosAlertaNombre').focus();
+    }
+});
+
+// DOCUMENT - BOTON QUE ELIMINA UN ESTADO DE ALERTA [ CATALOGOS ]
+$(document).on('click', '#eliminarEstadoAlerta', function () {
+    if (parseFloat($('#estadosAlertaSelect').val()) > 0) {
+        MsgPregunta("Eliminar Estado Alerta " + $('#estadosAlertaSelect option:selected').text(), "¿Desea continuar?", function (si) {
+            var EstadoAlerta = {
+                IdEstadoAlerta: parseInt($('#estadosAlertaSelect').val()),
+                NombreEstadoAlerta: $('#estadosAlertaSelect option:selected').text(),
+                Estatus: 0
+            };
+            if (si) {
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/x-www-form-urlencoded",
+                    url: "/Configuracion/ActEstadoAlerta",
+                    data: { EstadoAlertaInfo: EstadoAlerta },
+                    beforeSend: function () {
+                        LoadingOn("Eliminando Estado Alerta...");
+                    },
+                    success: function (data) {
+                        if (data === "true") {
+                            cargarConfigCatalogos();
+                            $('#modalModeloTratamiento').modal('hide');
+                            MsgAlerta("Ok!", "Estado Alerta <b>Eliminado correctamente</b>", 2000, "success");
+                        } else {
+                            ErrorLog(data, "Eliminar Estado Alerta");
+                        }
+                    },
+                    error: function (error) {
+                        ErrorLog(error, "Eliminar Estado Alerta");
+                    }
+                });
+            }
+        });
+    } else {
+        MsgAlerta("Atención!", "Eliga un Estado de Alerta", 2500, "default");
+        $('#estadosAlertaSelect').focus();
+    }
+});
+
+// DOCUMENT - BOTON QUE CONTROLA LA ACCION DE EDITAR UN ESTADO DE ALERTA - [ CATALOGOS ]
+$(document).on('click', '#editarEstadoAlerta', function () {
+    if (parseFloat($('#estadosAlertaSelect').val()) > 0) {
+        IdEstadoAlertaGLOBAL = parseInt($('#estadosAlertaSelect').val());
+        $('#modalEstadosAlertaTitulo').html("Editar Estado Alerta");
+        $('#modalEstadosAlertaNombre').val($('#estadosAlertaSelect option:selected').text());
+        $('#modalEstadosAlerta').modal('show');
+    } else {
+        MsgAlerta("Atención!", "Eliga un Estado de Alerta", 2500, "default");
+        $('#estadosAlertaSelect').focus();
+    }
+});
+
+// DOCUMENT - BOTON QUE CONTROLA LA FUNCION QUE ABRE EL MODAL PARA NUEVO NIVEL DE INTOXICACION [ CATALOGOS ]
+$(document).on('click', '#nuevoNivelIntoxicacion', function () {
+    IdNivelIntoxicacionGLOBAL = 0;
+    $('#modalNivelIntoxicacionTitulo').html("Nuevo Nivel Intoxicación");
+    $('#modalNivelIntoxicacionNombre').val("");
+    $('#modalNivelIntoxicacion').modal('show');
+});
+
+// DOCUMENT - BOTON QUE CONTROLA EL GUARDADO DE UN NIVEL DE INTOXICACION [ CATALOGOS ]
+$(document).on('click', '#modalNivelIntoxicacionGuardar', function () {
+    if ($('#modalNivelIntoxicacionNombre').val() !== "") {
+        var url = "GuardarNivelIntoxicacion", data = { NombreNivelIntoxicacion: $('#modalNivelIntoxicacionNombre').val().trim().toUpperCase() }, msg = "Guardar";
+        if (IdNivelIntoxicacionGLOBAL > 0) {
+            url = "ActNivelIntoxicacion";
+            msg = "Editar";
+            data = {
+                IdNivelesIntoxicacion: IdNivelIntoxicacionGLOBAL,
+                NombreNivelIntoxicacion: $('#modalNivelIntoxicacionNombre').val().trim().toUpperCase(),
+                Estatus: 1
+            };
+        }
+        MsgPregunta(msg + " Nivel Intoxicacion", "¿Desea continuar?", function (si) {
+            if (si) {
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/x-www-form-urlencoded",
+                    url: "/Configuracion/" + url,
+                    data: data,
+                    beforeSend: function () {
+                        LoadingOn("Guardando Nivel Intoxicación..");
+                    },
+                    success: function (data) {
+                        if (data === "true") {
+                            cargarConfigCatalogos();
+                            $('#modalNivelIntoxicacion').modal('hide');
+                            MsgAlerta("Ok!", "Nivel Intoxicación <b>Guardado correctamente</b>", 2000, "success");
+                        } else {
+                            ErrorLog(data, msg + " Nivel Intoxicación");
+                        }
+                    },
+                    error: function (error) {
+                        ErrorLog(error, msg + " Nivel Intoxicación");
+                    }
+                });
+            }
+        });
+    } else {
+        MsgAlerta("Atención!", "Coloque el <b>Nombre del Nivel de Intoxicación</b>", 3000, "default");
+        $('#modalNivelIntoxicacionNombre').focus();
+    }
+});
+
+// DOCUMENT - BOTON QUE ELIMINA UN NIVEL DE INTOXICACION [ CATALOGOS ]
+$(document).on('click', '#eliminarNivelIntoxicacion', function () {
+    if (parseFloat($('#nivelIntoxicacionSelect').val()) > 0) {
+        MsgPregunta("Eliminar Nivel Intoxicacion " + $('#nivelIntoxicacionSelect option:selected').text(), "¿Desea continuar?", function (si) {
+            var NIntoxicacion = {
+                IdNivelesIntoxicacion: parseInt($('#nivelIntoxicacionSelect').val()),
+                NombreNivelIntoxicacion: $('#nivelIntoxicacionSelect option:selected').text(),
+                Estatus: 0
+            };
+            if (si) {
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/x-www-form-urlencoded",
+                    url: "/Configuracion/ActNivelIntoxicacion",
+                    data: { NivelIntoxicacionInfo: NIntoxicacion },
+                    beforeSend: function () {
+                        LoadingOn("Eliminando Nivel Intoxicacion...");
+                    },
+                    success: function (data) {
+                        if (data === "true") {
+                            cargarConfigCatalogos();
+                            $('#modalModeloTratamiento').modal('hide');
+                            MsgAlerta("Ok!", "Nivel Intoxicacion <b>Eliminado correctamente</b>", 2000, "success");
+                        } else {
+                            ErrorLog(data, "Eliminar Nivel Intoxicacion");
+                        }
+                    },
+                    error: function (error) {
+                        ErrorLog(error, "Eliminar Nivel Intoxicacion");
+                    }
+                });
+            }
+        });
+    } else {
+        MsgAlerta("Atención!", "Eliga un Nivel de Intoxicacion", 2500, "default");
+        $('#nivelIntoxicacionSelect').focus();
+    }
+});
+
+// DOCUMENT - BOTON QUE CONTROLA LA ACCION DE EDITAR UN NIVEL DE INTOXICACION - [ CATALOGOS ]
+$(document).on('click', '#editarNivelIntoxicacion', function () {
+    if (parseFloat($('#nivelIntoxicacionSelect').val()) > 0) {
+        IdNivelIntoxicacionGLOBAL = parseInt($('#nivelIntoxicacionSelect').val());
+        $('#modalNivelIntoxicacionTitulo').html("Editar Nivel Intoxicación");
+        $('#modalNivelIntoxicacionNombre').val($('#nivelIntoxicacionSelect option:selected').text());
+        $('#modalNivelIntoxicacion').modal('show');
+    } else {
+        MsgAlerta("Atención!", "Eliga un Nivel Intoxicación", 2500, "default");
+        $('#nivelIntoxicacionSelect').focus();
+    }
+});
+
+// DOCUMENT - BOTON QUE CONTROLA LA FUNCION QUE ABRE EL MODAL PARA NUEVO ESTADO DE ANIMO [ CATALOGOS ]
+$(document).on('click', '#nuevoEstadoAnimo', function () {
+    IdEstadoAnimoGLOBAL = 0;
+    $('#modalEstadoAnimoTitulo').html("Nuevo Estado Ánimo");
+    $('#modalEstadoAnimoNombre').val("");
+    $('#modalEstadoAnimo').modal('show');
+});
+
+// DOCUMENT - BOTON QUE CONTROLA EL GUARDADO DE UN ESTADO DE ALERTA [ CATALOGOS ]
+$(document).on('click', '#modalEstadoAnimoGuardar', function () {
+    if ($('#modalEstadoAnimoNombre').val() !== "") {
+        var url = "GuardarEstadoAnimo", data = { NombreEstadoAnimo: $('#modalEstadoAnimoNombre').val().trim().toUpperCase() }, msg = "Guardar";
+        if (IdEstadoAnimoGLOBAL > 0) {
+            url = "ActEstadoAnimo";
+            msg = "Editar";
+            data = {
+                IdEstadoAnimo: IdEstadoAnimoGLOBAL,
+                NombreEstadoAnimo: $('#modalEstadoAnimoNombre').val().trim().toUpperCase(),
+                Estatus: 1
+            };
+        }
+        MsgPregunta(msg + " Estado Animo", "¿Desea continuar?", function (si) {
+            if (si) {
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/x-www-form-urlencoded",
+                    url: "/Configuracion/" + url,
+                    data: data,
+                    beforeSend: function () {
+                        LoadingOn("Guardando Estado Animo..");
+                    },
+                    success: function (data) {
+                        if (data === "true") {
+                            cargarConfigCatalogos();
+                            $('#modalEstadoAnimo').modal('hide');
+                            MsgAlerta("Ok!", "Estado Animo <b>Guardado correctamente</b>", 2000, "success");
+                        } else {
+                            ErrorLog(data, msg + " Estado Animo");
+                        }
+                    },
+                    error: function (error) {
+                        ErrorLog(error, msg + " Estado Animo");
+                    }
+                });
+            }
+        });
+    } else {
+        MsgAlerta("Atención!", "Coloque el <b>Nombre del Estado de Ánimo</b>", 3000, "default");
+        $('#modalEstadoAnimoNombre').focus();
+    }
+});
+
+// DOCUMENT - BOTON QUE ELIMINA UN ESTADO DE ANIMO [ CATALOGOS ]
+$(document).on('click', '#eliminarEstadoAnimo', function () {
+    if (parseFloat($('#estadoAnimoSelect').val()) > 0) {
+        MsgPregunta("Eliminar Estado Animo " + $('#estadoAnimoSelect option:selected').text(), "¿Desea continuar?", function (si) {
+            var EstadoAnimo = {
+                IdEstadoAnimo: parseInt($('#estadoAnimoSelect').val()),
+                NombreEstadoAnimo: $('#estadoAnimoSelect option:selected').text(),
+                Estatus: 0
+            };
+            if (si) {
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/x-www-form-urlencoded",
+                    url: "/Configuracion/ActEstadoAnimo",
+                    data: { EstadoAnimoInfo: EstadoAnimo },
+                    beforeSend: function () {
+                        LoadingOn("Eliminando Estado Animo...");
+                    },
+                    success: function (data) {
+                        if (data === "true") {
+                            cargarConfigCatalogos();
+                            $('#modalModeloTratamiento').modal('hide');
+                            MsgAlerta("Ok!", "Estado Animo <b>Eliminado correctamente</b>", 2000, "success");
+                        } else {
+                            ErrorLog(data, "Eliminar Estado Animo");
+                        }
+                    },
+                    error: function (error) {
+                        ErrorLog(error, "Eliminar Estado Animo");
+                    }
+                });
+            }
+        });
+    } else {
+        MsgAlerta("Atención!", "Elige un Estado de Animo", 2500, "default");
+        $('#estadoAnimoSelect').focus();
+    }
+});
+
+// DOCUMENT - BOTON QUE CONTROLA LA ACCION DE EDITAR UN ESTADO DE ANIMO - [ CATALOGOS ]
+$(document).on('click', '#editarEstadoAnimo', function () {
+    if (parseFloat($('#estadoAnimoSelect').val()) > 0) {
+        IdEstadoAnimoGLOBAL = parseInt($('#estadoAnimoSelect').val());
+        $('#modalEstadoAnimoTitulo').html("Editar Estado de Animo");
+        $('#modalEstadoAnimoNombre').val($('#estadoAnimoSelect option:selected').text());
+        $('#modalEstadoAnimo').modal('show');
+    } else {
+        MsgAlerta("Atención!", "Eliga un Estado de Animo", 2500, "default");
+        $('#estadoAnimoSelect').focus();
+    }
+});
+
+// DOCUMENT - BOTON QUE CONTROLA LA ACCION DE LLAMAR EL MODAL PARA CREAR  NUEVO USUARIO [ MENU USUARIOS ]
+$(document).on('click', '#agregarNuevoUsuario', function () {
+    IdUsuarioSelecGLOBAL = 0;
+    UsuarioGeneradoGLOBAL = generarUsuarioID();
+    $('#modalUsuario').html(UsuarioGeneradoGLOBAL);
+    limpiarFormUsuarios();
+    $('#modalUsuarios').modal('show');
+});
+
+// DOCUMENT - BOTON QUE SE ENCARGA DE GUARDAR / EDITAR USUARIO [ MENU USUARIOS ]
+$(document).on('click', '#modalGuardarUsuario', function () {
+    if (validarFormUsuario()) {
+        MsgPregunta((IdUsuarioSelecGLOBAL > 0) ? "Guardar Cambios" : "Guardar Usuario", "¿Desea continuar?", function (si) {
+            if (si) {
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/x-www-form-urlencoded",
+                    url: "/Configuracion/GuardarUsuario",
+                    data: { UsuarioInfo: UsuarioDataJSON },
+                    beforeSend: function () {
+                        LoadingOn("Guardando Usuario...");
+                    },
+                    success: function (data) {
+                        if (data === "true") {
+                            $('#modalUsuarios').modal('hide');
+                            LoadingOff();
+                            cargarUsuarios(false);
+                        } else {
+                            ErrorLog(data, "Guardar Usuario");
+                        }
+                    },
+                    error: function (error) {
+                        ErrorLog(error, "Guardar Usuario");
+                    }
+                });
+            }
+        });
+    }
+});
+
+// DOCUMENT - BOTON QUE GENERA UNA NUEVA CONTRASEÑA A UN USUARIO Y SE ENVIA POR CORREO [ MENU USUARIOS ]
+$(document).on('click', '#modalBtnNuevaPasUsuario', function () {
+    MsgPregunta("Generar Nueva Contraseña", "¿Desea continuar?", function (si) {
+        if (si) {
+            $.ajax({
+                type: "POST",
+                contentType: "application/x-www-form-urlencoded",
+                url: "/Configuracion/NuevaPassUsuario",
+                data: { UsuarioInfo: UsuarioDataJSON },
+                beforeSend: function () {
+                    LoadingOn("Enviando Nueva Contraseña...");
+                },
+                success: function (data) {
+                    if (data === "true") {
+                        $('#modalNuevaPassUsuario').modal('hide');
+                        LoadingOff();
+                        MsgAlerta("Ok!", "Contraseña generada y enviada <b>correctamente</b>", 2500, "success");
+                    } else {
+                        ErrorLog(data, "Nueva Contraseña Usuario");
+                    }
+                },
+                error: function (error) {
+                    ErrorLog(error, "Nueva Contraseña Usuario");
+                }
+            });
+        }
+    });
+});
+
+// DOCUMENT  - BOTON QUE ABRE UN MODAL PARA EDITAR LA OPCION DEL USUARIO ADMINISTRADOR
+$(document).on('click', '#configurarUsuarioAdmin', function () {
+    LoadingOn("Cargando Configuración...");
+    $('#modalConfigAdmin').modal('show');
+    cargarUsuarioIndInfo(true);
+});
+
+// DOCUMENT - BOTON QUE CONTROLA EL GUARDADO DE LA INFO GENERAL DE USUARIO [ MENU USUARIO INFIVIDUAL ]
+$(document).on('click', '#btnConfigUsuGuardar', function () {
+    if (validarFormUsuarioInd()) {
+        $.ajax({
+            type: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            url: "/Configuracion/ActUsuarioInfo",
+            data: { UsuarioInfo: UsuarioDataJSON },
+            beforeSend: function () {
+                LoadingOn("Guardando Cambios...");
+            },
+            success: function (data) {
+                if (data === "true") {
+                    $('#configUsuNombre').val($('#configUsuNombre').val().toUpperCase());
+                    $('#configUsuApellido').val($('#configUsuApellido').val().toUpperCase());
+                    LoadingOff();
+                    MsgAlerta("Ok!", "Información actualizada <b>Correctamente</b>", 2000, "success");
+                } else {
+                    ErrorLog(data, "Actualizar Info. Usuario");
+                }
+            },
+            error: function (error) {
+                ErrorLog(error, "Actualizar Info. Usuario");
+            }
+        });
+    }
+});
+
+// DOCUMENT - BOTON QUE CONTROLA LA ACTUALIZACION DE LA CONTRASEÑA DE USUARIO [ MENU USUARIO INFIVIDUAL ]
+$(document).on('click', '#btnConfigUsuGuardarPass', function () {
+    if (validarFormUsuNuevaPass()) {
+        MsgPregunta("Cambiar Contraseña", "¿Desea continuar?", function (si) {
+            if (si) {
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/x-www-form-urlencoded",
+                    url: "/Configuracion/ActUsuarioPass",
+                    data: { UsuarioPass: UsuarioDataJSON },
+                    beforeSend: function () {
+                        LoadingOn("Guardando Contraseña...");
+                    },
+                    success: function (data) {
+                        if (data === "true") {
+                            $('#configUsuNuevaPass').val('');
+                            $('#configUsuConfirmPass').val('');
+                            $('#configUsuAntPass').val('');
+                            LoadingOff();
+                            MsgAlerta("Ok!", "Información actualizada <b>Correctamente</b>", 2000, "success");
+                        } else if (data === "errorPass") {
+                            LoadingOff();
+                            setTimeout(function () {
+                                $('#configUsuAntPass').focus();
+                            }, 1000);
+                            MsgAlerta("Atención!", "La antigua contraseña es <b>Incorrecta</b>", 3500, "default");
+                        } else {
+                            ErrorLog(data, "Actualizar Usuario Contraseña");
+                        }
+                    },
+                    error: function (error) {
+                        ErrorLog(error, "Actualizar Usuario Contraseña");
+                    }
+                });
+            }
+        });
+    }
+});
+
 // --------------------------------------------------------
 // FUNCIONES GENERALES
 
@@ -902,7 +1377,79 @@ function cargarConfigCatalogos() {
                         fasesTratamientosJSON.push(value);
                     });
                     $('#fasesTratamientosSelect').html(fases);
-                    LoadingOff();
+                    $.ajax({
+                        type: "POST",
+                        contentType: "application/x-www-form-urlencoded",
+                        url: "/Configuracion/ListaEstadosAlerta",
+                        dataType: 'JSON',
+                        beforeSend: function () {
+                            estadosAlertaJSON = [];
+                            LoadingOn("Estados Alerta...");
+                        },
+                        success: function (data) {
+                            var estadosalerta = "<option value='-1'>- Eliga un Estado de Alerta -</option>";
+                            $(data.Activos).each(function (key, value) {
+                                estadosalerta += "<option value='" + value.IdEstadoAlerta + "'>" + value.NombreEstadoAlerta + "</option>";
+                                estadosAlertaJSON.push({
+                                    IdEstadoAlerta: value.IdEstadoAlerta,
+                                    NombreEstadoAlerta: value.NombreEstadoAlerta
+                                });
+                            });
+                            $('#estadosAlertaSelect').html(estadosalerta);
+                            $.ajax({
+                                type: "POST",
+                                contentType: "application/x-www-form-urlencoded",
+                                url: "/Configuracion/ListaNivelIntoxicacion",
+                                dataType: 'JSON',
+                                beforeSend: function () {
+                                    nivelesIntoxicacionJSON = [];
+                                    LoadingOn("Niveles Intoxicacion...");
+                                },
+                                success: function (data) {
+                                    var nintoxicacion = "<option value='-1'>- Eliga un Nivel de Intoxicación -</option>";
+                                    $(data.Activos).each(function (key, value) {
+                                        nintoxicacion += "<option value='" + value.IdNivelesIntoxicacion + "'>" + value.NombreNivelIntoxicacion + "</option>";
+                                        nivelesIntoxicacionJSON.push({
+                                            IdNivelesIntoxicacion: value.IdNivelesIntoxicacion,
+                                            NombreNivelIntoxicacion: value.NombreNivelIntoxicacion
+                                        });
+                                    });
+                                    $('#nivelIntoxicacionSelect').html(nintoxicacion);
+                                    $.ajax({
+                                        type: "POST",
+                                        contentType: "application/x-www-form-urlencoded",
+                                        url: "/Configuracion/ListaEstadosAnimo",
+                                        dataType: 'JSON',
+                                        beforeSend: function () {
+                                            estadosAnimoJSON = [];
+                                            LoadingOn("Estados Animo...");
+                                        },
+                                        success: function (data) {
+                                            var estadoanimo = "<option value='-1'>- Eliga un Estado de Animo -</option>";
+                                            $(data.Activos).each(function (key, value) {
+                                                estadoanimo += "<option value='" + value.IdEstadoAnimo + "'>" + value.NombreEstadoAnimo + "</option>";
+                                                estadosAnimoJSON.push({
+                                                    IdEstadoAnimo: value.IdEstadoAnimo,
+                                                    NombreEstadoAnimo: value.NombreEstadoAnimo
+                                                });
+                                            });
+                                            $('#estadoAnimoSelect').html(estadoanimo);
+                                            LoadingOff();
+                                        },
+                                        error: function (error) {
+                                            ErrorLog(error.responseText, "Lista Estados Animo");
+                                        }
+                                    });
+                                },
+                                error: function (error) {
+                                    ErrorLog(error.responseText, "Lista Niveles Intoxicacion");
+                                }
+                            });
+                        },
+                        error: function (error) {
+                            ErrorLog(error.responseText, "Lista Estados Alerta");
+                        }
+                    });
                 },
                 error: function (error) {
                     ErrorLog(error.responseText, "Lista Fases Tratamientos");
@@ -935,6 +1482,275 @@ function validarFasesForm() {
     }
     if (fases > 0) {
         $('#modalNumFasesTratamiento').val(fases);
+    }
+    return correcto;
+}
+
+// FUNCION QUE CARGA LA  LISTA DE  LOS USUARIOS REGISTRADOS DEL CENTRO [ MENU USUARIOS ]
+function cargarUsuarios(inicial) {
+    $.ajax({
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/Configuracion/CargarUsuarios",
+        dataType: 'JSON',
+        beforeSend: function () {
+            UsuariosListaJSON = [];
+            IDUsuariosARRAY = [];
+            $('input[name="modalcheckpermisos"]').bootstrapToggle('off');
+            $('.toggle-off').css({
+                'left' : '39%'
+            });
+            LoadingOn("Obteniendo Lista Usuarios...");
+        },
+        success: function (data) {
+            if (Array.isArray(data)) {
+                UsuariosListaJSON = data;
+                var tabla = (data.length > 0) ? "" : '<tr><td colSpan="4" style="text-align: center;"><label><i class="fa fa-info-circle"></i>&nbsp;No hay Usuarios registrados</label></td></tr>';
+                $(data).each(function (key, value) {
+                    var activo = '<span onclick="activarDesactivarUsuario(' + value.IdUsuario + ',0);" class="btn badge badge-pill badge-success" title="Click para Desactivar" style="cursor: pointer;"><i class="fa fa-check-circle"></i></span>';
+                    if (value.Activo === 0) {
+                        activo = '<span onclick="activarDesactivarUsuario(' + value.IdUsuario + ',1);" class="btn badge badge-pill badge-danger" title="Click para Activar" style="cursor: pointer;"><i class="fa fa-times-circle"></i></span>';
+                    }
+                    tabla += '<tr><td>' + value.Usuario + '</td><td>' + value.Nombre + " " + value.Apellido + '</td><td style="text-align: center;">' + activo + '</td><td style="text-align: center;"><button class="btn badge badge-pill badge-primary" onclick="editarUsuario(' + value.IdUsuario + ');"><i class="fa fa-edit"></i>&nbsp;Editar</button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-secondary" onclick="nuevaPassUsuario(' + value.IdUsuario + ');"><i class="fa fa-envelope"></i>&nbsp;Nueva Contraseña</button></td></tr>';
+                    IDUsuariosARRAY.push(value.Usuario);
+                });
+                $('#tablaListaUsuarios').html(tabla);
+                LoadingOff();
+
+                if (!inicial) {
+                    MsgAlerta("Ok!", "Usuario registrado <b>Correctamente</b>", 5000, "success");
+                }
+            } else {
+                ErrorLog(data.responseText, "Obtener Lista Usuarios");
+            }
+        },
+        error: function (error) {
+            ErrorLog(error.responseText, "Obtener Lista Usuarios");
+        }
+    });
+}
+
+// FUNCION QUE VALIDA EL FORMULARIO DE ALTA DE USUARIOS [ MENU USUARIOS ]
+function limpiarFormUsuarios() {
+    $('.modalNombreUsuario').val('');
+    $('input[name="modalcheckpermisos"]').bootstrapToggle('off', true);
+}
+
+// FUNCION QUE GENERA UN ID DE USUARIO ALEATORIO [ MENU USUARIOS ]
+function generarUsuarioID() {
+    var numAl = ""
+    do {
+        numAl = "usu" + numAleatorio(4);
+    } while (IDUsuariosARRAY.includes(numAl));
+    return numAl;
+}
+
+// FUNCION QUE VALIDA EL FORMULARIO DE USUARIOS [ MENU USUARIOS ]
+function validarFormUsuario() {
+    var correcto = true;
+    if ($('#modalNombreUsuario').val() === "") {
+        $('#modalNombreUsuario').focus();
+        msg = "Coloque el <b>Nombre</b>";
+        correcto = false;
+    } else if ($('#modalApellidoUsuario').val() === "") {
+        $('#modalApellidoUsuario').focus();
+        msg = "Coloque el <b>Apellido</b>";
+        correcto = false;
+    } else if ($('#modalCorreoUsuario').val() === "") {
+        $('#modalCorreoUsuario').focus();
+        msg = "Coloque el <b>Correo</b>";
+        correcto = false;
+    } else if (!esEmail($('#modalCorreoUsuario').val())) {
+        $('#modalCorreoUsuario').focus();
+        msg = "Dirección de <b>Correo NO valida</b>";
+        correcto = false;
+    } else {
+        UsuarioDataJSON = {
+            IdUsuario: IdUsuarioSelecGLOBAL,
+            Usuario: UsuarioGeneradoGLOBAL,
+            Nombre: $('#modalNombreUsuario').val().toUpperCase(),
+            Apellido: $('#modalApellidoUsuario').val().toUpperCase(),
+            Correo: $('#modalCorreoUsuario').val(),
+            Perfiles: {
+                AlAnon: $('#modalUsuAlAnon').is(":checked"),
+                CoordDeportiva: $('#modalUsuDeportiva').is(":checked"),
+                CoordMedica: $('#modalUsuMedica').is(":checked"),
+                CoordPsicologica: $('#modalUsuPsicologica').is(":checked"),
+                CoordEspiritual: $('#modalUsuEspiritual').is(":checked"),
+                Cord12Pasos: $('#modalUsuDocepasos').is(":checked"),
+                Documentacion: $('#modalUsuDocumentacion').is(":checked"),
+            }
+        };
+    }
+    if (!correcto) {
+        MsgAlerta("Atención!", msg, 2500, "default");
+    }
+    return correcto;
+}
+
+// FUNCION QUE ABRE EL MODAL PARA EDITAR UN USUARIO [ MENU USUARIOS ]
+function editarUsuario(idUsuario) {
+    limpiarFormUsuarios();
+    IdUsuarioSelecGLOBAL = idUsuario;
+    $(UsuariosListaJSON).each(function (key, value) {
+        if (value.IdUsuario === idUsuario) {
+            $('#modalUsuario').html(value.Usuario);
+            $('#modalNombreUsuario').val(value.Nombre);
+            $('#modalApellidoUsuario').val(value.Apellido);
+            $('#modalCorreoUsuario').val(value.Correo);
+            var perfiles = value.Perfiles;
+            console.log(perfiles);
+            $('#modalUsuAlAnon').bootstrapToggle((perfiles.AlAnon) ? 'on' : 'off', true);
+            $('#modalUsuDeportiva').bootstrapToggle((perfiles.CoordDeportiva) ? 'on' : 'off', true);
+            $('#modalUsuMedica').bootstrapToggle((perfiles.CoordMedica) ? 'on' : 'off', true);
+            $('#modalUsuPsicologica').bootstrapToggle((perfiles.CoordPsicologica) ? 'on' : 'off', true);
+            $('#modalUsuEspiritual').bootstrapToggle((perfiles.CoordEspiritual) ? 'on' : 'off', true);
+            $('#modalUsuDocepasos').bootstrapToggle((perfiles.Cord12Pasos) ? 'on' : 'off', true);
+            $('#modalUsuDocumentacion').bootstrapToggle((perfiles.Documentacion) ? 'on' : 'off', true);
+        }
+    });
+    $('#modalUsuarios').modal('show');
+}
+
+// FUNCION QUE ABRE UN MODAL PARA GENERAR UNA NUEVA PASS [ MENU USUARIOS ]
+function nuevaPassUsuario(idUsuario) {
+    IdUsuarioSelecGLOBAL = idUsuario;
+    $(UsuariosListaJSON).each(function (key, value) {
+        if (value.IdUsuario === idUsuario) {
+            $('#modalUsuarioNuevaPass').html(value.Usuario);
+            $('#modalNombreNuevaPass').html(value.Nombre + " " + value.Apellido);
+            $('#modalCorreoNuevaPass').html(value.Correo);
+            UsuarioDataJSON = {
+                IdUsuario: IdUsuarioSelecGLOBAL,
+                Nombre: value.Nombre + " " + value.Apellido,
+                Correo: value.Correo,
+            };
+        }
+    });
+    $('#modalNuevaPassUsuario').modal("show");
+}
+
+// FUNCION QUE ACTIVA O DESACTIVA UN USUARIO
+function activarDesactivarUsuario(idUsuario, actDes) {
+    MsgPregunta((actDes > 0) ? "Activar Usuario" : "Desactivar Usuario", "¿Desea Continuar?", function (si) {
+        UsuarioDataJSON = {
+            IdUsuario: idUsuario,
+            Activo: actDes,
+        };
+        $.ajax({
+            type: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            url: "/Configuracion/ActivarDesactivarUsuario",
+            data: { UsuarioInfo: UsuarioDataJSON },
+            beforeSend: function () {
+                LoadingOn(((actDes > 0) ? "Activado" : "Desactivando") + " Usuario...");
+            },
+            success: function (data) {
+                if (data === "true") {
+                    LoadingOff();
+                    cargarUsuarios(true);
+                } else {
+                    ErrorLog(data, "Activar / Desactivar Usuario");
+                }
+            },
+            error: function (error) {
+                ErrorLog(error, "Activar / Desactivar Usuario");
+            }
+        });
+    });
+}
+
+// FUNCION QUE CARGA LA INFO DEL USUARIOS [ MENU USUARIO INDIVIDUAL ]
+function cargarUsuarioIndInfo(inicial) {
+    setTimeout(function () {
+        $.ajax({
+            type: "POST",
+            contentType: "application/x-www-form-urlencoded",
+            url: "/Configuracion/InfoUsuarioIndividual",
+            dataType: 'JSON',
+            beforeSend: function () {
+                $('.usuarioindtxtform').val('');
+                LoadingOn("Cargando Info. Usuario...");
+            },
+            success: function (data) {
+                if (data.IdUsuario !== undefined) {
+                    $('#configUsuNombre').val(data.Nombre);
+                    $('#configUsuApellido').val(data.Apellido);
+                    $('#configUsuCorreo').val(data.Correo);
+                    LoadingOff();
+                    if (!inicial) {
+                        MsgAlerta("Ok!", "Información actualizada <b>Correctamente</b>", 5000, "success");
+                    }
+                } else {
+                    ErrorLog(data, "Obtener Info. Usuario");
+                }
+            },
+            error: function (error) {
+                ErrorLog(error, "Obtener Info. Usuario");
+            }
+        });
+    }, 1200);
+}
+
+// FUNCION QUE VALIDA EL FORMULARIO DE USUARIO INDIVIDUAL [ MENU USUARIO INDIVIDUAL ]
+function validarFormUsuarioInd() {
+    var correcto = true, msg = "";
+    if ($('#configUsuNombre').val() === "") {
+        correcto = false;
+        msg = "Coloque el <b>Nombre</b>";
+        $('#configUsuNombre').focus();
+    } else if ($('#configUsuApellido').val() === "") {
+        correcto = false;
+        msg = "Coloque el <b>Apellido</b>";
+        $('#configUsuApellido').focus();
+    } else if ($('#configUsuCorreo').val() === "") {
+        correcto = false;
+        msg = "Coloque el <b>Correo</b>";
+        $('#configUsuCorreo').focus();
+    } else if (!esEmail($('#configUsuCorreo').val())) {
+        correcto = false;
+        msg = "Formato de <b>Correo</b> es <b>Inválido</b>";
+        $('#configUsuCorreo').focus();
+    } else {
+        UsuarioDataJSON = {
+            Nombre: $('#configUsuNombre').val().toUpperCase(),
+            Apellido: $('#configUsuApellido').val().toUpperCase(),
+            Correo: $('#configUsuCorreo').val(),
+        };
+    }
+    if (!correcto) {
+        MsgAlerta("Atención!", msg, 3000, "default");
+    }
+    return correcto;
+}
+
+// FUNCION QUE VALIDA EL FORMULARIO DE CAMBIO DE CONTRASEÑA [ MENU USUARIO INDIVIDUAL ]
+function validarFormUsuNuevaPass() {
+    var correcto = true, msg = "";
+    if ($('#configUsuNuevaPass').val() === "") {
+        correcto = false;
+        msg = "Coloque la <b>Nueva Contraseña</b>";
+        $('#configUsuNuevaPass').focus();
+    } else if (($('#configUsuConfirmPass').val() === "")) {
+        correcto = false;
+        msg = "Coloque <b>Repetir Contraseña</b>";
+        $('#configUsuConfirmPass').focus();
+    } else if (($('#configUsuAntPass').val() === "")) {
+        correcto = false;
+        msg = "Coloque la <b>Antigua Contraseña</b>";
+        $('#configUsuAntPass').focus();
+    } else if ($('#configUsuNuevaPass').val() !== $('#configUsuConfirmPass').val()) {
+        correcto = false;
+        msg = "La <b>Nueva Contraseña</b> y la <b>Confirmación</b> NO coinciden";
+        $('#configUsuConfirmPass').focus();
+    }
+    if (!correcto) {
+        MsgAlerta("Atención!", msg, 3000, "default");
+    } else {
+        UsuarioDataJSON = {
+            NuevaPass: $('#configUsuNuevaPass').val(),
+            AntiguaPass: $('#configUsuAntPass').val(),
+        };
     }
     return correcto;
 }
