@@ -1633,30 +1633,32 @@ function nuevaPassUsuario(idUsuario) {
 // FUNCION QUE ACTIVA O DESACTIVA UN USUARIO
 function activarDesactivarUsuario(idUsuario, actDes) {
     MsgPregunta((actDes > 0) ? "Activar Usuario" : "Desactivar Usuario", "¿Desea Continuar?", function (si) {
-        UsuarioDataJSON = {
-            IdUsuario: idUsuario,
-            Activo: actDes,
-        };
-        $.ajax({
-            type: "POST",
-            contentType: "application/x-www-form-urlencoded",
-            url: "/Configuracion/ActivarDesactivarUsuario",
-            data: { UsuarioInfo: UsuarioDataJSON },
-            beforeSend: function () {
-                LoadingOn(((actDes > 0) ? "Activado" : "Desactivando") + " Usuario...");
-            },
-            success: function (data) {
-                if (data === "true") {
-                    LoadingOff();
-                    cargarUsuarios(true);
-                } else {
-                    ErrorLog(data, "Activar / Desactivar Usuario");
+        if (si) {
+            UsuarioDataJSON = {
+                IdUsuario: idUsuario,
+                Activo: actDes,
+            };
+            $.ajax({
+                type: "POST",
+                contentType: "application/x-www-form-urlencoded",
+                url: "/Configuracion/ActivarDesactivarUsuario",
+                data: { UsuarioInfo: UsuarioDataJSON },
+                beforeSend: function () {
+                    LoadingOn(((actDes > 0) ? "Activado" : "Desactivando") + " Usuario...");
+                },
+                success: function (data) {
+                    if (data === "true") {
+                        LoadingOff();
+                        cargarUsuarios(true);
+                    } else {
+                        ErrorLog(data, "Activar / Desactivar Usuario");
+                    }
+                },
+                error: function (error) {
+                    ErrorLog(error, "Activar / Desactivar Usuario");
                 }
-            },
-            error: function (error) {
-                ErrorLog(error, "Activar / Desactivar Usuario");
-            }
-        });
+            });
+        }
     });
 }
 

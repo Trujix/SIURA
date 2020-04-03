@@ -446,8 +446,8 @@ namespace siuraWEB.Models
                         CantidadPagos = int.Parse(lector["cantidadpagos"].ToString());
                         MontoPagoParcial = double.Parse(lector["montopagoparcial"].ToString());
                         TipoPago = lector["tipopago"].ToString();
-                        FechaInicioPago = new DateTime(int.Parse(lector["fechainiciopago"].ToString().Split('/')[2]), int.Parse(lector["fechainiciopago"].ToString().Split('/')[1]), int.Parse(lector["fechainiciopago"].ToString().Split('/')[0])).ToString("dddd, dd MMMM yyyy");
-                        FechaFinPago = new DateTime(int.Parse(lector["fechafinpago"].ToString().Split('/')[2]), int.Parse(lector["fechafinpago"].ToString().Split('/')[1]), int.Parse(lector["fechafinpago"].ToString().Split('/')[0])).ToString("dddd, dd MMMM yyyy");
+                        FechaInicioPago = (lector["fechainiciopago"].ToString() != "--") ? new DateTime(int.Parse(lector["fechainiciopago"].ToString().Split('/')[2]), int.Parse(lector["fechainiciopago"].ToString().Split('/')[1]), int.Parse(lector["fechainiciopago"].ToString().Split('/')[0])).ToString("dddd, dd MMMM yyyy") : lector["fechainiciopago"].ToString();
+                        FechaFinPago = (lector["fechafinpago"].ToString() != "--") ? new DateTime(int.Parse(lector["fechafinpago"].ToString().Split('/')[2]), int.Parse(lector["fechafinpago"].ToString().Split('/')[1]), int.Parse(lector["fechafinpago"].ToString().Split('/')[0])).ToString("dddd, dd MMMM yyyy") : lector["fechafinpago"].ToString();
                     }
                 }
 
@@ -475,7 +475,6 @@ namespace siuraWEB.Models
                     { "NumeroExpediente", MISC.CadExpediente(idpaciente) },
                     { "FasesCantTratamiento", FasesCantTratamiento },
                     { "FasesTratamiento", FasesTratamiento },
-
                     { "Parcialidad", Parcialidad },
                     { "CantidadPagos", CantidadPagos },
                     { "MontoPagoParcial", MontoPagoParcial },

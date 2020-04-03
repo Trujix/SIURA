@@ -196,10 +196,10 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>05/24/2018 07:38:24</publishTime>
     </File>
     <File Include="bin/siuraWEB.dll">
-      <publishTime>03/27/2020 19:47:03</publishTime>
+      <publishTime>04/02/2020 17:01:04</publishTime>
     </File>
     <File Include="bin/siuraWEB.pdb">
-      <publishTime>03/27/2020 19:47:03</publishTime>
+      <publishTime>04/02/2020 17:01:04</publishTime>
     </File>
     <File Include="bin/System.Diagnostics.DiagnosticSource.dll">
       <publishTime>07/19/2017 04:01:30</publishTime>
@@ -6102,14 +6102,20 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     <File Include="Scripts/canvasImagen.js">
       <publishTime>03/04/2020 00:19:34</publishTime>
     </File>
+    <File Include="Scripts/cmedica.js">
+      <publishTime>03/28/2020 22:10:56</publishTime>
+    </File>
     <File Include="Scripts/configuracion.js">
-      <publishTime>03/26/2020 18:51:50</publishTime>
+      <publishTime>04/02/2020 17:00:07</publishTime>
+    </File>
+    <File Include="Scripts/cpsicologica.js">
+      <publishTime>03/28/2020 22:27:50</publishTime>
     </File>
     <File Include="Scripts/dinamicos.js">
       <publishTime>03/27/2020 00:48:00</publishTime>
     </File>
     <File Include="Scripts/documentacion.js">
-      <publishTime>03/27/2020 00:56:43</publishTime>
+      <publishTime>04/03/2020 13:27:40</publishTime>
     </File>
     <File Include="Scripts/funcsaux.js">
       <publishTime>10/02/2020 23:18:01</publishTime>
@@ -6162,8 +6168,11 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     <File Include="Scripts/toogle.js">
       <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
+    <File Include="Views/CMedica/Archivero.cshtml">
+      <publishTime>03/28/2020 02:12:44</publishTime>
+    </File>
     <File Include="Views/CMedica/MenuMedico.cshtml">
-      <publishTime>03/27/2020 01:46:22</publishTime>
+      <publishTime>03/28/2020 22:03:19</publishTime>
     </File>
     <File Include="Views/Configuracion/Catalogos.cshtml">
       <publishTime>03/26/2020 18:08:52</publishTime>
@@ -6183,8 +6192,11 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     <File Include="Views/Configuracion/Usuarios.cshtml">
       <publishTime>03/26/2020 02:40:05</publishTime>
     </File>
+    <File Include="Views/CPsicologica/Archivero.cshtml">
+      <publishTime>03/28/2020 21:44:03</publishTime>
+    </File>
     <File Include="Views/CPsicologica/MenuPsicologo.cshtml">
-      <publishTime>03/27/2020 01:46:56</publishTime>
+      <publishTime>03/28/2020 22:04:06</publishTime>
     </File>
     <File Include="Views/Dinamicos/Pacientes.cshtml">
       <publishTime>03/12/2020 12:17:15</publishTime>
@@ -6235,7 +6247,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>02/10/2020 19:21:52</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>03/24/2020 23:46:39</publishTime>
+      <publishTime>04/01/2020 14:12:56</publishTime>
     </File>
   </ItemGroup>
 </Project>

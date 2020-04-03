@@ -137,8 +137,8 @@ $(document).on('click', '#btnRegistroPacienteGuardar', function () {
                         try {
                             var logoIMG = JSON.parse(data[0]);
                             var jsonContrato = JSON.parse(data[1]);
+                            $('#divPacienteDatos').html('');
                             altaBecaDoc(jsonContrato.ClavePaciente, function (doc) {
-                                $('#divPacienteDatos').html('');
                                 LoadingOff();
                                 MsgAlerta("Ok!", "Paciente registrado <b>correctamente</b>", 2000, "success");
                                 if (jsonContrato.TipoContrato === "I") {
