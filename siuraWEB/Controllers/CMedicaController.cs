@@ -34,6 +34,13 @@ namespace siuraWEB.Controllers
             }
         }
 
+        // ::::::::::::::::::::::: [ INVENTARIO ] :::::::::::::::::::::::
+        // FUNCION QUE ENVIA LA VISTA DEL INVENTARIO
+        public ActionResult Inventario()
+        {
+            return View();
+        }
+
         // ::::::::::::::::::::::: [ ARCHIVERO ] :::::::::::::::::::::::
         // FUNCION QUE ENVIA LA VISTA DEL ARCHIVERO
         public ActionResult Archivero()

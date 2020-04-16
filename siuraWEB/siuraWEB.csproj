@@ -45,10 +45,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EPPlus, Version=5.1.0.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.5.1.0\lib\net45\EPPlus.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Threading.Tasks" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -242,6 +248,7 @@
     <Content Include="CalendarioUI\js\locale\zh-tw.js" />
     <Content Include="CalendarioUI\js\moment.min.js" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\dataTables.bootstrap4.min.css" />
     <Content Include="Content\pnotify.min.css" />
     <Content Include="Content\loader.css" />
     <Content Include="Content\offcanvas.css" />
@@ -2069,6 +2076,7 @@
     <Content Include="Scripts\bootstrap4-toggle.min.js.map" />
     <Content Include="Scripts\cmedica.js" />
     <Content Include="Scripts\cpsicologica.js" />
+    <Content Include="Scripts\dataTables.bootstrap4.min.js" />
     <Content Include="Scripts\html2canvas.js.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -2078,6 +2086,7 @@
     <Content Include="Scripts\documentacion.js" />
     <Content Include="Scripts\impresiones.js" />
     <Content Include="Scripts\index.js" />
+    <Content Include="Scripts\jquery.dataTables.min.js" />
     <Content Include="Scripts\pnotify.min.js" />
     <Content Include="Scripts\loader.js" />
     <Content Include="Scripts\miscelaneas.js" />
@@ -2123,11 +2132,11 @@
     <Content Include="Views\CPsicologica\MenuPsicologo.cshtml" />
     <Content Include="Views\CMedica\Archivero.cshtml" />
     <Content Include="Views\CPsicologica\Archivero.cshtml" />
+    <Content Include="Views\Dinamicos\Inventario.cshtml" />
+    <Content Include="Views\CMedica\Inventario.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\MCMedica\" />
-    <Folder Include="Views\MCPsicologica\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />

@@ -1,10 +1,15 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using siuraWEB.Models;
 using Newtonsoft.Json;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using OfficeOpenXml.Drawing;
+using System.Drawing;
 
 namespace siuraWEB.Controllers
 {
@@ -19,13 +24,20 @@ namespace siuraWEB.Controllers
             return View();
         }
 
-        // FUNCION QUE DEVUELVE LA VISTA DEL MODAL DE CONSULTAS DEPACIENTES [ DINAMICOS ]
+        // FUNCION QUE DEVUELVE LA VISTA DEL MODAL DE CONSULTA DE PAGOS [ DINAMICOS ]
         public ActionResult Pagos()
         {
             return View();
         }
 
-        // FUNCION QUE DEVUELVE LA CONSULTA DE UN PACIENTE [ DINAMICOS ]
+        // FUNCION QUE DEVUELVE LA VISTA DEL MODAL DE FORMULARIOS DE INVENTARIO [ DINAMICOS ]
+        public ActionResult Inventario()
+        {
+            return View();
+        }
+
+        // ------------------------- [ FUNCIONES ] -------------------------
+        // FUNCION QUE DEVUELVE LA CONSULTA DE UN PACIENTE
         public string ConsultaPaciente(string PacienteConsulta, int Estatus)
         {
             return MiDinamico.ConsultaDinamicaPacientes(PacienteConsulta, Estatus, (string)Session["TokenCentro"]);
@@ -129,7 +141,7 @@ namespace siuraWEB.Controllers
             return JsonConvert.SerializeObject(RespuestaLista);
         }
 
-        // FUNCION QUE REIMPRIME UN RECIBO DE PAGO DE  UN CARGO ADICIONAL
+        // FUNCION QUE REIMPRIME UN RECIBO DE PAGO DE UN CARGO ADICIONAL
         public string ReimprimirPagoCargo(int IDCargo)
         {
             string Respuesta = MiDinamico.ReimprimirPagoCargo(IDCargo, (string)Session["Token"], (string)Session["TokenCentro"]);
@@ -144,6 +156,276 @@ namespace siuraWEB.Controllers
             }
             RespuestaLista.Add(Respuesta.Replace("«~LOGOPERS~»", "").Replace("«~LOGOALANON~»", ""));
             return JsonConvert.SerializeObject(RespuestaLista);
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE CATALOGO DE INVENTARIO
+        public string ConsultaInventario(string TipoInventario)
+        {
+            return MiDinamico.ConsultaInventario(TipoInventario, (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE DA DE ALTA UN ELEMENTO EN EL INVENTARIO
+        public string GuardarInventarioArticulo(MDinamicos.InventarioArticulo InventarioData)
+        {
+            return MiDinamico.GuardarInventarioArticulo(InventarioData, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE DEVUELVE LOS DATOS DE UN ARTICULO DEL INVENTARIO
+        public string ConsultarArticuloInventario(int IdInventarioArticulo)
+        {
+            return MiDinamico.ConsultarArticuloInventario(IdInventarioArticulo, (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE ACTUALIZA LAS EXISTENCIAS DE UN ELEMENTO DEL INVENTARIO
+        public string ActInventarioExistencias(MDinamicos.InventarioArticulo InventarioData)
+        {
+            return MiDinamico.ActInventarioExistencias(InventarioData, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // ** FUNCION QUE DEVUELVE LA INFO PARA IMPRIMIR UN REPORTE **
+        public string InventarioImpresion(MDinamicos.InventarioImpresionData InventarioImpresionData)
+        {
+            MDinamicos.InventarioImpresionInfo ImpresionInfo = MiDinamico.InventarioImpresion(InventarioImpresionData, (string)Session["Token"], (string)Session["TokenCentro"]);
+            if (InventarioImpresionData.Formato == "pdf")
+            {
+                string Logo = (ImpresionInfo.Logo == "LOGOPERS") ? System.IO.File.ReadAllText(Server.MapPath("~/Docs/" + (string)Session["TokenCentro"] + "/logocentro.json")) : System.IO.File.ReadAllText(Server.MapPath("~/Media/logoalanon.json"));
+                ImpresionInfo.Logo = Logo;
+                return JsonConvert.SerializeObject(ImpresionInfo);
+            }
+            else if(InventarioImpresionData.Formato == "excel")
+            {
+                return InventarioImpresionExcel(ImpresionInfo, InventarioImpresionData.Gestion);
+            }
+            else
+            {
+                Dictionary<string, object> Err = new Dictionary<string, object>() {
+                    { "Correcto", false },
+                    { "Error", "errFormato" }
+                };
+                return JsonConvert.SerializeObject(Err);
+            }
+        }
+
+        // --------------------------------------------------------------------------------------------
+        // :::::::::::::::::::::::: [ GENERACION DE DOCUMENTOS FORMATO EXCEL ] ::::::::::::::::::::::::
+        public string InventarioImpresionExcel(MDinamicos.InventarioImpresionInfo InventarioImpresionInfo, string Gestion)
+        {
+            try
+            {
+                ExcelPackage ExcelInventario = new ExcelPackage();
+                List<MDinamicos.InventarioImpresionAux> InventarioData = InventarioImpresionInfo.InventarioData;
+                string celda = "A1:G1", NombreDocumento = MISC.InventarioNombreGestion(Gestion)[0] + "_Doc_" + InventarioImpresionInfo.Usuario + ".xlsx";
+                string[] tablaCeldas = MISC.CeldasReporteInventario(Gestion);
+                foreach (MDinamicos.InventarioImpresionAux Inventario in InventarioData)
+                {
+                    ExcelInventario.Workbook.Worksheets.Add(Inventario.Area);
+                    ExcelWorksheet Hoja = ExcelInventario.Workbook.Worksheets[Inventario.Area];
+
+                    Hoja.Cells[celda].Merge = true;
+                    Hoja.Cells[celda].Value = InventarioImpresionInfo.NombreCentro;
+                    Hoja.Cells[celda].Style.Font.Size = 16;
+                    Hoja.Cells[celda].Style.Font.Bold = true;
+                    Hoja.Cells[celda].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    Hoja.Cells[celda].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                    celda = "A2:G2";
+                    Hoja.Cells[celda].Merge = true;
+                    Hoja.Cells[celda].Value = InventarioImpresionInfo.Direccion + " " + InventarioImpresionInfo.Colonia + " C.P. " + InventarioImpresionInfo.CodigoPostal + " Tel: (" + InventarioImpresionInfo.Telefono + ")";
+                    Hoja.Cells[celda].Style.Font.Size = 14;
+                    Hoja.Cells[celda].Style.Font.Bold = true;
+                    Hoja.Cells[celda].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    Hoja.Cells[celda].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                    celda = "A3:G3";
+                    Hoja.Cells[celda].Merge = true;
+                    Hoja.Cells[celda].Value = InventarioImpresionInfo.Estado + ", " + InventarioImpresionInfo.Municipio;
+                    Hoja.Cells[celda].Style.Font.Size = 14;
+                    Hoja.Cells[celda].Style.Font.Bold = true;
+                    Hoja.Cells[celda].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    Hoja.Cells[celda].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                    celda = "A4:G4";
+                    Hoja.Cells[celda].Merge = true;
+                    Hoja.Cells[celda].Value = MISC.InventarioNombreGestion(Gestion)[1];
+                    Hoja.Cells[celda].Style.Font.Size = 14;
+                    Hoja.Cells[celda].Style.Font.Bold = true;
+                    Hoja.Cells[celda].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    Hoja.Cells[celda].Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml("#AED6F1"));
+                    Hoja.Cells[celda].Style.Font.Color.SetColor(Color.Black);
+                    Hoja.Cells[celda].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    Hoja.Cells[celda].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    Hoja.Cells[celda].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    Hoja.Cells[celda].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    Hoja.Cells[celda].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    Hoja.Cells[celda].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                    foreach (string tablaCelda in tablaCeldas)
+                    {
+                        celda = tablaCelda.Split('ø')[1] + "5";
+                        Hoja.Cells[celda].Value = tablaCelda.Split('ø')[0];
+                        Hoja.Cells[celda].Style.Font.Size = 12;
+                        Hoja.Cells[celda].Style.Font.Bold = true;
+                        Hoja.Cells[celda].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        Hoja.Cells[celda].Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml("#D5D8DC"));
+                        Hoja.Cells[celda].Style.Font.Color.SetColor(Color.Black);
+                        Hoja.Cells[celda].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                        Hoja.Cells[celda].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    }
+
+                    Hoja.View.FreezePanes(6, 1);
+
+                    int numCelda = 6, CantElemsG = 0;
+                    foreach(MDinamicos.InventarioArticulo Data in Inventario.InventarioData)
+                    {
+                        celda = "A" + numCelda.ToString();
+                        if (Gestion == "G1" || Gestion == "G2" || Gestion == "E1" || Gestion == "E2" || Gestion == "E3")
+                        {
+                            Hoja.Cells[celda].Value = Data.Codigo;
+                        }
+                        Hoja.Cells[celda].Style.Font.Size = 11;
+                        Hoja.Cells[celda].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                        Hoja.Cells[celda].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                        celda = "B" + numCelda.ToString();
+                        if (Gestion == "G1" || Gestion == "G2" || Gestion == "E1" || Gestion == "E2" || Gestion == "E3")
+                        {
+                            Hoja.Cells[celda].Value = Data.Nombre;
+                        }
+                        Hoja.Cells[celda].Style.Font.Size = 11;
+                        Hoja.Cells[celda].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                        Hoja.Cells[celda].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                        celda = "C" + numCelda.ToString();
+                        if (Gestion == "G1" || Gestion == "G2" || Gestion == "E1" || Gestion == "E2" || Gestion == "E3")
+                        {
+                            Hoja.Cells[celda].Value = Data.Presentacion;
+                        }
+                        Hoja.Cells[celda].Style.Font.Size = 11;
+                        Hoja.Cells[celda].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                        Hoja.Cells[celda].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                        celda = "D" + numCelda.ToString();
+                        if (Gestion == "G1" || Gestion == "G2")
+                        {
+                            Hoja.Cells[celda].Value = "$ " + Data.PrecioCompra.ToString("N2");
+                        }
+                        else if(Gestion == "E1" || Gestion == "E2" || Gestion == "E3")
+                        {
+                            Hoja.Cells[celda].Value = Data.Area;
+                            Hoja.Cells[celda].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                            Hoja.Cells[celda].Style.Font.Color.SetColor(Color.Black);
+                            if(Data.Area == "Salida")
+                            {
+                                Hoja.Cells[celda].Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml("#F5B7B1"));
+                            }
+                            else
+                            {
+                                Hoja.Cells[celda].Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml("#ABEBC6"));
+                            }
+                        }
+                        Hoja.Cells[celda].Style.Font.Size = 11;
+                        Hoja.Cells[celda].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                        Hoja.Cells[celda].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                        celda = "E" + numCelda.ToString();
+                        if (Gestion == "G1" || Gestion == "G2")
+                        {
+                            Hoja.Cells[celda].Value = "$ " + Data.PrecioVenta.ToString("N2");
+                        }
+                        else if (Gestion == "E1" || Gestion == "E2" || Gestion == "E3")
+                        {
+                            Hoja.Cells[celda].Value = Data.Existencias.ToString("N4");
+                        }
+                        Hoja.Cells[celda].Style.Font.Size = 11;
+                        Hoja.Cells[celda].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                        Hoja.Cells[celda].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                        celda = "F" + numCelda.ToString();
+                        if (Gestion == "G1" || Gestion == "G2")
+                        {
+                            Hoja.Cells[celda].Value = "$ " + Data.Existencias.ToString("N4");
+                            if(Data.Existencias < Data.Stock)
+                            {
+                                Hoja.Cells[celda].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                                Hoja.Cells[celda].Style.Font.Color.SetColor(Color.Black);
+                                Hoja.Cells[celda].Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml("#F5B7B1"));
+                            }
+                        }
+                        else if (Gestion == "E1" || Gestion == "E2" || Gestion == "E3")
+                        {
+                            Hoja.Cells[celda].Value = Data.Usuario;
+                        }
+                        Hoja.Cells[celda].Style.Font.Size = 11;
+                        Hoja.Cells[celda].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                        Hoja.Cells[celda].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                        celda = "G" + numCelda.ToString();
+                        if (Gestion == "G1" || Gestion == "G2")
+                        {
+                            Hoja.Cells[celda].Value = "$ " + Data.Stock.ToString("N4");
+                        }
+                        else if (Gestion == "E1" || Gestion == "E2" || Gestion == "E3")
+                        {
+                            Hoja.Cells[celda].Value = Data.FechaTxt;
+                        }
+                        Hoja.Cells[celda].Style.Font.Size = 11;
+                        Hoja.Cells[celda].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        Hoja.Cells[celda].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                        Hoja.Cells[celda].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                        numCelda++;
+                        CantElemsG++;
+                    }
+                    Hoja.Cells[Hoja.Dimension.Address].AutoFitColumns();
+                }
+
+                Directory.CreateDirectory(Server.MapPath("~/Docs/" + (string)Session["TokenCentro"] + "/"));
+                ExcelInventario.SaveAs(new FileInfo(Server.MapPath("~/Docs/" + (string)Session["TokenCentro"] + "/") + NombreDocumento));
+                Dictionary<string, object> Respuesta = new Dictionary<string, object>() {
+                    { "Correcto", true },
+                    { "UrlDoc", System.Web.HttpContext.Current.Request.Url.AbsoluteUri.Replace(System.Web.HttpContext.Current.Request.Url.AbsolutePath, "") + "/Docs/" + (string)Session["TokenCentro"] + "/" + NombreDocumento },
+                };
+                return JsonConvert.SerializeObject(Respuesta);
+            }
+            catch (Exception e)
+            {
+                Dictionary<string, object> Err = new Dictionary<string, object>() {
+                    { "Correcto", false },
+                    { "Error", e.ToString() }
+                };
+                return JsonConvert.SerializeObject(Err);
+            }
         }
     }
 }

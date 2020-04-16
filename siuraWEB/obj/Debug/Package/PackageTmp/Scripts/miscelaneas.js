@@ -201,3 +201,44 @@ function numAleatorio(lng) {
     }
     return Math.floor(Math.random() * parseInt(num)) + 1;
 }
+
+// FUNCION QUE DEVUELVE EL TITULO PARA EL REPORTE DE INVENTARIO SEGUN SU GESTION (PDF)
+function paramsInventarioPDF(param, gestion) {
+    if (param === 1) {
+        if (gestion === "G1") {
+            return "Lista de Inventario General";
+        }
+        else if (gestion === "G2") {
+            return "Lista de Inventario (Debajo del Stock/Minimo)";
+        }
+        else if (gestion === "E1") {
+            return "EntradasSalidas", "Lista de Entradas y Salidas";
+        }
+        else if (gestion === "E2") {
+            return "Entradas", "Lista de Entradas";
+        }
+        else if (gestion === "E3") {
+            return "Salidas", "Lista de Salidas";
+        }
+    } else if (param === 2) {
+        if (gestion === "G1" || gestion === "G2") {
+            return ["CODIGOøautoøauto", "NOMBREø*", "PRESENTACIÓNøauto", "PRECIO COMPRAøauto", "PRECIO VENTAøauto", "EXISTENCIASøauto", "STOCK/MINIMOSøauto"];
+        }
+        else if (gestion === "E1" || gestion === "E2" || gestion === "E3") {
+            return ["CODIGOøauto", "NOMBREø*", "PRESENTACIÓNøauto", "ACCIONøauto", "CANTIDADøauto", "NOMBRE USUARIOøauto", "FECHA Y HORAøauto"];
+        }
+    } else if (param == 3) {
+        if (gestion === "COORD. DEPORTIVA") {
+            return "cd";
+        }
+        else if (gestion === "COORD. MÉDICA") {
+            return "cm";
+        }
+        else if (gestion === "COORD. PSICOLÓGICA") {
+            return "cp";
+        }
+        else if (gestion === "INSUMOS GENERALES") {
+            return "insumos";
+        }
+    }
+}

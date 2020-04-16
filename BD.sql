@@ -27,6 +27,8 @@ DROP TABLE IF EXISTS dbo.pacientecargosadicionales;
 DROP TABLE IF EXISTS dbo.pacienteregistropagos;
 DROP TABLE IF EXISTS dbo.medicodocumentos;
 DROP TABLE IF EXISTS dbo.psicologodocumentos;
+DROP TABLE IF EXISTS dbo.inventarios;
+DROP TABLE IF EXISTS dbo.inventariomovimientos;
 
 CREATE TABLE [dbo].[centros](
 	[id] [int] IDENTITY(1,1) NOT NULL,
@@ -326,6 +328,34 @@ CREATE TABLE [dbo].[psicologodocumentos](
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_PsicologoDocumento] PRIMARY KEY CLUSTERED ([nombre] ASC)
+);
+
+CREATE TABLE [dbo].[inventarios](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[codigo] [varchar](200) NOT NULL,
+	[nombre] [varchar](200) NOT NULL,
+	[presentacion] [varchar](200) NOT NULL,
+	[preciocompra] [float] NOT NULL DEFAULT 0,
+	[precioventa] [float] NOT NULL DEFAULT 0,
+	[existencias] [float] NOT NULL DEFAULT 0,
+	[stock] [float] NOT NULL DEFAULT 0,
+	[codigoauto] [bit] NOT NULL DEFAULT 'False',
+	[area] [varchar](200) NOT NULL,
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_IDInventarioElemento] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[inventariomovimientos](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[idinventario] [int] NOT NULL,
+	[accion] [varchar](50) NOT NULL,
+	[cantidad] [float] NOT NULL DEFAULT 0,
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_IDInventarioMovimiento] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
 INSERT INTO usuariomenuprincipal (idcentro,nombre,visible,fechahora,admusuario) VALUES (1,'alanon','true','2017-08-09','Admin');

@@ -94,3 +94,5 @@ C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\obj\Debug\siuraWEB.csproj.CoreCom
 C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\obj\Debug\siuraWEB.csproj.CopyComplete
 C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\obj\Debug\siuraWEB.dll
 C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\obj\Debug\siuraWEB.pdb
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\EPPlus.dll
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\EPPlus.xml

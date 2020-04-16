@@ -827,3 +827,172 @@ function imprimirContratoCI(jsonCI, logoIMG) {
         ErrorLog(e.toString(), "Imprimir Contrato");
     }
 }
+
+// FUNCION QUE IMPRIME EL REPORTE DE INVENTARIO (GENERAL, MINIMOS, ENTRADAS, SALIDAS)
+function imprimirInventarioReporte(jsonInventario, gestion) {
+    console.log(jsonInventario.InventarioData);
+    var logoIMG = JSON.parse(jsonInventario.Logo);
+    var tablasInventario = [];
+    $(jsonInventario.InventarioData).each(function (k1, v1) {
+        tablasInventario.push({
+            text: v1.Area + "\n", bold: true, fontSize: 12,
+        });
+        var tablaInv = {
+            table: {
+                widths: [],
+                body: [],
+            },
+        };
+        var headersTabla = paramsInventarioPDF(2, gestion);
+        var filas = [];
+        for (i = 0; i < headersTabla.length; i++) {
+            tablaInv.table.widths.push(headersTabla[i].split("ø")[1]);
+            filas.push({
+                text: headersTabla[i].split("ø")[0],
+                bold: true,
+                alignment: 'center',
+                fontSize: 10,
+                fillColor: '#D5D8DC',
+            });
+        }
+        tablaInv.table.body.push(filas);
+        $(v1.InventarioData).each(function (k2, v2) {
+            filas = [];
+            var data1 = {
+                bold: false,
+                fontSize: 8,
+            };
+            if (gestion == "G1" || gestion == "G2" || gestion == "E1" || gestion == "E2" || gestion == "E3") {
+                data1["text"] = v2.Codigo;
+                filas.push(data1);
+            }
+
+            var data2 = {
+                bold: false,
+                fontSize: 8,
+            };
+            if (gestion == "G1" || gestion == "G2" || gestion == "E1" || gestion == "E2" || gestion == "E3") {
+                data2["text"] = v2.Nombre;
+                filas.push(data2);
+            }
+
+            var data3 = {
+                bold: false,
+                fontSize: 8,
+            };
+            if (gestion == "G1" || gestion == "G2" || gestion == "E1" || gestion == "E2" || gestion == "E3") {
+                data3["text"] = v2.Presentacion;
+                filas.push(data3);
+            }
+
+            var data4 = {
+                bold: false,
+                fontSize: 8,
+            };
+            if (gestion == "G1" || gestion == "G2") {
+                data4["text"] = "$ " + v2.PrecioCompra.toFixed(2);
+                filas.push(data4);
+            } else if (gestion == "E1" || gestion == "E2" || gestion == "E3") {
+                data4["text"] = v2.Area;
+                if (v2.Area === "Salida") {
+                    data4["fillColor"] = "#F5B7B1";
+                } else {
+                    data4["fillColor"] = "#ABEBC6";
+                }
+                filas.push(data4);
+            }
+
+            var data5 = {
+                bold: false,
+                fontSize: 8,
+            };
+            if (gestion == "G1" || gestion == "G2") {
+                data5["text"] = "$ " + v2.PrecioVenta.toFixed(2);
+                filas.push(data5);
+            } else if (gestion == "E1" || gestion == "E2" || gestion == "E3") {
+                data5["text"] = v2.Existencias.toFixed(4);
+                filas.push(data5);
+            }
+
+            var data6 = {
+                bold: false,
+                fontSize: 8,
+            };
+            if (gestion == "G1" || gestion == "G2") {
+                data6["text"] = "$ " + v2.Existencias.toFixed(4);
+                if (v2.Existencias < v2.Stock) {
+                    data6["fillColor"] = "#F5B7B1";
+                }
+                filas.push(data6);
+            } else if (gestion == "E1" || gestion == "E2" || gestion == "E3") {
+                data6["text"] = v2.Usuario;
+                filas.push(data6);
+            }
+
+            var data7 = {
+                bold: false,
+                fontSize: 8,
+            };
+            if (gestion == "G1" || gestion == "G2") {
+                data7["text"] = "$ " + v2.Stock.toFixed(4);
+                filas.push(data7);
+            } else if (gestion == "E1" || gestion == "E2" || gestion == "E3") {
+                data7["text"] = v2.FechaTxt;
+                filas.push(data7);
+            }
+
+            tablaInv.table.body.push(filas);
+        });
+        tablasInventario.push(tablaInv);
+        tablasInventario.push({
+            text: "\n"
+        });
+    });
+    var inventario = {
+        pageSize: 'LETTER',
+        pageMargins: [50, 60, 50, 70],
+        footer: function (currentPage, pageCount) {
+            return [
+                {
+                    text: [
+                        { text: "\n" },
+                        { text: "Página " + currentPage.toString() + " de " + pageCount.toString(), alignment: 'right' },
+                        { text: "--------------------", color: 'white' }
+                    ], fontSize: 9
+                }
+            ]
+        },
+        content: [
+            {
+                table: {
+                    widths: ['auto', '*'],
+                    body: [
+                        [
+                            { image: logoIMG.LogoCentro, width: 120, alignment: 'center', border: [false, false, false, false] },
+                            {
+                                text: [
+                                    { text: jsonInventario.NombreCentro + "\n", bold: true, fontSize: 16, },
+                                    { text: jsonInventario.Direccion + ", " + jsonInventario.Colonia + " C.P." + jsonInventario.CodigoPostal + " Tel: (" + jsonInventario.Telefono + ")" + "\n", bold: true, fontSize: 14, },
+                                    { text: jsonInventario.Estado + ", " + jsonInventario.Municipio + "\n\n", bold: true, fontSize: 14, },
+                                    { text: paramsInventarioPDF(1, gestion), bold: true, fontSize: 14, },
+                                ],
+                                alignment: 'center',
+                                bold: true, fontSize: 15,
+                                border: [false, false, false, false],
+                            },
+                        ]
+                    ]
+                },
+            },
+            { text: "\n" },
+        ],
+    };
+    $(tablasInventario).each(function (key, value) {
+        inventario.content.push(value);
+    });
+    try {
+        pdfMake.createPdf(inventario).open();
+    } catch (e) {
+        ErrorLog(e.toString(), "Imprimir Reporte Inventario");
+    }
+}

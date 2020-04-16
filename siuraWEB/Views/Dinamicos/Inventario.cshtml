@@ -1,0 +1,299 @@
+﻿@{
+    Layout = null;
+}
+<div id="modalAltaInventario" class="modal fade modalinventario" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Nuevo Articulo a Inventario</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div id="modalDivAltaInventario" class="col-sm-12 scrollestilo" style="height: 80vh; overflow: scroll;">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h6 style="font-size: 12px;">Código/SKU:</h6>
+                                <div class="form-group row">
+                                    <i class="col-sm-1 col-form-label fa fa-barcode"></i>
+                                    <div class="col-sm-11">
+                                        <input id="modalInventarioCodigo" placeholder="Código/SKU del artículo" type="text" class="form-control form-control-sm modalinventariotxt" autocomplete="off" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-check pl-0">
+                                    <input id="modalInventarioCodigoAut" name="modalcheckinventario" type="checkbox" data-on="Si" data-off="No" checked data-toggle="toggle" data-size="xs" data-onstyle="outline-info" data-offstyle="outline-secondary" autocomplete="off">
+                                    &nbsp;<label class="form-check-label"><b>Generar Código/SKU Automático</b></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="padding-top: 5px;">
+                            <div class="col-sm-12">
+                                <div class="alert alert-info" role="alert">
+                                    <b>Nota: </b>El Código/SKU automático será determinado por el sistema.
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h6 style="font-size: 12px;">Nombre / Descripción:</h6>
+                                <div class="form-group row">
+                                    <i class="col-sm-1 col-form-label fa fa-box-open"></i>
+                                    <div class="col-sm-11">
+                                        <input id="modalInventarioNombre" placeholder="Nombre / Descripción" type="text" class="form-control form-control-sm modalinventariotxt" autocomplete="off" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h6 style="font-size: 12px;">Presentación:</h6>
+                                <div class="form-group row">
+                                    <i class="col-sm-1 col-form-label fa fa-sticky-note"></i>
+                                    <div class="col-sm-11">
+                                        <input id="modalInventarioPresentacion" placeholder="Presentación (15 caracteres)" maxlength="15" type="text" class="form-control form-control-sm modalinventariotxt" autocomplete="off" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h6 style="font-size: 12px;">Precio de Compra:</h6>
+                                <div class="form-group row">
+                                    <i class="col-sm-2 col-form-label fa fa-dollar-sign"></i>
+                                    <div class="col-sm-10">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroup-sizing-sm">$</span>
+                                            </div>
+                                            <input id="modalInventarioPrecioCompra" placeholder="Precio de Compra" type="number" class="form-control modalinventariotxt" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" autocomplete="off" />
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">.00</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <h6 style="font-size: 12px;">Precio de Venta:</h6>
+                                <div class="form-group row">
+                                    <i class="col-sm-2 col-form-label fa fa-dollar-sign"></i>
+                                    <div class="col-sm-10">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" id="inputGroup-sizing-sm">$</span>
+                                            </div>
+                                            <input id="modalInventarioPrecioVenta" placeholder="Precio de Venta" type="number" class="form-control modalinventariotxt" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" autocomplete="off" />
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">.00</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h6 style="font-size: 12px;">Existencias:</h6>
+                                <div class="form-group row">
+                                    <i class="col-sm-2 col-form-label fa fa-list-ol"></i>
+                                    <div class="col-sm-10">
+                                        <input id="modalInventarioExistencias" placeholder="Existencias" type="number" class="form-control form-control-sm modalinventariotxt" autocomplete="off" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <h6 style="font-size: 12px;">Stock/Mínimo:</h6>
+                                <div class="form-group row">
+                                    <i class="col-sm-2 col-form-label fa fa-exclamation-circle"></i>
+                                    <div class="col-sm-10">
+                                        <input id="modalInventarioStock" placeholder="Stock / Mínimo" type="number" class="form-control form-control-sm modalinventariotxt" autocomplete="off" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <h6><b>Area:</b></h6>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group row">
+                                    <i class="col-sm-1 col-form-label fa fa-warehouse"></i>
+                                    <div class="col-sm-11">
+                                        <select id="modalInventarioArea" class="form-control form-control-sm">
+                                            <option value="CD">Coord. Deportiva</option>
+                                            <option value="CM">Coord. Médica</option>
+                                            <option value="CP">Coord. Psicológica</option>
+                                            <option value="INSUMOS">Insumos</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modalInventarioGuardar" type="button" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Guardar Elemento</button>
+                <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalInventarioExistencia" class="modal fade modalinventario" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalInventarioExistenciaTitulo"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h5><span class="badge badge-info">Nombre:</span>&nbsp;<span id="modalInventarioExistenciaNombre"></span></h5>
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 8px;">
+                    <div class="col-sm-12">
+                        <h5><span class="badge badge-info">Existencias:</span>&nbsp;<span id="modalInventarioExistenciaActual"></span></h5>
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 8px;">
+                    <div class="col-sm-12">
+                        <input id="modalInventarioExistenciaCant" class="form-control form-control-sm" min="0" type="number" placeholder="Coloque la Cantidad" autocomplete="off" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modalBtnInventarioExistencia" type="button" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Guardar Cambios</button>
+                <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalInventarioImprimir" class="modal fade modalinventario" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link inventarioimprimirtab" opcion="t1" id="modalInventarioImprimirT1-tab" data-toggle="tab" href="#modalInventarioImprimirT1" role="tab" aria-controls="modalInventarioImprimirT1" aria-selected="true">General</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link inventarioimprimirtab" opcion="t2" id="modalInventarioImprimirT2-tab" data-toggle="tab" href="#modalInventarioImprimirT2" role="tab" aria-controls="modalInventarioImprimirT2" aria-selected="false">Entrada y Salidas</a>
+                            </li>
+                            <!--<li class="nav-item">
+                                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+                            </li>-->
+                        </ul>
+                        <div class="tab-content" id="modalInventarioImprimirPanel">
+                            <div class="tab-pane fade show active" id="modalInventarioImprimirT1" role="tabpanel" aria-labelledby="modalInventarioImprimirT1-tab">
+                                <div class="row" style="padding-top: 5px;">
+                                    <div class="col-sm-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <input class="magic-radio" type="radio" name="inventariotabgeneral" id="modalInventarioImprimirTodos" opcion="G1">
+                                                        <label for="modalInventarioImprimirTodos">Todos</label>
+                                                    </div>
+                                                </div>
+                                                <div class="row" style="padding-top: 5px;">
+                                                    <div class="col-sm-12">
+                                                        <input class="magic-radio" type="radio" name="inventariotabgeneral" id="modalInventarioImprimirStock" opcion="G2">
+                                                        <label for="modalInventarioImprimirStock">Por acabarse (Debajo de Stock/Mínimo)</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="modalInventarioImprimirT2" role="tabpanel" aria-labelledby="modalInventarioImprimirT2-tab">
+                                <div class="row" style="padding-top: 5px;">
+                                    <div class="col-sm-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-4">
+                                                        <input class="magic-radio" type="radio" name="inventariotabensal" id="modalInventarioImprimirAmbos" opcion="E1">
+                                                        <label for="modalInventarioImprimirAmbos">Ambos</label>
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        <input class="magic-radio" type="radio" name="inventariotabensal" id="modalInventarioImprimirEntradas" opcion="E2">
+                                                        <label for="modalInventarioImprimirEntradas">Entradas</label>
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        <input class="magic-radio" type="radio" name="inventariotabensal" id="modalInventarioImprimirSalidas" opcion="E3">
+                                                        <label for="modalInventarioImprimirSalidas">Salidas</label>
+                                                    </div>
+                                                </div>
+                                                <div class="row" style="padding-top: 5px;">
+                                                    <div class="col-sm-12">
+                                                        <h6 style="font-size: 12px;">Rango de Fechas:</h6>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-5">
+                                                        <input id="modalInventarioImprimirFIni" class="form-control form-control-sm" type="date" />
+                                                    </div>
+                                                    <div class="col-sm-2" align="center">
+                                                        <h6 style="font-size: 14px;">- A -</h6>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <input id="modalInventarioImprimirFFin" class="form-control form-control-sm" type="date" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>-->
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <h6><b>Eliga el formato:</b></h6>
+                <div class="row" style="padding-top: 10px;">
+                    <div class="col-sm-4">
+                        <button class="btn btn-block btn-sm btn-dark btnimprimirinventario" tipo="1"><i class="fa fa-file-pdf"></i> Archivo PDF</button>
+                    </div>
+                    <div class="col-sm-4">
+                        <button class="btn btn-block btn-sm btn-dark btnimprimirinventario" tipo="2"><i class="fa fa-file-excel"></i> Archivo Excel</button>
+                    </div>
+                    <div class="col-sm-4">
+                        <button class="btn btn-block btn-sm btn-secondary btnimprimirinventariohtml"><i class="fa fa-list"></i> Ver Tabla</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalInventarioReporte" class="modal fade bd-example-modal-xl modalinventario" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div id="modalInventarioReporteDiv" class="col-sm-12"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
