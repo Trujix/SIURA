@@ -1048,7 +1048,7 @@ function validarFormImprimirInventario() {
         }
         InventarioImprimirDataJSON["Area"] = tipoInventarioGLOBAL;
         InventarioImprimirDataJSON["Gestion"] = imprimirInventarioGestion;
-        InventarioImprimirDataJSON["Formato"] = (InventarioImprimirFormato === 1) ? "pdf" : "exel";
+        InventarioImprimirDataJSON["Formato"] = (InventarioImprimirFormato === 1) ? "pdf" : "excel";
     }
     if (!correcto) {
         MsgAlerta("Atención!", msg, 2500, "default");
@@ -1116,12 +1116,9 @@ function verReporteInventarios(inventarioData) {
         });
         LoadingOff();
     }, 1800);
-
 }
 
 // :::::::::::::::::::::::::: [ VARIABLES DE USO EN DOM ] ::::::::::::::::::::::::::
 // ---------------------------------------------------------------------------------
 var tablaInventarioHTML = '<div class="table-responsive"><table id="tablaInventario" class="table table-sm table-striped table-bordered" style="width:100%"></table></div>';
 var tabDivInventarioHTML = '<ul class="nav nav-tabs" id="modalInventarioReporteTabs" role="tablist"></ul><div class="tab-content" id="modalInventarioReporteDivTablas" style="padding-top: 10px;"></div>';
-
-// "exel" <-"excel"
