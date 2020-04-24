@@ -56,6 +56,12 @@ namespace siuraWEB.Controllers
             return View();
         }
 
+        // FUNCION QUE DEVUELVE LA VISTA DE INVENTARIO [ INVENTARIO ]
+        public ActionResult Inventario()
+        {
+            return View();
+        }
+
         // ------------ FUNCIONES ------------
         // -----------------------------------------------------
         // FUNCION QUE ACTUALIZA EL  ESTATUS DE UN PACIENTE (POSIBLEMENTE MULTIUSOS)
@@ -119,6 +125,5 @@ namespace siuraWEB.Controllers
         {
             return MiDocumentacion.ListaPacientesPagosPendientes(Consulta, (string)Session["TokenCentro"]);
         }
-
     }
 }

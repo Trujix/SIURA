@@ -380,7 +380,7 @@ $(document).on('click', '.btnimprimirinventario', function () {
 });
 
 // DOCUMENT - BOTON QUE MUESTRA UN MODAL CON LA TABLA DE LOS DETALLES DEL INVENTARIO (ENTRADAS Y SALIDAS)
-$(document).on('click', '.btnimprimirinventariohtmlXYW', function () {
+$(document).on('click', '.btnimprimirinventariohtml', function () {
     InventarioImprimirFormato = 1;
     if (validarFormImprimirInventario()) {
         $.ajax({
@@ -1048,7 +1048,7 @@ function validarFormImprimirInventario() {
         }
         InventarioImprimirDataJSON["Area"] = tipoInventarioGLOBAL;
         InventarioImprimirDataJSON["Gestion"] = imprimirInventarioGestion;
-        InventarioImprimirDataJSON["Formato"] = (InventarioImprimirFormato === 1) ? "pdf" : "exel";
+        InventarioImprimirDataJSON["Formato"] = (InventarioImprimirFormato === 1) ? "pdf" : "excel";
     }
     if (!correcto) {
         MsgAlerta("Atención!", msg, 2500, "default");
@@ -1067,7 +1067,6 @@ function abrirInventarioExcel(doc) {
 // FUNCION QUE ABRE UN MODAL PARA MOSTRAR LA TABLA DEL REPORTE DEL INVENTARIO (ENTRADAS Y SALIDAS)
 function verReporteInventarios(inventarioData) {
     LoadingOn("Generando Tabla...");
-    console.log(inventarioData);
     $('#modalInventarioImprimir').modal('hide');
     $('#modalInventarioReporteDiv').html(tabDivInventarioHTML);
     var headersArr = paramsInventarioPDF(2, imprimirInventarioGestion), headerTabla = [];
@@ -1124,5 +1123,3 @@ function verReporteInventarios(inventarioData) {
 // ---------------------------------------------------------------------------------
 var tablaInventarioHTML = '<div class="table-responsive"><table id="tablaInventario" class="table table-sm table-striped table-bordered" style="width:100%"></table></div>';
 var tabDivInventarioHTML = '<ul class="nav nav-tabs" id="modalInventarioReporteTabs" role="tablist"></ul><div class="tab-content" id="modalInventarioReporteDivTablas" style="padding-top: 10px;"></div>';
-
-// '.btnimprimirinventariohtmlXYW' <-'btnimprimirinventariohtml' "exel" <-"excel"

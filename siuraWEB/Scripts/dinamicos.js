@@ -1116,6 +1116,7 @@ function verReporteInventarios(inventarioData) {
         });
         LoadingOff();
     }, 1800);
+
 }
 
 // :::::::::::::::::::::::::: [ VARIABLES DE USO EN DOM ] ::::::::::::::::::::::::::

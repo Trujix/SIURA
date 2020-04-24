@@ -623,9 +623,9 @@ namespace siuraWEB.Models
             {
                 SQL.comandoSQLTrans("PacienteConsulta");
                 List<List<object>> TablaInventario = new List<List<object>>();
-                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.inventarios WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)" + ((tipoinventario == "*") ? " AND area = @AreaParam" : ""), SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.inventarios WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)" + ((tipoinventario != "*") ? " AND area = @AreaParam" : ""), SQL.conSQL, SQL.transaccionSQL);
                 SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
-                if(tipoinventario == "*")
+                if(tipoinventario != "*")
                 {
                     SQL.commandoSQL.Parameters.Add(new SqlParameter("@AreaParam", SqlDbType.VarChar) { Value = tipoinventario });
                 }

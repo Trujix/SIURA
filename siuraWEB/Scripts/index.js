@@ -21,6 +21,10 @@ var vistasControllers = [
 // DOCUMENT - CONTROLA LA SELECCION DEL MENU DE OPCIONES
 $(document).on('click', 'a[name="menuopc"]', function () {
     var indx = parseInt($(this).attr("indx"));
+    if (indx > 5 && indx < 9) {
+        $('.menuopcion').removeClass("active");
+        $('#documentacionOpc').parent().addClass("active");
+    }
     $.ajax({
         type: "POST",
         contentType: "application/x-www-form-urlencoded",

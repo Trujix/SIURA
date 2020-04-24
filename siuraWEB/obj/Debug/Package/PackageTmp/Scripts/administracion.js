@@ -14,7 +14,8 @@ $(document).on('click', 'a[name="opcAdm"]', function () {
     var opcion = $(this).attr("opcion");
     var opciones = {
         preregistros: "PreRegistros",
-        pagospacientes: "PacientesPagos"
+        pagospacientes: "PacientesPagos",
+        inventario: "Inventario",
     };
     $.ajax({
         type: "POST",
@@ -112,6 +113,40 @@ $(document).on('click', '#btnBuscarPacientePagos', function () {
 $(document).on('keyup', '#buscarPacientePagos', function (e) {
     if (e.keyCode === 13 && $(this).val().length >= 4) {
         ListaPagosPacientes();
+    }
+});
+
+// DOCUMENT - COMBO QUE CONTROLA LA ACCION AL SELECCIONAR EL TIPO DE INVENTARIO A MOSTRAR (EXCLUSIVO DE ADMINISTRADOR) [ INVENTARIOS ]
+$(document).on('change', '#selecTipoInventario', function () {
+    LoadingOn('Ajustando Parametros...');
+    setTimeout(function () {
+        $('#divTabla').html('');
+        LoadingOff();
+    }, 1000);
+});
+
+// DOCUMENT - BOTON QUE CONTROLA EL LLAMADO DE LOS INVENTARIOS [ INVENTARIOS ]
+$(document).on('click', '#btnObtenerInventario', function () {
+    consultarInventarios('divTabla', $('#selecTipoInventario').val(), function () {
+        LoadingOff();
+    });
+});
+
+// DOCUMENT - BOTON QUE CONTROLA EL LLAMADO DEL MODAL PARA AGREGAR NUEVO ELEMENTO AL INVENTARIO [ INVENTARIOS ]
+$(document).on('click', '#btnNuevoInventario', function () {
+    if ($('#divTabla').prop('innerHTML') !== "") {
+        abrirModalAltaInventario(true);
+    } else {
+        MsgAlerta("Atención!", "No ha cargado la <b>Lista de Inventario</b>", 3000, "default");
+    }
+});
+
+// DOCUMENT - BOTON QUE CONTROLA EL LLAMADO DEL MODAL PARA IMPRIMIR UN REPORTE DE INVENTARIO [ INVENTARIOS ]
+$(document).on('click', '#btImprimirInventario', function () {
+    if ($('#divTabla').prop('innerHTML') !== "") {
+        abrirModalInventarioImprimir();
+    } else {
+        MsgAlerta("Atención!", "No ha cargado la <b>Lista de Inventario</b>", 3000, "default");
     }
 });
 
