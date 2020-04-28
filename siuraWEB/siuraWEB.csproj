@@ -2135,6 +2135,7 @@
     <Content Include="Views\Dinamicos\Inventario.cshtml" />
     <Content Include="Views\CMedica\Inventario.cshtml" />
     <Content Include="Views\Documentacion\Inventario.cshtml" />
+    <Content Include="Views\CPsicologica\Inventario.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -18,7 +18,7 @@ $(document).on('click', 'a[name="opcCMed"]', function () {
     var opcion = $(this).attr("opcion");
     var opciones = {
         archivero: "Archivero",
-        inventario: "Inventario"
+        inventario: "Inventario",
     };
     $.ajax({
         type: "POST",

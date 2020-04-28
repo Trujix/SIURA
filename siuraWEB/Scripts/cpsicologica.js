@@ -18,6 +18,7 @@ $(document).on('click', 'a[name="opcCPsi"]', function () {
     var opcion = $(this).attr("opcion");
     var opciones = {
         archivero: "Archivero",
+        inventario: "Inventario",
     };
     $.ajax({
         type: "POST",
@@ -99,6 +100,31 @@ $(document).on('click', '#btnGuardarDocInfCP', function () {
                 ErrorLog(error, "Guardar Archivo Servidor");
             }
         });
+    }
+});
+
+// DOCUMENT - BOTON QUE CONTROLA EL LLAMADO DE LOS INVENTARIOS [ INVENTARIOS ]
+$(document).on('click', '#btnObtenerInventarioCP', function () {
+    consultarInventarios('divTablaCP', 'CP', function () {
+        LoadingOff();
+    });
+});
+
+// DOCUMENT - BOTON QUE CONTROLA EL LLAMADO DEL MODAL PARA AGREGAR NUEVO ELEMENTO AL INVENTARIO [ INVENTARIOS ]
+$(document).on('click', '#btnNuevoInventarioCP', function () {
+    if ($('#divTablaCP').prop('innerHTML') !== "") {
+        abrirModalAltaInventario(true);
+    } else {
+        MsgAlerta("Atención!", "No ha cargado la <b>Lista de Inventario</b>", 3000, "default");
+    }
+});
+
+// DOCUMENT - BOTON QUE CONTROLA EL LLAMADO DEL MODAL PARA IMPRIMIR UN REPORTE DE INVENTARIO [ INVENTARIOS ]
+$(document).on('click', '#btImprimirInventarioCP', function () {
+    if ($('#divTablaCP').prop('innerHTML') !== "") {
+        abrirModalInventarioImprimir();
+    } else {
+        MsgAlerta("Atención!", "No ha cargado la <b>Lista de Inventario</b>", 3000, "default");
     }
 });
 

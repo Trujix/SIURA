@@ -199,10 +199,10 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>05/24/2018 07:38:24</publishTime>
     </File>
     <File Include="bin/siuraWEB.dll">
-      <publishTime>04/17/2020 00:13:14</publishTime>
+      <publishTime>04/17/2020 01:06:03</publishTime>
     </File>
     <File Include="bin/siuraWEB.pdb">
-      <publishTime>04/17/2020 00:13:14</publishTime>
+      <publishTime>04/17/2020 01:06:03</publishTime>
     </File>
     <File Include="bin/System.Diagnostics.DiagnosticSource.dll">
       <publishTime>07/19/2017 04:01:30</publishTime>
@@ -6109,13 +6109,13 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>03/04/2020 00:19:34</publishTime>
     </File>
     <File Include="Scripts/cmedica.js">
-      <publishTime>04/06/2020 20:49:18</publishTime>
+      <publishTime>04/17/2020 01:02:25</publishTime>
     </File>
     <File Include="Scripts/configuracion.js">
       <publishTime>04/02/2020 17:00:07</publishTime>
     </File>
     <File Include="Scripts/cpsicologica.js">
-      <publishTime>03/28/2020 22:27:50</publishTime>
+      <publishTime>04/17/2020 01:05:40</publishTime>
     </File>
     <File Include="Scripts/dataTables.bootstrap4.min.js">
       <publishTime>04/03/2020 20:40:13</publishTime>
@@ -6210,8 +6210,11 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     <File Include="Views/CPsicologica/Archivero.cshtml">
       <publishTime>03/28/2020 21:44:03</publishTime>
     </File>
+    <File Include="Views/CPsicologica/Inventario.cshtml">
+      <publishTime>04/17/2020 01:04:41</publishTime>
+    </File>
     <File Include="Views/CPsicologica/MenuPsicologo.cshtml">
-      <publishTime>03/28/2020 22:04:06</publishTime>
+      <publishTime>04/17/2020 01:01:16</publishTime>
     </File>
     <File Include="Views/Dinamicos/Inventario.cshtml">
       <publishTime>04/08/2020 21:24:54</publishTime>
