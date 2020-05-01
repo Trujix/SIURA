@@ -145,6 +145,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\CDeportivaController.cs" />
     <Compile Include="Controllers\CMedicaController.cs" />
     <Compile Include="Controllers\ConfiguracionController.cs" />
     <Compile Include="Controllers\CPsicologicaController.cs" />
@@ -156,6 +157,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="MISC.cs" />
+    <Compile Include="Models\MCDeportiva.cs" />
     <Compile Include="Models\MCMedica.cs" />
     <Compile Include="Models\MConfiguracion.cs" />
     <Compile Include="Models\MCPsicologica.cs" />
@@ -2074,6 +2076,7 @@
     <Content Include="Scripts\administracion.js" />
     <Content Include="Scripts\bootstrap.min.js.map" />
     <Content Include="Scripts\bootstrap4-toggle.min.js.map" />
+    <Content Include="Scripts\cdeportiva.js" />
     <Content Include="Scripts\cmedica.js" />
     <Content Include="Scripts\cpsicologica.js" />
     <Content Include="Scripts\dataTables.bootstrap4.min.js" />
@@ -2136,6 +2139,9 @@
     <Content Include="Views\CMedica\Inventario.cshtml" />
     <Content Include="Views\Documentacion\Inventario.cshtml" />
     <Content Include="Views\CPsicologica\Inventario.cshtml" />
+    <Content Include="Views\CDeportiva\MenuDeportivo.cshtml" />
+    <Content Include="Views\CDeportiva\Inventario.cshtml" />
+    <Content Include="Views\CDeportiva\Archivero.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

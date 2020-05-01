@@ -25,6 +25,7 @@ DROP TABLE IF EXISTS dbo.pacienteingreso;
 DROP TABLE IF EXISTS dbo.pacienteregistrofinanzas;
 DROP TABLE IF EXISTS dbo.pacientecargosadicionales;
 DROP TABLE IF EXISTS dbo.pacienteregistropagos;
+DROP TABLE IF EXISTS dbo.deportivodocumentos;
 DROP TABLE IF EXISTS dbo.medicodocumentos;
 DROP TABLE IF EXISTS dbo.psicologodocumentos;
 DROP TABLE IF EXISTS dbo.inventarios;
@@ -304,6 +305,18 @@ CREATE TABLE [dbo].[pacienteregistropagos](
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_PacienteRegistroPagos] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[deportivodocumentos](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[nombre] [varchar](200) NOT NULL,
+	[extension] [varchar](200) NOT NULL,
+	[archivo] [varchar](200) NOT NULL,
+	[estatus] [int] NOT NULL DEFAULT 1,
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_DeportivoDocumento] PRIMARY KEY CLUSTERED ([nombre] ASC)
 );
 
 CREATE TABLE [dbo].[medicodocumentos](

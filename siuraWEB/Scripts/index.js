@@ -6,7 +6,7 @@
 var calendarioActividades;
 var vistasControllers = [
     { Vista: "", Pagina: "" },
-    { Vista: "", Pagina: "" },
+    { Vista: "CDeportiva", Pagina: "MenuDeportivo" },
     { Vista: "CMedica", Pagina: "MenuMedico" },
     { Vista: "CPsicologica", Pagina: "MenuPsicologo" },
     { Vista: "", Pagina: "" },

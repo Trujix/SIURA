@@ -53,6 +53,7 @@ namespace siuraWEB
                       "~/Scripts/configuracion.js",
                       "~/Scripts/documentacion.js",
                       "~/Scripts/administracion.js",
+                      "~/Scripts/cdeportiva.js",
                       "~/Scripts/cmedica.js",
                       "~/Scripts/cpsicologica.js"));
         }

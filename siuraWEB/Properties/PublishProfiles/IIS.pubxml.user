@@ -199,10 +199,10 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>05/24/2018 07:38:24</publishTime>
     </File>
     <File Include="bin/siuraWEB.dll">
-      <publishTime>04/17/2020 01:06:03</publishTime>
+      <publishTime>04/27/2020 20:36:47</publishTime>
     </File>
     <File Include="bin/siuraWEB.pdb">
-      <publishTime>04/17/2020 01:06:03</publishTime>
+      <publishTime>04/27/2020 20:36:47</publishTime>
     </File>
     <File Include="bin/System.Diagnostics.DiagnosticSource.dll">
       <publishTime>07/19/2017 04:01:30</publishTime>
@@ -6108,8 +6108,11 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     <File Include="Scripts/canvasImagen.js">
       <publishTime>03/04/2020 00:19:34</publishTime>
     </File>
+    <File Include="Scripts/cdeportiva.js">
+      <publishTime>04/27/2020 20:26:24</publishTime>
+    </File>
     <File Include="Scripts/cmedica.js">
-      <publishTime>04/17/2020 01:02:25</publishTime>
+      <publishTime>04/27/2020 19:35:28</publishTime>
     </File>
     <File Include="Scripts/configuracion.js">
       <publishTime>04/02/2020 17:00:07</publishTime>
@@ -6136,7 +6139,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>04/08/2020 03:24:03</publishTime>
     </File>
     <File Include="Scripts/index.js">
-      <publishTime>04/17/2020 00:51:27</publishTime>
+      <publishTime>04/27/2020 19:46:09</publishTime>
     </File>
     <File Include="Scripts/jquery.dataTables.min.js">
       <publishTime>04/04/2020 02:43:50</publishTime>
@@ -6180,6 +6183,15 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     <File Include="Scripts/toogle.js">
       <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
+    <File Include="Views/CDeportiva/Archivero.cshtml">
+      <publishTime>04/27/2020 20:40:19</publishTime>
+    </File>
+    <File Include="Views/CDeportiva/Inventario.cshtml">
+      <publishTime>04/27/2020 20:25:11</publishTime>
+    </File>
+    <File Include="Views/CDeportiva/MenuDeportivo.cshtml">
+      <publishTime>04/27/2020 19:34:23</publishTime>
+    </File>
     <File Include="Views/CMedica/Archivero.cshtml">
       <publishTime>03/28/2020 02:12:44</publishTime>
     </File>
@@ -6187,7 +6199,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>04/17/2020 00:31:32</publishTime>
     </File>
     <File Include="Views/CMedica/MenuMedico.cshtml">
-      <publishTime>04/04/2020 00:46:04</publishTime>
+      <publishTime>04/27/2020 19:34:11</publishTime>
     </File>
     <File Include="Views/Configuracion/Catalogos.cshtml">
       <publishTime>03/26/2020 18:08:52</publishTime>
