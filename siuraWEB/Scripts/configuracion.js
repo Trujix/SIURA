@@ -1643,19 +1643,31 @@ function activarDesactivarUsuario(idUsuario, actDes) {
                 contentType: "application/x-www-form-urlencoded",
                 url: "/Configuracion/ActivarDesactivarUsuario",
                 data: { UsuarioInfo: UsuarioDataJSON },
+                dataType: 'JSON',
                 beforeSend: function () {
                     LoadingOn(((actDes > 0) ? "Activado" : "Desactivando") + " Usuario...");
                 },
                 success: function (data) {
-                    if (data === "true") {
+                    if (data.Respuesta) {
                         LoadingOff();
                         cargarUsuarios(true);
+
+                        if (actDes === 0) {
+                            notifEnviarDataJSON = {
+                                Tipo: "U",
+                                NotifCentroId: "--",
+                                NotifUsuIds: [data.NotifUsuarioId],
+                                AccionPush: "CerrarSesionUsuario",
+                                Parametros: {},
+                            };
+                            pushServidorWEB();
+                        }
                     } else {
-                        ErrorLog(data, "Activar / Desactivar Usuario");
+                        ErrorLog(data.ErrorMsg, "Activar / Desactivar Usuario");
                     }
                 },
                 error: function (error) {
-                    ErrorLog(error, "Activar / Desactivar Usuario");
+                    ErrorLog(error.responseText, "Activar / Desactivar Usuario");
                 }
             });
         }

@@ -96,3 +96,16 @@ C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\obj\Debug\siuraWEB.dll
 C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\obj\Debug\siuraWEB.pdb
 C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\EPPlus.dll
 C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\EPPlus.xml
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\Microsoft.AspNet.SignalR.Core.dll
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\Microsoft.AspNet.SignalR.SystemWeb.dll
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\Microsoft.Owin.dll
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\Microsoft.Owin.Host.SystemWeb.dll
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\Microsoft.Owin.Security.dll
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\Owin.dll
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\Microsoft.AspNet.SignalR.Core.pdb
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\Microsoft.AspNet.SignalR.Core.xml
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\Microsoft.AspNet.SignalR.SystemWeb.pdb
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\Microsoft.AspNet.SignalR.SystemWeb.xml
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\Microsoft.Owin.xml
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\Microsoft.Owin.Host.SystemWeb.xml
+C:\Users\Darth Truji\Desktop\siuraWEB\siuraWEB\bin\Microsoft.Owin.Security.xml

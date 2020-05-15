@@ -50,6 +50,9 @@ namespace siuraWEB.Controllers
                 Session["CoordEspiritual"] = RespuestaJSON.CoordEspiritual;
                 Session["Cord12Pasos"] = RespuestaJSON.Cord12Pasos;
                 Session["Documentacion"] = RespuestaJSON.Documentacion;
+
+                Session["NotifCentroID"] = RespuestaJSON.NotifCentroID;
+                Session["NotifUsuarioID"] = RespuestaJSON.NotifUsuarioID;
             }
             return respuesta;
         }

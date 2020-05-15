@@ -26,6 +26,8 @@ namespace siuraWEB.Models
             public bool Respuesta { get; set; }
             public string Token { get; set; }
             public string TokenCentro { get; set; }
+            public string NotifCentroID { get; set; }
+            public string NotifUsuarioID { get; set; }
             public bool Administrador { get; set; }
             public bool AlAnon { get; set; }
             public bool CoordDeportiva { get; set; }
@@ -47,7 +49,7 @@ namespace siuraWEB.Models
                     Respuesta = false
                 };
                 int IdUsuario = 0;
-                SQL.commandoSQL = new SqlCommand("SELECT U.*, C.tokencentro FROM dbo.usuarios U JOIN dbo.centros C ON C.clave = @ClaveCentroDATA AND C.tokencentro = U.tokencentro WHERE U.usuario = @UsuarioDATA AND U.pass = @PassDATA AND U.activo > 0", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL = new SqlCommand("SELECT U.*, C.tokencentro, C.idnotificacion AS CentroNotifId FROM dbo.usuarios U JOIN dbo.centros C ON C.clave = @ClaveCentroDATA AND C.tokencentro = U.tokencentro WHERE U.usuario = @UsuarioDATA AND U.pass = @PassDATA AND U.activo > 0", SQL.conSQL, SQL.transaccionSQL);
                 SqlParameter[] UsuarioLoginPars =
                 {
                     new SqlParameter("@UsuarioDATA", SqlDbType.VarChar) {Value = logininfo.Usuario },
@@ -65,6 +67,9 @@ namespace siuraWEB.Models
                         respuesta.Administrador = bool.Parse(lector["administrador"].ToString());
                         IdUsuario = int.Parse(lector["id"].ToString());
                         respuesta.IdUsuario = int.Parse(lector["id"].ToString());
+
+                        respuesta.NotifCentroID = lector["CentroNotifId"].ToString();
+                        respuesta.NotifUsuarioID = lector["idnotificacion"].ToString();
                     }
                 }
 

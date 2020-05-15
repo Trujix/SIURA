@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using siuraWEB.Models;
+using Newtonsoft.Json;
 
 namespace siuraWEB.Controllers
 {
@@ -53,6 +54,17 @@ namespace siuraWEB.Controllers
         public string UsuarioParametros()
         {
             return MiHome.ParametrosUsuario((string)Session["Token"]);
+        }
+
+        // FUNCION QUE DEVUELVE LOS PARAMETROS DE NOTIFICACION DEL CENTRO Y DEL USUARIO
+        public string NotifsIDS()
+        {
+            Dictionary<string, object> NotifsData = new Dictionary<string, object>()
+            {
+                { "NotifCentroID", Session["NotifCentroID"] },
+                { "NotifUsuarioID", Session["NotifUsuarioID"] },
+            };
+            return JsonConvert.SerializeObject(NotifsData);
         }
 
         // FUNCION QUE VERIFICA SI EL USUARIO HA INICIADO SESIÓN

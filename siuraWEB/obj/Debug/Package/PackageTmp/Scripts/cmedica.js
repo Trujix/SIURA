@@ -19,6 +19,7 @@ $(document).on('click', 'a[name="opcCMed"]', function () {
     var opciones = {
         archivero: "Archivero",
         inventario: "Inventario",
+        nuevosingresos: "NuevosIngresos",
     };
     $.ajax({
         type: "POST",
@@ -29,9 +30,12 @@ $(document).on('click', 'a[name="opcCMed"]', function () {
         },
         success: function (data) {
             $('#divMenuCMedica').html(data);
-            LoadingOff();
             if (opcion === "archivero") {
                 cargarDocumentosCM(false);
+            } else if (opcion === "nuevosingresos") {
+                setTimeout(function () {
+                    $('#btnObtenerListaNIngresosCM').click();
+                }, 1000);
             }
         },
         error: function (error) {
@@ -126,6 +130,13 @@ $(document).on('click', '#btImprimirInventarioCM', function () {
     } else {
         MsgAlerta("Atención!", "No ha cargado la <b>Lista de Inventario</b>", 3000, "default");
     }
+});
+
+// DOCUMENTO - BOTON QUE CONTROLA EL LLAMADO DE LA TABLA DE PACIENTES NUEVOS [ NUEVOS INGRESOS ]
+$(document).on('click', '#btnObtenerListaNIngresosCM', function () {
+    llenarListaNuevosIngresos('CM', function () {
+        LoadingOff();
+    });
 });
 
 // --------------------------------------------------------

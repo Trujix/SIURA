@@ -84,6 +84,7 @@ function principalParams() {
                         }
                     });
                     mostrarCalendario();
+                    $.getScript("../Scripts/servidornotifs.js", function () { });
                     LoadingOff();
                 },
                 error: function (error) {

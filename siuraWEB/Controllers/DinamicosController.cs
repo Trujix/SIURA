@@ -17,6 +17,12 @@ namespace siuraWEB.Controllers
     {
         // ----------- CLASES Y VARIABLES GLOBALES -------------
         MDinamicos MiDinamico = new MDinamicos();
+        // CLASE USADA PARA ALTA DE ARCHIVO EN NUEVO INGRESO
+        public class ArchivoInfo
+        {
+            public string Nombre { get; set; }
+            public string Extension { get; set; }
+        }
 
         // FUNCION QUE DEVUELVE LA VISTA DEL MODAL DE CONSULTAS DE PACIENTES [ DINAMICOS ]
         public ActionResult Pacientes()
@@ -32,6 +38,12 @@ namespace siuraWEB.Controllers
 
         // FUNCION QUE DEVUELVE LA VISTA DEL MODAL DE FORMULARIOS DE INVENTARIO [ DINAMICOS ]
         public ActionResult Inventario()
+        {
+            return View();
+        }
+
+        // FUNCION QUE DEVUELVE LA VISTA DEL MODAL DE FORMULARIOS DE NUEVO INGRESOS [ DINAMICOS ]
+        public ActionResult NuevoIngreso()
         {
             return View();
         }
@@ -203,6 +215,47 @@ namespace siuraWEB.Controllers
                     { "Error", "errFormato" }
                 };
                 return JsonConvert.SerializeObject(Err);
+            }
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE PACIENTES DE NUEVO INGRESO
+        public string ListaPacientesNuevoIngreso()
+        {
+            return MiDinamico.ListaPacientesNuevoIngreso((string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE DEVUELVE LA INFO DE UN PACIENTE DE NUEVO INGRESO
+        public string ObtenerPacienteNuevoIngresoInfo(int IDPaciente)
+        {
+            return MiDinamico.ObtenerPacienteNuevoIngresoInfo(IDPaciente, (string)Session["TokenCentro"], System.Web.HttpContext.Current.Request.Url.AbsoluteUri.Replace(System.Web.HttpContext.Current.Request.Url.AbsolutePath, "") + "/Docs/" + (string)Session["TokenCentro"] + "/");
+        }
+
+        // FUNCION QUE GUARDA LA INFO DEL PACIENTE  DE NUEVO INGRESO
+        public string GuardarPacienteNuevoIngreso(MDinamicos.PacienteNuevoIngreso PacienteNuevoIngreso)
+        {
+            return MiDinamico.GuardarPacienteNuevoIngreso(PacienteNuevoIngreso, (string)Session["Token"], (string)Session["TokenCentro"]);
+        }
+
+        // ------------------------ [ FUNCION MULTIUSOS GENERICA ] ------------------------
+        // FUNCION INDEPENDIENTE QUE GUARDA UN ARCHIVO
+        public string GuardarArchivoDinamicos(string Info)
+        {
+            try
+            {
+                ArchivoInfo archivoInfo = JsonConvert.DeserializeObject<ArchivoInfo>(Info);
+                string rutaCentro = "/Docs/" + (string)Session["TokenCentro"] + "/";
+                Directory.CreateDirectory(Server.MapPath("~" + rutaCentro));
+                HttpPostedFileBase archivo = Request.Files["Archivo"];
+                int archivoTam = archivo.ContentLength;
+                string archivoNom = archivo.FileName;
+                string archivoTipo = archivo.ContentType;
+                Stream archivoContenido = archivo.InputStream;
+                archivo.SaveAs(Server.MapPath("~" + rutaCentro) + archivoInfo.Nombre + "." + archivoInfo.Extension);
+                return "true";
+            }
+            catch (Exception e)
+            {
+                return e.ToString();
             }
         }
 

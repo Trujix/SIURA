@@ -388,7 +388,7 @@ namespace siuraWEB.Controllers
         public string GuardarUsuario(MConfiguracion.Usuarios UsuarioInfo)
         {
             UsuarioInfo.Pass = MISC.CrearCadAleatoria(3, 4);
-            string UsuarioAccion = MiConfiguracion.GuardarUsuario(UsuarioInfo, (string)Session["Token"], (string)Session["TokenCentro"]);
+            string UsuarioAccion = MiConfiguracion.GuardarUsuario(UsuarioInfo, (string)Session["Token"], (string)Session["TokenCentro"], (string)Session["ClaveCentro"]);
             if(UsuarioInfo.IdUsuario == 0 && UsuarioAccion == "true")
             {
                 EnviarCorreoUsuarioPass(UsuarioInfo.Correo, UsuarioInfo.Pass, UsuarioInfo.Usuario, UsuarioInfo.Nombre + " " + UsuarioInfo.Apellido);

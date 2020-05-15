@@ -82,6 +82,16 @@ namespace siuraWEB.Models
             public string Area { get; set; }
             public List<InventarioArticulo> InventarioData { get; set; }
         }
+        // CLASE DE INFO PACIENTE - NUEVOS INGRESOS
+        public class PacienteNuevoIngreso
+        {
+            public int Id { get; set; }
+            public int IdPaciente { get; set; }
+            public string Clave { get; set; }
+            public string Archivo { get; set; }
+            public string TestJson { get; set; }
+            public string Diagnostico { get; set; }
+        }
 
         // -------------- [ VARIABLES GLOBALES ] --------------
         // ARRAY QUE CONTIENE LAS AREAS DEL INVENTARIO
@@ -1001,6 +1011,128 @@ namespace siuraWEB.Models
                 };
                 SQL.transaccionSQL.Rollback();
                 return Err;
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE DEVUELVE LA LISTA DE PACIENTES DE NUEVO INGRESO [ NUEVO INGRESO ]
+        public string ListaPacientesNuevoIngreso(string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("PacienteConsultaNI");
+
+                List<Dictionary<string, object>> PacientesLista = new List<Dictionary<string, object>>();
+                SQL.commandoSQL = new SqlCommand("SELECT PR.*, PIN.estadoalerta, PIN.nivelintoxicacion, PIN.estadoanimo FROM dbo.pacienteregistro PR JOIN dbo.pacienteingreso PIN ON PIN.idpaciente = PR.id AND PIN.idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) WHERE PR.idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND PR.estatus = 3 ORDER BY PR.nombre ASC", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        Dictionary<string, object> paciente = new Dictionary<string, object>()
+                        {
+                            { "IdPaciente", int.Parse(lector["id"].ToString()) },
+                            { "Nombre", lector["nombre"].ToString() },
+                            { "ClavePaciente", lector["idpaciente"].ToString() },
+                            { "ApellidoP", lector["apellidopaterno"].ToString() },
+                            { "ApellidoM", lector["apellidomaterno"].ToString() },
+                            { "Estatus", int.Parse(lector["estatus"].ToString()) },
+                            { "NombreCompleto", lector["nombre"].ToString().ToUpper() + " " + lector["apellidopaterno"].ToString().ToUpper() + " " + lector["apellidomaterno"].ToString().ToUpper() },
+                            { "EstadoAlerta", lector["estadoalerta"].ToString() },
+                            { "NivelIntoxicacion", lector["nivelintoxicacion"].ToString() },
+                            { "EstadoAnimo", lector["estadoanimo"].ToString() },
+                        };
+                        PacientesLista.Add(paciente);
+                    }
+                }
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(PacientesLista);
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE DEVUELVE LA INFO DE UN PACIENTE DE NUEVO INGRESO [ NUEVO INGRESO ]
+        public string ObtenerPacienteNuevoIngresoInfo(int idpaciente, string tokencentro, string url)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("PacienteNIInfo");
+
+                List<Dictionary<string, object>> PacienteInfo = new List<Dictionary<string, object>>();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacienteevaluacion WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND idpaciente = @IDPacienteParam", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDPacienteParam", SqlDbType.Int) { Value = idpaciente });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        Dictionary<string, object> paciente = new Dictionary<string, object>()
+                        {
+                            { "Id", int.Parse(lector["id"].ToString()) },
+                            { "IdPaciente", int.Parse(lector["idpaciente"].ToString()) },
+                            { "Clave", lector["testclave"].ToString() },
+                            { "TestArchivo", (lector["testarchivo"].ToString() == "SD") ? "SD" : url + lector["testarchivo"].ToString() },
+                            { "TestJson", lector["testjson"].ToString() },
+                            { "Diagnostico", lector["diagnostico"].ToString() },
+                        };
+                        PacienteInfo.Add(paciente);
+                    }
+                }
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(PacienteInfo);
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE GUARDA LA INFO DEL PACIENTE  DE NUEVO INGRESO
+        public string GuardarPacienteNuevoIngreso(PacienteNuevoIngreso pacientenuevoingreso, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("GuardarPacienteNI");
+                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.pacienteevaluacion (idcentro, idpaciente, testclave, testarchivo, testjson, diagnostico, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA), @IDPacienteParam, @ClaveParam, @ArchivoParam, @TestJsonParam, @DiagnosticoParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenParam))", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] pacienteNuevoIngresoData =
+                {
+                    new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar){Value = tokencentro },
+                    new SqlParameter("@IDPacienteParam", SqlDbType.Int){Value = pacientenuevoingreso.IdPaciente },
+                    new SqlParameter("@ClaveParam", SqlDbType.VarChar){Value = pacientenuevoingreso.Clave },
+                    new SqlParameter("@ArchivoParam", SqlDbType.VarChar){Value = pacientenuevoingreso.Archivo },
+                    new SqlParameter("@TestJsonParam", SqlDbType.VarChar){Value = pacientenuevoingreso.TestJson },
+                    new SqlParameter("@DiagnosticoParam", SqlDbType.VarChar){Value = pacientenuevoingreso.Diagnostico },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime){Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenParam", SqlDbType.VarChar){Value = tokenusuario },
+                };
+                SQL.commandoSQL.Parameters.AddRange(pacienteNuevoIngresoData);
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
             }
             finally
             {

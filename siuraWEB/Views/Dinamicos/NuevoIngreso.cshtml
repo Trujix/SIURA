@@ -1,0 +1,62 @@
+﻿@{
+    Layout = null;
+}
+<div id="modalNuevoIngresoOpciones" class="modal fade bd-example-modal-xl modalnuevoingreso" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Configurar Paciente<span id="modalSpanTituloCoord"></span></h5>
+            </div>
+            <div class="modal-body">
+                <div class="row scrollestilo" style="height: 80vh;">
+                    <div id="modalDivNuevoIngresoInfo" class="col-sm-5"></div>
+                    <div id="modalDivNuevoIngresoPrinc" class="col-sm-7"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal"><i class="fa fa-times-circle"></i>&nbsp;Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalNuevoIngresoArchivo" class="modal fade modalnuevoingreso" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNuevoIngresoArchivoTitutlo"></h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button id="modalBtnNuevoIngresoArchivo" class="btn btn-sm btn-block btn-info"><i class="fa fa-file-upload"></i>&nbsp;Seleccionar Archivo</button>
+                        <input id="modalNuevoIngresoArchivoFile" type="file" style="visibility: hidden; font-size: 0px;" accept=".jpg, .jpeg, .png, .pdf" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="modalNuevoIngresoArchivoCard" class="card border-danger" align="center" title="Sin Archivo..." style="cursor: pointer;">
+                            <span id="modalNuevoIngresoArchivoIcono" class="fa fa-times" style="color: #dc3545;"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 10px;">
+                    <div class="col-sm-12">
+                        <h6>Resultado de Diagnóstico</h6>
+                        <textarea id="modalNuevoIngresoDiagnostico" class="form-control form-control-sm" placeholder="Diagnóstico, Resultado, Conclusión"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 10px;">
+                    <div class="col-sm-12">
+                        <div class="alert alert-warning" role="alert">
+                            <b>Nota: </b> el <b>Resultado de Diagnóstico</b> debe estar totalmente relacionado con el propio diagnóstico, resultado o conclución del archivo/documento que va a anexar.<br /><br />El archivo anexado deberá ser formato documento <b>PDF</b>, o imagen en formato <b>JPG o PNG</b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modalNuevoIngresoArchivoGuardar" type="button" class="btn btn-sm btn-success"><i class="fa fa-save"></i>&nbsp;Guardar Cambios</button>
+                <button id="modalNuevoIngresoArchivoCancelar" type="button" class="btn btn-sm btn-danger" data-dismiss="modal"><i class="fa fa-times-circle"></i>&nbsp;Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>

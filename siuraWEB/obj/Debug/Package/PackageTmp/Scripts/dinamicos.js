@@ -24,6 +24,19 @@ var imprimirInventarioTipo = "";
 var imprimirInventarioGestion = "";
 var InventarioImprimirDataJSON = {};
 var InventarioImprimirFormato = 0;
+var IdPacienteNIngresoGLOBAL = 0;
+var nuevosIngresosListaJSON = [];
+var NuevoIngresoCoordGLOBAL = '';
+var listaNIngresoParamsDOM = [];
+var claveTestGLOBAL = '';
+var ArchivoDocNuevoIngreso;
+var ArchivoDocNuevoIngresoDATA = {
+    Nombre: "",
+    Extension: ""
+};
+var NuevoIgresoAltaJSON = {};
+var ValidarAprobacionNIngreso = false;
+var PacienteNIngresoDataJSON = [];
 
 // --------------------------------------------------------
 // FUNCIONES TIPO DOCUMENT (BUTTONS, INPUTS, TEXTAREAS ETC)
@@ -406,6 +419,125 @@ $(document).on('click', '.btnimprimirinventariohtml', function () {
     }
 });
 
+// DOCUMENT - BOTON QUE CONTROLA LAS ACCIONES DE LOS BOTONES DE LA DECISION DEL USUARIO PARA EL NUEVO INGRESO
+$(document).on('click', '.configniarchivo, .confignitest', function () {
+    var param = $(this).attr("param");
+    $(listaNIngresoParamsDOM).each(function (key, value) {
+        if (value.IdElem === param) {
+            claveTestGLOBAL = value.Clave;
+        }
+    });
+    if (parseInt($(this).attr("accion")) === 1) {
+        nuevoIngresoSubirArchivo();
+    } else if (parseInt($(this).attr("accion")) === 2) {
+
+    }
+});
+
+// DOCUMENT - BOTON QUE REALIZA UNA PAUSA AL CERRAR EL FORMULARIO DEL SUBIR ARCHIVO NUEVO INGRESO
+$(document).on('click', '#modalNuevoIngresoArchivoCancelar', function () {
+    LoadingOn("Cargando parametros...");
+    setTimeout(function () {
+        LoadingOff();
+    }, 1500);
+});
+
+// DOCUMENT - BOTON QUE CONTROLA EL LLAMADO DEL INPUT FILE PARA SUBIR UN ARCHIVO DE NUEVO INGRESO
+$(document).on('click', '#modalBtnNuevoIngresoArchivo', function () {
+    $('#modalNuevoIngresoArchivoFile').click();
+});
+
+// DOCUMENT - TIPO FILE QUE CONTROLA EL ANEXO DEL ARCHIVO PARA EL NUEVO INGRESO
+$(document).on('change', '#modalNuevoIngresoArchivoFile', function (e) {
+    ArchivoDocNuevoIngreso = $(this).prop('files')[0];
+    if (ArchivoDocNuevoIngreso !== undefined) {
+        ArchivoDocNuevoIngresoDATA.Nombre = claveTestGLOBAL + "_" + IdPacienteNIngresoGLOBAL.toString();
+        ArchivoDocNuevoIngresoDATA.Extension = ArchivoDocNuevoIngreso.name.substring(ArchivoDocNuevoIngreso.name.lastIndexOf('.') + 1);
+        if (ArchivoDocNuevoIngresoDATA.Extension === 'pdf' || ArchivoDocNuevoIngresoDATA.Extension === 'jpg' || ArchivoDocNuevoIngresoDATA.Extension === 'jpeg' || ArchivoDocNuevoIngresoDATA.Extension === 'png') {
+            $('#modalNuevoIngresoArchivoCard').attr("title", "Archivo Seleccionado").removeClass("border-danger").addClass("border-success");
+            $('#modalNuevoIngresoArchivoIcono').css("color", "#28a745").removeClass("fa-times").addClass("fa-check");
+        } else {
+            MsgAlerta("Atención!", "El formato del archivo <b>NO es válido</b>\n\nSolo documentos <b>pdf</b> o archivos de imagen <b>jpg o png</b>", 4500, "default");
+            $('#modalNuevoIngresoArchivoCard').attr("title", "Sin Archivo").removeClass("border-success").addClass("border-danger");
+            $('#modalNuevoIngresoArchivoIcono').css("color", "#dc3545").removeClass("fa-check").addClass("fa-times");
+            $(this).val('');
+            ArchivoDocNuevoIngreso = $(this).prop('files')[0];
+        }
+    } else {
+        $('#modalNuevoIngresoArchivoCard').attr("title", "Sin Archivo").removeClass("border-success").addClass("border-danger");
+        $('#modalNuevoIngresoArchivoIcono').css("color", "#dc3545").removeClass("fa-check").addClass("fa-times");
+    }
+});
+
+// DOCUMENT - BOTON QUE GUARDA LOS PARAMETROS DEL ARCHIVO DEL NUEVO INGRESO
+$(document).on('click', '#modalNuevoIngresoArchivoGuardar', function () {
+    if (validarFormNuevoIngreso(2)) {
+        MsgPregunta("Guardar Archivo", "¿Desea continuar?", function (si) {
+            var archivoData = new FormData();
+            var archivoInfo = {
+                Nombre: ArchivoDocNuevoIngresoDATA.Nombre,
+                Extension: ArchivoDocNuevoIngresoDATA.Extension
+            };
+            archivoData.append("Archivo", ArchivoDocNuevoIngreso);
+            archivoData.append("Info", JSON.stringify(archivoInfo));
+            $.ajax({
+                type: "POST",
+                url: "/Dinamicos/GuardarArchivoDinamicos",
+                data: archivoData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                beforeSend: function () {
+                    LoadingOn("Guardando Archivo...");
+                },
+                success: function (data) {
+                    if (data === "true") {
+                        $.ajax({
+                            type: "POST",
+                            contentType: "application/x-www-form-urlencoded",
+                            url: "/Dinamicos/GuardarPacienteNuevoIngreso",
+                            data: { PacienteNuevoIngreso: NuevoIgresoAltaJSON },
+                            beforeSend: function () {
+                                LoadingOn("Guardando Parametros...");
+                            },
+                            success: function (data) {
+                                if (data === "true") {
+                                    $('#modalNuevoIngresoArchivo').modal('hide');
+                                    setTimeout(function () {
+                                        $('#modalNuevoIngresoOpciones').modal('hide');
+                                        setTimeout(function () {
+                                            configPacienteNuevoIngreso(IdPacienteNIngresoGLOBAL);
+                                        }, 2000);
+                                    }, 2000);
+                                } else {
+                                    ErrorLog(data, "Guardar Nuevo Ingreso Archivo");
+                                }
+                            },
+                            error: function (error) {
+                                ErrorLog(error, "Guardar Nuevo Ingreso Archivo");
+                            }
+                        });
+                    } else {
+                        ErrorLog(data, "Guardar Archivo Servidor");
+                    }
+                },
+                error: function (error) {
+                    ErrorLog(error, "Guardar Archivo Servidor");
+                }
+            });
+        });
+    }
+});
+
+// DOCUMENT - BOTON QUE ACEPTA Y APRUEBA EL CASO DEL NUEVO INGRESO
+$(document).on('click', '#nuevoIngresoAprobarCaso', function () {
+    if (ValidarAprobacionNIngreso) {
+
+    } else {
+        MsgAlerta("Atención!", "No puede <b>Aprobar</b> el caso de este paciente todavía. Configure los formularios pendientes (derecha) para poder continuar", 3000, "default");
+    }
+});
+
 // --------------------------------------------------------
 // FUNCIONES GENERALES
 
@@ -561,13 +693,16 @@ function llenarTablaConsultaPacientes() {
                     var pacientes = "";
                     $(data).each(function (key, value) {
                         var id = cadAleatoria(8), boton = "", nivel = "";
-                        if (value.Estatus == 1) {
+                        if (value.Estatus === 1) {
                             boton = "<button class='btn badge badge-pill badge-warning editarPrePaciente' title='Editar Pre-registro'><i class='fa fa-user-edit'></i></button>&nbsp;<button class='btn badge badge-pill badge-dark reimprimircontrato' idpaciente='" + value.IdPaciente + "' title='Reimprimir Contrato'><i class='fa fa-print'></i></button>";
                             nivel = "<span class='badge badge-dark'>Pre-registro</span>";
-                        } else if (value.Estatus == 2) {
+                        } else if (value.Estatus === 2) {
                             boton = "<button class='btn badge badge-pill badge-warning configurarPacienteIngreso' idpaciente='" + id + "' title='Configurar Ingreso'><i class='fa fa-user-cog'></i>&nbsp;Configurar Ingreso</button>";
                             nivel = "<span class='badge badge-dark'>Pre-Ingreso</span>";
-                        } else if (value.Estatus == 3) {
+                        } else if (value.Estatus === 3) {
+                            boton = "<button class='btn badge badge-pill badge-warning' idpaciente='" + id + "' title='Ver Información'><i class='fa fa-search'></i>&nbsp;Ver Info.</button>";
+                            nivel = "<span class='badge badge-dark'>En Revisión Coord.</span>";
+                        } else if (value.Estatus === 4) {
 
                         }
                         pacientes += "<tr><td>" + value.NombreCompleto + "</td><td style='text-align: center;'>" + nivel + "</td><td style='text-align: center;'>" + boton + "</td></tr>";
@@ -964,7 +1099,7 @@ function editarArticuloInventario(idElemInventario) {
     });
 }
 
-// FUNCION QUE VALIDA EL FORMULARIO DE ACTUALIZAR EXISTENCIAS
+// FUNCION QUE VALIDA EL FORMULARIO DE ACTUALIZAR EXISTENCIAS DEL INVENTARIO
 function validarFormExistencias() {
     var correcto = true, msg = "";
     if ($('#modalInventarioExistenciaCant').val() === "") {
@@ -1074,11 +1209,14 @@ function verReporteInventarios(inventarioData) {
         headerTabla.push({ title: value.split("ø")[0] });
     });
     setTimeout(function () {
-        var tablasARR = [];
+        var tablasARR = [], navClick = "";
         $(inventarioData).each(function (k1, v1) {
             var idHTML = paramsInventarioPDF(3, v1.Area);
-            $('#modalInventarioReporteTabs').append('<li class="nav-item"><a class="nav-link active" id="modalInventarioReporte' + idHTML + '-tab" data-toggle="tab" href="#modalInventarioReporte' + idHTML + '" role="tab" aria-controls="modalInventarioReporte' + idHTML + '" aria-selected="true">' + v1.Area + '</a></li>');
-            $('#modalInventarioReporteDivTablas').append('<div class="tab-pane fade show active" id="modalInventarioReporte' + idHTML + '" role="tabpanel" aria-labelledby="modalInventarioReporte' + idHTML + '-tab">' + tablaInventarioHTML.replace("tablaInventario", 'modalInventarioReporteTabla' + idHTML) + '</div>');
+            if (k1 === 0) {
+                navClick = "#modalInventarioReporte" + idHTML + "-tab";
+            }
+            $('#modalInventarioReporteTabs').append('<li class="nav-item"><a class="nav-link navinvreporte active" id="modalInventarioReporte' + idHTML + '-tab" data-toggle="tab" href="#modalInventarioReporte' + idHTML + '" role="tab" aria-controls="modalInventarioReporte' + idHTML + '" aria-selected="true">' + v1.Area + '</a></li>');
+            $('#modalInventarioReporteDivTablas').append('<div class="tab-pane fade tabinvreporte show active" id="modalInventarioReporte' + idHTML + '" role="tabpanel" aria-labelledby="modalInventarioReporte' + idHTML + '-tab">' + tablaInventarioHTML.replace("tablaInventario", 'modalInventarioReporteTabla' + idHTML) + '</div>');
             var dataTabla = [];
             $(v1.InventarioData).each(function (k2, v2) {
                 var invData = [];
@@ -1113,13 +1251,312 @@ function verReporteInventarios(inventarioData) {
             $(tablasARR).each(function (key, value) {
                 value.columns.adjust();
             });
+            $('.navinvreporte').removeClass("active");
+            $('.tabinvreporte').removeClass("show");
+            $('.tabinvreporte').removeClass("active");
+            $(navClick).click();
+            LoadingOff();
         });
-        LoadingOff();
     }, 1800);
+}
 
+
+// -------------------------------- +++++++++++++++++++ --------------------------------
+// :::::::::::::::::::::::::::::::: [ NUEVOS INGRESOS ] ::::::::::::::::::::::::::::::::
+
+// FUNCION QUE CARGA LA TABLA DE NUEVOS INGRESOS DE ACUERDO A LA COORDINACION
+function llenarListaNuevosIngresos(coord, callback) {
+    $.ajax({
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/Dinamicos/NuevoIngreso",
+        beforeSend: function () {
+            LoadingOn("Cargando Nuevos Ingresos...");
+            $('.modalnuevoingreso').remove();
+            NuevoIngresoCoordGLOBAL = coord;
+            nuevosIngresosListaJSON = [];
+        },
+        success: function (data) {
+            $('#divNIngresosTabla' + coord).parent().parent().append(data);
+            $.ajax({
+                type: "POST",
+                contentType: "application/x-www-form-urlencoded",
+                url: "/Dinamicos/ListaPacientesNuevoIngreso",
+                dataType: 'JSON',
+                success: function (data) {
+                    if (Array.isArray(data)) {
+                        var tablaNingresos = (data.length > 0) ? "" : '<tr><td class="table-info" colspan="2" style="text-align: center;"><h5><i class="fa fa-info-circle"></i>&nbsp;No tiene <b>Nuevos Ingresos</b> pendientes</h5></td></tr>';
+                        $(data).each(function (key, value) {
+                            tablaNingresos = '<tr><td>' + value.NombreCompleto + '</td><td style="text-align: center;"><button class="btn badge badge-pill badge-warning" onclick="configPacienteNuevoIngreso(' + value.IdPaciente + ')"><i class="fa fa-edit"></i>&nbsp;Configurar Paciente</button></td></tr>';
+                            nuevosIngresosListaJSON.push(value);
+                        });
+                        tablaNIngresosHTML = tablaNIngresosHTML.replace("ÖØCUERPOØÖ", tablaNingresos);
+                        $('#divNIngresosTabla' + coord).html(tablaNIngresosHTML);
+                        callback(true);
+                    } else {
+                        ErrorLog(data.responseText, "Lista Nuevos Ingresos");
+                    }
+                },
+                error: function (error) {
+                    ErrorLog(error.responseText, "Lista Nuevos Ingresos");
+                }
+            });
+        },
+        error: function (error) {
+            ErrorLog(error, "Cargar Vista Nuevos Ingresos");
+        }
+    });
+}
+
+
+// FUNCION QUE CONFIGURA UN PACIENTE DE NUEVO INGRESO
+function configPacienteNuevoIngreso(id) {
+    $.ajax({
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/Dinamicos/ObtenerPacienteNuevoIngresoInfo",
+        data: { IDPaciente: id },
+        dataType: 'JSON',
+        beforeSend: function () {
+            LoadingOn("Cargando Info. Paciente...");
+            IdPacienteNIngresoGLOBAL = id;
+            listaNIngresoParamsDOM = [];
+            PacienteNIngresoDataJSON = [];
+        },
+        success: function (data) {
+            if (Array.isArray(data)) {
+                $(nuevosIngresosListaJSON).each(function (key, value) {
+                    if (value.IdPaciente === id) {
+                        var cuerpo = '<h6><span class="badge badge-warning">ESTADO DE ALERTA: </span> ' + value.EstadoAlerta + '</h6><h6><span class="badge badge-warning">NIVEL DE INTOXICACIÓN: </span> ' + value.NivelIntoxicacion + '</h6><h6><span class="badge badge-warning">ESTADO DE ÁNIMO: </span> ' + value.EstadoAnimo + '</h6>';
+                        $('#modalDivNuevoIngresoInfo').html(cardsNIngresoInfoHTML.replace("ØÖNOMBREPACIENTEÖØ", value.NombreCompleto).replace("ØÖCUEPORPACIENTEINFOÖØ", cuerpo));
+                    }
+                });
+                $('#modalDivNuevoIngresoPrinc').html('');
+                $(NuevoIngresoTestJSON).each(function (k1, v1) {
+                    if (v1.Coord === NuevoIngresoCoordGLOBAL) {
+                        $('#modalDivNuevoIngresoPrinc').append(cardsNIngresoOpcHTML.replace("ØÖTITULOÖØ", v1.Titulo).replace("ØÖDIVIDÖØ", v1.IdHTML));
+                        var idTabla = cadAleatoria(8);
+                        $('#' + v1.IdHTML).html('<div class="row"><div class="col-sm-12"><div class="table table-responsive tablanitests"><table class="table table-sm table-bordered tablanitests" style="margin-bottom: 0;"><tbody id="tablani_' + idTabla + '"></tbody></table></div></div></div>');
+                        $(v1.Test).each(function (k2, v2) {
+                            var idTd = cadAleatoria(6), idDOM = cadAleatoria(7);
+                            var tdTabla = '<tr><td><b>' + v2.Nombre + '</b></td><td id="tdni_' + idTd + '" style="text-align: center; width: 300px;"><button class="btn badge badge-pill badge-primary configniarchivo" param="' + idDOM + '" accion="1"><i class="fa fa-file-upload"></i>&nbsp;Subir Archivo Evidencia</button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-info confignitest" param="' + idDOM + '" accion="2"><i class="fa fa-pencil-alt"></i>&nbsp;Contestar Test</button></td></tr>';
+                            listaNIngresoParamsDOM.push({
+                                IdElem: idDOM,
+                                Clave: v2.Clave,
+                            });
+                            $('.tablanitests').css("margin-bottom", "0rem");
+                            $('#tablani_' + idTabla).append(tdTabla);
+                            $(data).each(function (k3, v3) {
+                                if (v3.Clave === v2.Clave) {
+                                    if (v3.TestArchivo !== "SD") {
+                                        $('#tdni_' + idTd).html('<button class="btn badge badge-pill badge-success" onclick="mostrarIngresoPacienteInfo(' + v3.Id + ',1);"><i class="fa fa-file"></i>&nbsp;Mostrar Archivo Anexo</button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-secondary" title="Diagnostico" onclick="mostrarIngresoPacienteInfo(' + v3.Id + ',2);"><i class="fa fa-info-circle"></i></button>').parent().addClass("table-success");
+                                    }
+                                    if (v3.TestJson !== "SD") {
+
+                                    }
+                                    PacienteNIngresoDataJSON.push(v3);
+                                }
+                            });
+                        });
+                    }
+                });
+                var tituloCoord = '';
+                if (NuevoIngresoCoordGLOBAL === "CM") {
+                    tituloCoord = ' - Coordinación Médica';
+                } else if (NuevoIngresoCoordGLOBAL === "CP") {
+                    tituloCoord = ' - Coordinación Psicológica';
+                } else if (NuevoIngresoCoordGLOBAL === "CC") {
+                    tituloCoord = ' - Coordinación Consejería';
+                }
+                $('#modalSpanTituloCoord').html(tituloCoord);
+                validarAprobacionCoord(data.length);
+                LoadingOff();
+                $('#modalNuevoIngresoOpciones').modal('show');
+            } else {
+                ErrorLog(data.responseText, "Cargar Info. Pacientes Nuevo Ingreso");
+            }
+        },
+        error: function (error) {
+            ErrorLog(error.responseText, "Cargar Info. Pacientes Nuevo Ingreso");
+        }
+    });
+}
+
+// FUNCION QUE EJECUTA LOS  PARAMETROS PARA ANEXAR UN ARCHIVO  A UN NUEVO INGRESO
+function nuevoIngresoSubirArchivo() {
+    LoadingOn("Cargando Formulario...");
+    $(NuevoIngresoTestJSON).each(function (k1, v1) {
+        $(v1.Test).each(function (k2, v2) {
+            if (v2.Clave === claveTestGLOBAL) {
+                $('#modalNuevoIngresoArchivoTitutlo').html(v2.Nombre);
+            }
+        });
+    });
+    $('#modalNuevoIngresoArchivoFile').val('');
+    ArchivoDocNuevoIngreso = $('#modalNuevoIngresoArchivoFile').prop('files')[0];
+    $('#modalNuevoIngresoArchivoCard').attr("title", "Sin Archivo").removeClass("border-success").addClass("border-danger");
+    $('#modalNuevoIngresoArchivoIcono').css("color", "#dc3545").removeClass("fa-check").addClass("fa-times");
+    $('#modalNuevoIngresoDiagnostico').val('');
+    $('#modalNuevoIngresoArchivo').modal('show');
+    setTimeout(function () {
+        LoadingOff();
+    },1500);
+}
+
+// FUNCION QUE VALIDA EL FORMULARIO DE ALTA DE ARCHIVO DE UN NUEVO INGRESO
+function validarFormNuevoIngreso(accion) {
+    var correcto = true, msg = '';
+    if (accion === 1) {
+        NuevoIgresoAltaJSON = {
+            IdPaciente: IdPacienteNIngresoGLOBAL,
+            Clave: claveTestGLOBAL,
+            Archivo: 'SD',
+            TestJson: {},
+            Diagnostico: "--",
+        };
+    } else if (accion === 2) {
+        if (ArchivoDocNuevoIngreso === undefined) {
+            correcto = false;
+            msg = "No ha seleccionado un <b>Archivo</b>";
+        } else if ($('#modalNuevoIngresoDiagnostico').val() === "") {
+            $('#modalNuevoIngresoDiagnostico').focus();
+            correcto = false;
+            msg = "Escriba un <b>Resultado de Diagnóstico</b>";
+        } else {
+            NuevoIgresoAltaJSON = {
+                IdPaciente: IdPacienteNIngresoGLOBAL,
+                Clave: claveTestGLOBAL,
+                Archivo: claveTestGLOBAL + "_" + IdPacienteNIngresoGLOBAL.toString() + "." + ArchivoDocNuevoIngresoDATA.Extension,
+                TestJson: 'SD',
+                Diagnostico: $('#modalNuevoIngresoDiagnostico').val().toUpperCase(),
+            };
+        }
+    }
+    if (!correcto) {
+        MsgAlerta("Atención!", msg, 1800, "default");
+    }
+    return correcto;
+}
+
+// FUNCION QUE VALIDA LA APROBACION DEL PACIENTE POR PARTE DE LA COORDINACION EN NUEVO INGRESOS
+function validarAprobacionCoord(pacienteData) {
+    var contTest = 0;
+    $(NuevoIngresoTestJSON).each(function (k1, v1) {
+        if (v1.Coord === NuevoIngresoCoordGLOBAL) {
+            $(v1.Test).each(function (k2, v2) {
+                contTest++;
+            });
+        }
+    });
+    ValidarAprobacionNIngreso = (pacienteData === contTest) ? true : false;
+}
+
+// FUNCION QUE MUESTRA LA INFO O EJECUTA UNA ACCION EN UN PACIENTE EN CONFIGURACION DE NUEVO INGRESO
+function mostrarIngresoPacienteInfo(idIngreso, accion) {
+    var data = {};
+    $(PacienteNIngresoDataJSON).each(function (key, value) {
+        if (value.Id === idIngreso) {
+            data = value;
+        }
+    });
+    if (accion === 1) {
+        window.open(data.TestArchivo, '_blank');
+    } else if (accion === 2) {
+        MsgAlerta("Diagnóstico", data.Diagnostico, 8000, "info");
+    }
 }
 
 // :::::::::::::::::::::::::: [ VARIABLES DE USO EN DOM ] ::::::::::::::::::::::::::
 // ---------------------------------------------------------------------------------
+// -- INVENTARIOS
 var tablaInventarioHTML = '<div class="table-responsive"><table id="tablaInventario" class="table table-sm table-striped table-bordered" style="width:100%"></table></div>';
 var tabDivInventarioHTML = '<ul class="nav nav-tabs" id="modalInventarioReporteTabs" role="tablist"></ul><div class="tab-content" id="modalInventarioReporteDivTablas" style="padding-top: 10px;"></div>';
+// -- NUEVOS INGRESOS
+var tablaNIngresosHTML = '<div class="table table-responsive"><table class="table table-sm table-bordered"><thead><tr class="table-active"><th>Nombre del Paciente</th><th style="text-align: center;"><i class="fa fa-cog"></i>&nbsp;Opciones</th></tr></thead><tbody>ÖØCUERPOØÖ</tbody></table></div>';
+var cardsNIngresoOpcHTML = '<div class="row" style="margin-top: 5px;"><div class="col-sm-12"><div class="card"><h6 class="card-header"><i class="fa fa-briefcase-medical"></i>&nbsp;ØÖTITULOÖØ</h6><div id="ØÖDIVIDÖØ" class="card-body"></div></div></div></div>';
+var cardsNIngresoInfoHTML = '<div class="card border-warning mb-3"><div class="card-header bg-warning text-white border-warning"><h6 class="card-title">ØÖNOMBREPACIENTEÖØ</h6></div><div class="card-body"><h6><span class="badge badge-secondary">INFORMACIÓN DE INGRESO DEL PACIENTE</span></h6>ØÖCUEPORPACIENTEINFOÖØ<br><hr><h6><span class="badge badge-secondary">REVISIÓN Y APROBACIÓN DEL CASO</span></h6><div class="alert alert-warning" role="alert"><i class="fa fa-info"></i> Esta acción solo será habilitada una vez haya concluido los formularios de la derecha.</div><div class="row"><div class="col-sm-12"><button id="nuevoIngresoAprobarCaso" class="btn btn-sm btn-success btn-block"><i class="fa fa-check-circle"></i>&nbsp;Aprobar Caso del Paciente</button></div></div></div></div>';
+
+
+// ******************************************* [ I M P O R T A N T E ] **********************************************
+// :::::::::::::::::::::::::: [ VARIABLES TIPO JSON ESTRUCTURALES PARA LOS TIPOS DE TEST ] ::::::::::::::::::::::::::
+
+// JSON DE GRUPOS DE TESTS
+var NuevoIngresoTestJSON = [
+    // COORDINACION MEDICA
+    {
+        Titulo: "SEMIOLOGÍA MÉDICA",
+        Coord: 'CM',
+        IdHTML: 'divNICM1',
+        Test: [
+            {
+                Nombre: "Exámen Clínico",
+                Clave: "ECM1",
+            },
+        ],
+    },
+    {
+        Titulo: "HISTORIAL",
+        Coord: 'CM',
+        IdHTML: 'divNICM2',
+        Test: [
+            {
+                Nombre: "Historia Clínica",
+                Clave: "ECM2",
+            },
+        ],
+    },
+    {
+        Titulo: "PRUEBAS Y ANÁLISIS",
+        Coord: 'CM',
+        IdHTML: 'divNICM3',
+        Test: [
+            {
+                Nombre: "Exámenes Mínimos",
+                Clave: "ECM3",
+            },
+        ],
+    },
+    {
+        Titulo: "PRUEBAS COMPLEMENTARIAS",
+        Coord: 'CM',
+        IdHTML: 'divNICM4',
+        Test: [
+            {
+                Nombre: "Otros Exámenes",
+                Clave: "ECM4",
+            },
+        ],
+    },
+    // COORDINACION PSICOLOGICA
+    {
+        Titulo: "NOTA DE INGRESO: NIVEL DE ADICCIÓN",
+        Coord: 'CP',
+        IdHTML: 'divNICP1',
+        Test: [
+            {
+                Nombre: "Alcoholismo",
+                Clave: "ECP1",
+            },
+            {
+                Nombre: "Tabaquismo",
+                Clave: "ECP2",
+            },
+            {
+                Nombre: "Sustancias Psicoactivas",
+                Clave: "ECP3",
+            },
+        ],
+    },
+    {
+        Titulo: "PRUEBAS COMPLEMENTARIAS",
+        Coord: 'CP',
+        IdHTML: 'divNICP2',
+        Test: [
+            {
+                Nombre: "Otros Exámenes",
+                Clave: "ECP4",
+            },
+        ],
+    },
+    // COORDINACION CONSEJERIA
+];

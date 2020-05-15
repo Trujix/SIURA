@@ -1,9 +1,10 @@
 /*
-	BASE DE DATOS DE SISTEMA SIUR-A
+	::: BASE DE DATOS DE SISTEMA SIUR-A VER 1.0 :::
 */
-/*
+
+If(db_id(N'siura') IS NULL) 
 	CREATE DATABASE siura;
-*/
+
 USE siura;
 
 DROP TABLE IF EXISTS dbo.centros;
@@ -25,6 +26,7 @@ DROP TABLE IF EXISTS dbo.pacienteingreso;
 DROP TABLE IF EXISTS dbo.pacienteregistrofinanzas;
 DROP TABLE IF EXISTS dbo.pacientecargosadicionales;
 DROP TABLE IF EXISTS dbo.pacienteregistropagos;
+DROP TABLE IF EXISTS dbo.pacienteevaluacion;
 DROP TABLE IF EXISTS dbo.deportivodocumentos;
 DROP TABLE IF EXISTS dbo.medicodocumentos;
 DROP TABLE IF EXISTS dbo.psicologodocumentos;
@@ -35,11 +37,12 @@ CREATE TABLE [dbo].[centros](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[clave] [varchar](200) NOT NULL,
 	[tokencentro] [varchar](200) NOT NULL,
+	[idnotificacion] [varchar](200) NOT NULL,
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_CentrosID] PRIMARY KEY CLUSTERED ([clave] ASC)
 );
-INSERT INTO centros (clave,tokencentro,fechahora,admusuario) VALUES ('1234','1a2b3c4d','2017-08-09','SiuraMTG');
+INSERT INTO centros (clave,tokencentro,idnotificacion,fechahora,admusuario) VALUES ('1234','1a2b3c4d','56789','2017-08-09','SiuraMTG');
 
 CREATE TABLE [dbo].[usuarios](
 	[id] [int] IDENTITY(1,1) NOT NULL,
@@ -53,11 +56,12 @@ CREATE TABLE [dbo].[usuarios](
 	[administrador] [bit] NOT NULL DEFAULT 'False',
 	[activo] [int] NOT NULL DEFAULT 1,
 	[estatus] [int] NOT NULL DEFAULT 1,
+	[idnotificacion] [varchar](200) NOT NULL,
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_UsuarioID] PRIMARY KEY CLUSTERED ([id] ASC)
 );
-INSERT INTO usuarios (usuario,tokenusuario,tokencentro,nombre,apellido,correo,pass,administrador,fechahora,admusuario) VALUES ('adm','75996de9e8471c8a7dd7b05ff064b34d','1a2b3c4d','Admin','Siura','correo@mail.com','202cb962ac59075b964b07152d234b70','true','2017-08-09','SiuraMTG');
+INSERT INTO usuarios (usuario,tokenusuario,tokencentro,nombre,apellido,correo,pass,administrador,idnotificacion,fechahora,admusuario) VALUES ('adm','75996de9e8471c8a7dd7b05ff064b34d','1a2b3c4d','Admin','Siura','correo@mail.com','202cb962ac59075b964b07152d234b70','true','56789','2017-08-09','SiuraMTG');
 
 CREATE TABLE [dbo].[usuariosperfiles](
 	[id] [int] IDENTITY(1,1) NOT NULL,
@@ -305,6 +309,19 @@ CREATE TABLE [dbo].[pacienteregistropagos](
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_PacienteRegistroPagos] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[pacienteevaluacion](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[idpaciente] [int] NOT NULL,
+	[testclave] [varchar](200) NOT NULL,
+	[testarchivo] [varchar](MAX) NOT NULL DEFAULT 'SD',
+	[testjson] [varchar](MAX) NOT NULL DEFAULT 'SD',
+	[diagnostico] [varchar](MAX) NOT NULL DEFAULT 'SD',
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_PacienteEvaluacion] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
 CREATE TABLE [dbo].[deportivodocumentos](

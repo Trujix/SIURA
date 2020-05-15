@@ -1236,7 +1236,7 @@ namespace siuraWEB.Models
         }
 
         // FUNCION QUE GUARDA UN USUARIO [ USUARIOS ]
-        public string GuardarUsuario(Usuarios usuarioinfo, string tokenusuario, string tokencentro)
+        public string GuardarUsuario(Usuarios usuarioinfo, string tokenusuario, string tokencentro, string clavecentro)
         {
             try
             {
@@ -1278,7 +1278,7 @@ namespace siuraWEB.Models
                 }
                 else
                 {
-                    SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.usuarios (usuario, tokenusuario, tokencentro, nombre, apellido, correo, pass, fechahora, admusuario) VALUES (@UsuarioParam, @TokenUsuarioParam, @TokenCentroDATA, @NombreParam, @ApellidoParam, @CorreoParam, @PassParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioDATA))", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.usuarios (usuario, tokenusuario, tokencentro, nombre, apellido, correo, pass, idnotificacion, fechahora, admusuario) VALUES (@UsuarioParam, @TokenUsuarioParam, @TokenCentroDATA, @NombreParam, @ApellidoParam, @CorreoParam, @PassParam, @NotifIdParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioDATA))", SQL.conSQL, SQL.transaccionSQL);
                     SqlParameter[] nuevoUsuario =
                     {
                         new SqlParameter("@UsuarioParam", SqlDbType.VarChar) { Value = usuarioinfo.Usuario },
@@ -1288,6 +1288,7 @@ namespace siuraWEB.Models
                         new SqlParameter("@ApellidoParam", SqlDbType.VarChar) { Value = usuarioinfo.Apellido },
                         new SqlParameter("@CorreoParam", SqlDbType.VarChar) { Value = usuarioinfo.Correo },
                         new SqlParameter("@PassParam", SqlDbType.VarChar) { Value = MISC.CrearMD5(usuarioinfo.Pass) },
+                        new SqlParameter("@NotifIdParam", SqlDbType.VarChar) { Value = MISC.CrearMD5(clavecentro + usuarioinfo.Usuario) },
                         new SqlParameter("@FechaParam", SqlDbType.DateTime) { Value = MISC.FechaHoy() },
                         new SqlParameter("@TokenUsuarioDATA", SqlDbType.VarChar) { Value = tokenusuario },
                     };
@@ -1389,13 +1390,35 @@ namespace siuraWEB.Models
                 SQL.commandoSQL.Parameters.AddRange(actDesUsuario);
                 SQL.commandoSQL.ExecuteNonQuery();
 
+                string NotifUsuarioID = "";
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.usuarios WHERE tokencentro = @TokenCentroDATA AND id = @IDUsuarioParam", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDUsuarioParam", SqlDbType.Int) { Value = usuarioinfo.IdUsuario });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        NotifUsuarioID = lector["idnotificacion"].ToString();
+                    }
+                }
+
                 SQL.transaccionSQL.Commit();
-                return "true";
+                Dictionary<string, object> Respuesta = new Dictionary<string, object>()
+                {
+                    { "Respuesta", true },
+                    { "NotifUsuarioId", NotifUsuarioID },
+                };
+                return JsonConvert.SerializeObject(Respuesta);
             }
             catch (Exception e)
             {
                 SQL.transaccionSQL.Rollback();
-                return e.ToString();
+                Dictionary<string, object> err = new Dictionary<string, object>()
+                {
+                    { "Respuesta", false },
+                    { "ErrorMsg", e.ToString() },
+                };
+                return JsonConvert.SerializeObject(err);
             }
             finally
             {

@@ -48,17 +48,41 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     <File Include="bin/es/System.Web.WebPages.resources.dll">
       <publishTime>02/01/2018 12:21:06</publishTime>
     </File>
+    <File Include="bin/Microsoft.AspNet.SignalR.Core.dll">
+      <publishTime>04/03/2019 00:30:56</publishTime>
+    </File>
+    <File Include="bin/Microsoft.AspNet.SignalR.Core.pdb">
+      <publishTime>04/03/2019 07:19:50</publishTime>
+    </File>
+    <File Include="bin/Microsoft.AspNet.SignalR.SystemWeb.dll">
+      <publishTime>04/03/2019 00:30:56</publishTime>
+    </File>
+    <File Include="bin/Microsoft.AspNet.SignalR.SystemWeb.pdb">
+      <publishTime>04/03/2019 07:20:50</publishTime>
+    </File>
     <File Include="bin/Microsoft.AspNet.TelemetryCorrelation.dll">
       <publishTime>06/28/2017 09:05:26</publishTime>
     </File>
     <File Include="bin/Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll">
       <publishTime>05/24/2018 07:38:22</publishTime>
     </File>
+    <File Include="bin/Microsoft.Owin.dll">
+      <publishTime>01/13/2014 16:11:08</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Host.SystemWeb.dll">
+      <publishTime>01/13/2014 16:11:04</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Owin.Security.dll">
+      <publishTime>01/13/2014 16:11:08</publishTime>
+    </File>
     <File Include="bin/Microsoft.Web.Infrastructure.dll">
       <publishTime>07/25/2012 05:48:56</publishTime>
     </File>
     <File Include="bin/Newtonsoft.Json.dll">
       <publishTime>02/18/2018 02:44:54</publishTime>
+    </File>
+    <File Include="bin/Owin.dll">
+      <publishTime>11/13/2012 12:19:34</publishTime>
     </File>
     <File Include="bin/roslyn/csc.exe">
       <publishTime>05/24/2018 07:38:22</publishTime>
@@ -199,10 +223,10 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>05/24/2018 07:38:24</publishTime>
     </File>
     <File Include="bin/siuraWEB.dll">
-      <publishTime>04/27/2020 20:36:47</publishTime>
+      <publishTime>05/09/2020 02:51:32</publishTime>
     </File>
     <File Include="bin/siuraWEB.pdb">
-      <publishTime>04/27/2020 20:36:47</publishTime>
+      <publishTime>05/09/2020 02:51:32</publishTime>
     </File>
     <File Include="bin/System.Diagnostics.DiagnosticSource.dll">
       <publishTime>07/19/2017 04:01:30</publishTime>
@@ -6112,10 +6136,10 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>04/27/2020 20:26:24</publishTime>
     </File>
     <File Include="Scripts/cmedica.js">
-      <publishTime>04/27/2020 19:35:28</publishTime>
+      <publishTime>05/08/2020 02:15:37</publishTime>
     </File>
     <File Include="Scripts/configuracion.js">
-      <publishTime>04/02/2020 17:00:07</publishTime>
+      <publishTime>05/02/2020 00:08:24</publishTime>
     </File>
     <File Include="Scripts/cpsicologica.js">
       <publishTime>04/17/2020 01:05:40</publishTime>
@@ -6124,7 +6148,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>04/03/2020 20:40:13</publishTime>
     </File>
     <File Include="Scripts/dinamicos.js">
-      <publishTime>04/17/2020 00:17:39</publishTime>
+      <publishTime>05/09/2020 03:11:57</publishTime>
     </File>
     <File Include="Scripts/documentacion.js">
       <publishTime>04/03/2020 13:27:40</publishTime>
@@ -6139,7 +6163,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>04/08/2020 03:24:03</publishTime>
     </File>
     <File Include="Scripts/index.js">
-      <publishTime>04/27/2020 19:46:09</publishTime>
+      <publishTime>05/01/2020 22:39:22</publishTime>
     </File>
     <File Include="Scripts/jquery.dataTables.min.js">
       <publishTime>04/04/2020 02:43:50</publishTime>
@@ -6147,8 +6171,14 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     <File Include="Scripts/jquery.min.js">
       <publishTime>02/10/2020 19:48:27</publishTime>
     </File>
+    <File Include="Scripts/jquery.signalR-2.4.1.js">
+      <publishTime>05/01/2020 15:53:26</publishTime>
+    </File>
+    <File Include="Scripts/jquery.signalR-2.4.1.min.js">
+      <publishTime>05/01/2020 15:53:25</publishTime>
+    </File>
     <File Include="Scripts/jquery.validate-vsdoc.js">
-      <publishTime>10/02/2020 19:23:15</publishTime>
+      <publishTime>02/10/2020 19:23:15</publishTime>
     </File>
     <File Include="Scripts/jquery.validate.js">
       <publishTime>02/10/2020 19:23:15</publishTime>
@@ -6177,6 +6207,9 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     <File Include="Scripts/popper.min.js">
       <publishTime>02/10/2020 19:48:27</publishTime>
     </File>
+    <File Include="Scripts/servidornotifs.js">
+      <publishTime>05/02/2020 00:15:42</publishTime>
+    </File>
     <File Include="Scripts/toggle.min.js">
       <publishTime>02/22/2020 23:30:05</publishTime>
     </File>
@@ -6196,10 +6229,13 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>03/28/2020 02:12:44</publishTime>
     </File>
     <File Include="Views/CMedica/Inventario.cshtml">
-      <publishTime>04/17/2020 00:31:32</publishTime>
+      <publishTime>05/08/2020 00:48:36</publishTime>
     </File>
     <File Include="Views/CMedica/MenuMedico.cshtml">
-      <publishTime>04/27/2020 19:34:11</publishTime>
+      <publishTime>05/08/2020 01:05:04</publishTime>
+    </File>
+    <File Include="Views/CMedica/NuevosIngresos.cshtml">
+      <publishTime>05/08/2020 15:58:10</publishTime>
     </File>
     <File Include="Views/Configuracion/Catalogos.cshtml">
       <publishTime>03/26/2020 18:08:52</publishTime>
@@ -6230,6 +6266,9 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
     </File>
     <File Include="Views/Dinamicos/Inventario.cshtml">
       <publishTime>04/08/2020 21:24:54</publishTime>
+    </File>
+    <File Include="Views/Dinamicos/NuevoIngreso.cshtml">
+      <publishTime>05/08/2020 20:48:06</publishTime>
     </File>
     <File Include="Views/Dinamicos/Pacientes.cshtml">
       <publishTime>03/12/2020 12:17:15</publishTime>
@@ -6283,7 +6322,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>02/10/2020 19:21:52</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>04/07/2020 11:09:29</publishTime>
+      <publishTime>05/01/2020 17:50:38</publishTime>
     </File>
   </ItemGroup>
 </Project>
