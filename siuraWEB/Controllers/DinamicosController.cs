@@ -236,6 +236,12 @@ namespace siuraWEB.Controllers
             return MiDinamico.GuardarPacienteNuevoIngreso(PacienteNuevoIngreso, (string)Session["Token"], (string)Session["TokenCentro"]);
         }
 
+        // FUNCION QUE REESTABLECE  O ELIMINA EL REGISTRO DEL PACIENTE NUEVO INGRESO
+        public string BorrarPacienteNuevoIngreso(int IDIngreso)
+        {
+            return MiDinamico.BorrarPacienteNuevoIngreso(IDIngreso, (string)Session["TokenCentro"]);
+        }
+
         // ------------------------ [ FUNCION MULTIUSOS GENERICA ] ------------------------
         // FUNCION INDEPENDIENTE QUE GUARDA UN ARCHIVO
         public string GuardarArchivoDinamicos(string Info)

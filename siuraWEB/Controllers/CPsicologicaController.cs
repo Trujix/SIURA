@@ -107,5 +107,11 @@ namespace siuraWEB.Controllers
                 return e.ToString();
             }
         }
+
+        // ::::::::::::::::::::::: [ NUEVOS INGRESOS C.P. ] :::::::::::::::::::::::
+        public ActionResult NuevosIngresos()
+        {
+            return View();
+        }
     }
 }

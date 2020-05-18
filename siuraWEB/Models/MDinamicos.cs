@@ -1139,5 +1139,30 @@ namespace siuraWEB.Models
                 SQL.conSQL.Close();
             }
         }
+
+        // FUNCION QUE REESTABLECE  O ELIMINA EL REGISTRO DEL PACIENTE NUEVO INGRESO
+        public string BorrarPacienteNuevoIngreso(int idingreso, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("BorrarPacienteNI");
+                SQL.commandoSQL = new SqlCommand("DELETE FROM dbo.pacienteevaluacion WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND id = @IDIngresoPacienteParam", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDIngresoPacienteParam", SqlDbType.Int) { Value = idingreso });
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
     }
 }

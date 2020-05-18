@@ -30,7 +30,6 @@ $(document).on('click', 'a[name="opcCMed"]', function () {
         },
         success: function (data) {
             $('#divMenuCMedica').html(data);
-            LoadingOff();
             if (opcion === "archivero") {
                 cargarDocumentosCM(false);
             } else if (opcion === "nuevosingresos") {

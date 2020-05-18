@@ -473,58 +473,60 @@ $(document).on('change', '#modalNuevoIngresoArchivoFile', function (e) {
 $(document).on('click', '#modalNuevoIngresoArchivoGuardar', function () {
     if (validarFormNuevoIngreso(2)) {
         MsgPregunta("Guardar Archivo", "¿Desea continuar?", function (si) {
-            var archivoData = new FormData();
-            var archivoInfo = {
-                Nombre: ArchivoDocNuevoIngresoDATA.Nombre,
-                Extension: ArchivoDocNuevoIngresoDATA.Extension
-            };
-            archivoData.append("Archivo", ArchivoDocNuevoIngreso);
-            archivoData.append("Info", JSON.stringify(archivoInfo));
-            $.ajax({
-                type: "POST",
-                url: "/Dinamicos/GuardarArchivoDinamicos",
-                data: archivoData,
-                cache: false,
-                contentType: false,
-                processData: false,
-                beforeSend: function () {
-                    LoadingOn("Guardando Archivo...");
-                },
-                success: function (data) {
-                    if (data === "true") {
-                        $.ajax({
-                            type: "POST",
-                            contentType: "application/x-www-form-urlencoded",
-                            url: "/Dinamicos/GuardarPacienteNuevoIngreso",
-                            data: { PacienteNuevoIngreso: NuevoIgresoAltaJSON },
-                            beforeSend: function () {
-                                LoadingOn("Guardando Parametros...");
-                            },
-                            success: function (data) {
-                                if (data === "true") {
-                                    $('#modalNuevoIngresoArchivo').modal('hide');
-                                    setTimeout(function () {
-                                        $('#modalNuevoIngresoOpciones').modal('hide');
+            if (si) {
+                var archivoData = new FormData();
+                var archivoInfo = {
+                    Nombre: ArchivoDocNuevoIngresoDATA.Nombre,
+                    Extension: ArchivoDocNuevoIngresoDATA.Extension
+                };
+                archivoData.append("Archivo", ArchivoDocNuevoIngreso);
+                archivoData.append("Info", JSON.stringify(archivoInfo));
+                $.ajax({
+                    type: "POST",
+                    url: "/Dinamicos/GuardarArchivoDinamicos",
+                    data: archivoData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function () {
+                        LoadingOn("Guardando Archivo...");
+                    },
+                    success: function (data) {
+                        if (data === "true") {
+                            $.ajax({
+                                type: "POST",
+                                contentType: "application/x-www-form-urlencoded",
+                                url: "/Dinamicos/GuardarPacienteNuevoIngreso",
+                                data: { PacienteNuevoIngreso: NuevoIgresoAltaJSON },
+                                beforeSend: function () {
+                                    LoadingOn("Guardando Parametros...");
+                                },
+                                success: function (data) {
+                                    if (data === "true") {
+                                        $('#modalNuevoIngresoArchivo').modal('hide');
                                         setTimeout(function () {
-                                            configPacienteNuevoIngreso(IdPacienteNIngresoGLOBAL);
+                                            $('#modalNuevoIngresoOpciones').modal('hide');
+                                            setTimeout(function () {
+                                                configPacienteNuevoIngreso(IdPacienteNIngresoGLOBAL);
+                                            }, 2000);
                                         }, 2000);
-                                    }, 2000);
-                                } else {
-                                    ErrorLog(data, "Guardar Nuevo Ingreso Archivo");
+                                    } else {
+                                        ErrorLog(data, "Guardar Nuevo Ingreso Archivo");
+                                    }
+                                },
+                                error: function (error) {
+                                    ErrorLog(error, "Guardar Nuevo Ingreso Archivo");
                                 }
-                            },
-                            error: function (error) {
-                                ErrorLog(error, "Guardar Nuevo Ingreso Archivo");
-                            }
-                        });
-                    } else {
-                        ErrorLog(data, "Guardar Archivo Servidor");
+                            });
+                        } else {
+                            ErrorLog(data, "Guardar Archivo Servidor");
+                        }
+                    },
+                    error: function (error) {
+                        ErrorLog(error, "Guardar Archivo Servidor");
                     }
-                },
-                error: function (error) {
-                    ErrorLog(error, "Guardar Archivo Servidor");
-                }
-            });
+                });
+            }
         });
     }
 });
@@ -1349,7 +1351,7 @@ function configPacienteNuevoIngreso(id) {
                             $(data).each(function (k3, v3) {
                                 if (v3.Clave === v2.Clave) {
                                     if (v3.TestArchivo !== "SD") {
-                                        $('#tdni_' + idTd).html('<button class="btn badge badge-pill badge-success" onclick="mostrarIngresoPacienteInfo(' + v3.Id + ',1);"><i class="fa fa-file"></i>&nbsp;Mostrar Archivo Anexo</button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-secondary" title="Diagnostico" onclick="mostrarIngresoPacienteInfo(' + v3.Id + ',2);"><i class="fa fa-info-circle"></i></button>').parent().addClass("table-success");
+                                        $('#tdni_' + idTd).html('<button class="btn badge badge-pill badge-success" onclick="mostrarIngresoPacienteInfo(' + v3.Id + ',1);"><i class="fa fa-file"></i>&nbsp;Mostrar Archivo Anexo</button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-secondary" title="Diagnostico" onclick="mostrarIngresoPacienteInfo(' + v3.Id + ',2);"><i class="fa fa-info-circle"></i></button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-danger" title="Reestablecer/Borrar" onclick="reestablecerPacienteIngreso(' + v3.Id + ');"><i class="fa fa-trash"></i></button>').parent().addClass("table-success");
                                     }
                                     if (v3.TestJson !== "SD") {
 
@@ -1464,6 +1466,36 @@ function mostrarIngresoPacienteInfo(idIngreso, accion) {
     } else if (accion === 2) {
         MsgAlerta("Diagnóstico", data.Diagnostico, 8000, "info");
     }
+}
+
+// FUNCION QUE REESTABLECE LOS VALORES DEL PACIENTE EN CONFIGURACION DE NUEVO INGRESO
+function reestablecerPacienteIngreso(idIngreso) {
+    MsgPregunta("Reestablecer Parametros", "¿Desea continuar?", function (si) {
+        if (si) {
+            $.ajax({
+                type: "POST",
+                contentType: "application/x-www-form-urlencoded",
+                url: "/Dinamicos/BorrarPacienteNuevoIngreso",
+                data: { IDIngreso: idIngreso },
+                beforeSend: function () {
+                    LoadingOn('Reestableciendo parametros...');
+                },
+                success: function (data) {
+                    if (data === "true") {
+                        $('#modalNuevoIngresoOpciones').modal('hide');
+                        setTimeout(function () {
+                            configPacienteNuevoIngreso(IdPacienteNIngresoGLOBAL);
+                        }, 2000);
+                    } else {
+                        ErrorLog(data, "Reestablecer Paciente Nuevo Ingreso");
+                    }
+                },
+                error: function (error) {
+                    ErrorLog(error, "Reestablecer Paciente Nuevo Ingreso");
+                }
+            });
+        }
+    });
 }
 
 // :::::::::::::::::::::::::: [ VARIABLES DE USO EN DOM ] ::::::::::::::::::::::::::
