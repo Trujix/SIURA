@@ -119,7 +119,6 @@ $(document).on('change', '#pacientePagosParciales', function () {
 
 // DOCUMENT - BOTON QUE GUARDA EL [ REGISTRO DEL PACIENTE ]
 $(document).on('click', '#btnRegistroPacienteGuardar', function () {
-    console.log($('#divPacienteDatos').prop('outerHTML'));
     MsgPregunta("Registrar Paciente", "¿Los datos ingresados son correctos?", function (si) {
         if (si) {
             generarPacienteDataV1();

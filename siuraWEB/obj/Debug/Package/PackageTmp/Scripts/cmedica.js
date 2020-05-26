@@ -30,12 +30,11 @@ $(document).on('click', 'a[name="opcCMed"]', function () {
         },
         success: function (data) {
             $('#divMenuCMedica').html(data);
+            LoadingOff();
             if (opcion === "archivero") {
                 cargarDocumentosCM(false);
             } else if (opcion === "nuevosingresos") {
-                setTimeout(function () {
-                    $('#btnObtenerListaNIngresosCM').click();
-                }, 1000);
+                $('#btnObtenerListaNIngresosCM').click();
             }
         },
         error: function (error) {

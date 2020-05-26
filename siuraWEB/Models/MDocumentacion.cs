@@ -526,6 +526,17 @@ namespace siuraWEB.Models
                 SQL.commandoSQL.Parameters.AddRange(actIngresoPaciente);
                 SQL.commandoSQL.ExecuteNonQuery();
 
+                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.pacienteevalucacioncoords (idcentro, idpaciente, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroParam), @IDPacienteParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam))", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] registroPacientesCoords =
+                {
+                    new SqlParameter("@TokenCentroParam", SqlDbType.VarChar){Value = tokencentro },
+                    new SqlParameter("@IDPacienteParam", SqlDbType.Int){Value = pacienteingreso.IdPaciente },
+                    new SqlParameter("@FechaParam", SqlDbType.DateTime){Value = MISC.FechaHoy() },
+                    new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar){Value = tokenusuario }
+                };
+                SQL.commandoSQL.Parameters.AddRange(registroPacientesCoords);
+                SQL.commandoSQL.ExecuteNonQuery();
+
                 SQL.transaccionSQL.Commit();
                 return "true";
             }

@@ -93,6 +93,16 @@ namespace siuraWEB.Models
             public string Diagnostico { get; set; }
         }
 
+        public class PacienteEvaluacionCoords
+        {
+            public int Id { get; set; }
+            public int IdPaciente { get; set; }
+            public bool Diagnostico { get; set; }
+            public bool CoordMedica { get; set; }
+            public bool CoordPsicologica { get; set; }
+            public string Err { get; set; }
+        }
+
         // -------------- [ VARIABLES GLOBALES ] --------------
         // ARRAY QUE CONTIENE LAS AREAS DEL INVENTARIO
         public string[] MDinamicosAreasInventario = { "CD", "CM", "CP", "INSUMOS" };
@@ -1140,7 +1150,7 @@ namespace siuraWEB.Models
             }
         }
 
-        // FUNCION QUE REESTABLECE  O ELIMINA EL REGISTRO DEL PACIENTE NUEVO INGRESO
+        // FUNCION QUE REESTABLECE  O ELIMINA EL REGISTRO DEL PACIENTE [ NUEVO INGRESO ]
         public string BorrarPacienteNuevoIngreso(int idingreso, string tokencentro)
         {
             try
@@ -1150,6 +1160,109 @@ namespace siuraWEB.Models
                 SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
                 SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDIngresoPacienteParam", SqlDbType.Int) { Value = idingreso });
                 SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE VERIFICA LAS COORDINACIONES (MEDICA Y PSICOLOGICA) PARA LA CONSEJERIA EN PACIENTE [ NUEVO INGRESO ]
+        public string VerificarNuevoIngresoCoords(int idpaciente, string tokencentro)
+        {
+            PacienteEvaluacionCoords CoordsInfo = new PacienteEvaluacionCoords() {
+                Diagnostico = false,
+                Err = "NA",
+            };
+            try
+            {
+                SQL.comandoSQLTrans("VerifIngresoCoords");
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacienteevalucacioncoords WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND idpaciente = @IdPacienteParam", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IdPacienteParam", SqlDbType.Int) { Value = idpaciente });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        CoordsInfo.CoordMedica = bool.Parse(lector["cmedica"].ToString());
+                        CoordsInfo.CoordPsicologica = bool.Parse(lector["cpsicologica"].ToString());
+                        if (bool.Parse(lector["cmedica"].ToString()) && bool.Parse(lector["cpsicologica"].ToString()))
+                        {
+                            CoordsInfo.Diagnostico = true;
+                        }
+                    }
+                }
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(CoordsInfo);
+            }
+            catch (Exception e)
+            {
+                CoordsInfo.Err = e.ToString();
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ACTUALIZA LA INFORMACION DEL PACIENTE Y APRUEBA AL NUEVO INGRESO
+        public string AprobarNuevoIngreso(int idpaciente, string coordinacion, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("AprobarNuevoIngreso");
+                string CoordQuery = "";
+                if (coordinacion == "CM")
+                {
+                    CoordQuery = "cmedica = @CoordBoolParam";
+                }
+                else if (coordinacion == "CP")
+                {
+                    CoordQuery = "cpsicologica = @CoordBoolParam";
+                }
+                else if (coordinacion == "CC")
+                {
+                    CoordQuery = "cconsejeria = @CoordBoolParam";
+                }
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.pacienteevalucacioncoords SET " + CoordQuery + " WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND idpaciente = @IDPacienteParam", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@CoordBoolParam", SqlDbType.Bit) { Value = true });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDPacienteParam", SqlDbType.Int) { Value = idpaciente });
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                bool PacienteHecho = false;
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacienteevalucacioncoords WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND idpaciente = @IDPacienteParam", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDPacienteParam", SqlDbType.Int) { Value = idpaciente });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        if (bool.Parse(lector["cmedica"].ToString()) && bool.Parse(lector["cpsicologica"].ToString()) && bool.Parse(lector["cconsejeria"].ToString()))
+                        {
+                            PacienteHecho = true;
+                        }
+                    }
+                }
+
+                if (PacienteHecho)
+                {
+                    SQL.commandoSQL = new SqlCommand("UPDATE dbo.pacienteregistro SET estatus = 4 WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND id = @IDPacienteParam", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDPacienteParam", SqlDbType.Int) { Value = idpaciente });
+                    SQL.commandoSQL.ExecuteNonQuery();
+                }
 
                 SQL.transaccionSQL.Commit();
                 return "true";

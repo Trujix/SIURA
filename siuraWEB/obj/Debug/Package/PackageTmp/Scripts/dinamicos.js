@@ -37,6 +37,11 @@ var ArchivoDocNuevoIngresoDATA = {
 var NuevoIgresoAltaJSON = {};
 var ValidarAprobacionNIngreso = false;
 var PacienteNIngresoDataJSON = [];
+var divsCoordsJSON = {
+    CM: 'divMenuCMedica',
+    CP: 'divMenuCPsicologica',
+    CC: 'divMenuCConsejeria',
+};
 
 // --------------------------------------------------------
 // FUNCIONES TIPO DOCUMENT (BUTTONS, INPUTS, TEXTAREAS ETC)
@@ -534,10 +539,62 @@ $(document).on('click', '#modalNuevoIngresoArchivoGuardar', function () {
 // DOCUMENT - BOTON QUE ACEPTA Y APRUEBA EL CASO DEL NUEVO INGRESO
 $(document).on('click', '#nuevoIngresoAprobarCaso', function () {
     if (ValidarAprobacionNIngreso) {
+        LoadingOn("Habilitando Opción...");
+        $('#' + divsCoordsJSON[NuevoIngresoCoordGLOBAL]).append(modalNIngresoAprobHTML);
+        $('#modalAprobarPacienteIngreso').modal('show');
 
+        $('#modalAprobarPacienteIngreso').on('shown.bs.modal', function () {
+            $('#modalAprobarPacienteIngresoCoord').html(CoordNombreCompletoNI());
+            LoadingOff();
+        });
+        $('#modalAprobarPacienteIngreso').on('hidden.bs.modal', function () {
+            $('#modalAprobarPacienteIngreso').remove();
+            LoadingOff();
+        });
     } else {
         MsgAlerta("Atención!", "No puede <b>Aprobar</b> el caso de este paciente todavía. Configure los formularios pendientes (derecha) para poder continuar", 3000, "default");
     }
+});
+
+// DOCUMENT - BOTON QUE ACEPTA LA APROBACION DEL CASO DEL PACIENTE DE NUEVO INGRESO
+$(document).on('click', '#modalAprobarPacienteIngresoAceptar', function () {
+    MsgPregunta("Aprobar Caso Paciente", "¿Desea continuar?", function (si) {
+        if (si) {
+            $.ajax({
+                type: "POST",
+                contentType: "application/x-www-form-urlencoded",
+                url: "/Dinamicos/AprobarNuevoIngreso",
+                data: { IDPaciente: IdPacienteNIngresoGLOBAL, Coordinacion: NuevoIngresoCoordGLOBAL },
+                beforeSend: function () {
+                    LoadingOn("Guardando Cambios...");
+                },
+                success: function (data) {
+                    if (data === "true") {
+                        $('#modalAprobarPacienteIngreso').modal('hide');
+                        setTimeout(function () {
+                            LoadingOn("Asignando Parametros...");
+                            $('#modalNuevoIngresoOpciones').modal('hide');
+                            setTimeout(function () {
+                                MsgAlerta("Ok!", "Información de <b>Nuevo Ingreso</b> ha sido <b>actualizada</b>", 2900, "success");
+                                LoadingOff();
+                            }, 3000);
+                        }, 1500);
+                    } else {
+                        ErrorLog(data, "Aprobar Nuevo Ingreso - " + NuevoIngresoCoordGLOBAL);
+                    }
+                },
+                error: function (error) {
+                    ErrorLog(error, "Aprobar Nuevo Ingreso - " + NuevoIngresoCoordGLOBAL);
+                }
+            });
+        }
+    });
+});
+
+// DOCUMENT - BOTON QUE CANCELA LA APROBACION DEL CASO DEL PACIENTE DE NUEVO INGRESO
+$(document).on('click', '#modalAprobarPacienteIngresoCancelar', function () {
+    LoadingOn("Cancelando Parametros...");
+    $('#modalAprobarPacienteIngreso').modal('hide');
 });
 
 // --------------------------------------------------------
@@ -1313,73 +1370,117 @@ function llenarListaNuevosIngresos(coord, callback) {
 
 // FUNCION QUE CONFIGURA UN PACIENTE DE NUEVO INGRESO
 function configPacienteNuevoIngreso(id) {
+    verificarCoordConfigNuevoIngreso(id, function (si) {
+        if (si) {
+            $.ajax({
+                type: "POST",
+                contentType: "application/x-www-form-urlencoded",
+                url: "/Dinamicos/ObtenerPacienteNuevoIngresoInfo",
+                data: { IDPaciente: id },
+                dataType: 'JSON',
+                beforeSend: function () {
+                    LoadingOn("Cargando Info. Paciente...");
+                    IdPacienteNIngresoGLOBAL = id;
+                    listaNIngresoParamsDOM = [];
+                    PacienteNIngresoDataJSON = [];
+                },
+                success: function (data) {
+                    if (Array.isArray(data)) {
+                        $(nuevosIngresosListaJSON).each(function (key, value) {
+                            if (value.IdPaciente === id) {
+                                var cuerpo = '<h6><span class="badge badge-warning">ESTADO DE ALERTA: </span> ' + value.EstadoAlerta + '</h6><h6><span class="badge badge-warning">NIVEL DE INTOXICACIÓN: </span> ' + value.NivelIntoxicacion + '</h6><h6><span class="badge badge-warning">ESTADO DE ÁNIMO: </span> ' + value.EstadoAnimo + '</h6>';
+                                $('#modalDivNuevoIngresoInfo').html(cardsNIngresoInfoHTML.replace("ØÖNOMBREPACIENTEÖØ", value.NombreCompleto).replace("ØÖCUEPORPACIENTEINFOÖØ", cuerpo));
+                            }
+                        });
+                        $('#modalDivNuevoIngresoPrinc').html('');
+                        $(NuevoIngresoTestJSON).each(function (k1, v1) {
+                            if (v1.Coord === NuevoIngresoCoordGLOBAL) {
+                                $('#modalDivNuevoIngresoPrinc').append(cardsNIngresoOpcHTML.replace("ØÖTITULOÖØ", v1.Titulo).replace("ØÖDIVIDÖØ", v1.IdHTML));
+                                var idTabla = cadAleatoria(8);
+                                $('#' + v1.IdHTML).html('<div class="row"><div class="col-sm-12"><div class="table table-responsive tablanitests"><table class="table table-sm table-bordered tablanitests" style="margin-bottom: 0;"><tbody id="tablani_' + idTabla + '"></tbody></table></div></div></div>');
+                                $(v1.Test).each(function (k2, v2) {
+                                    var idTd = cadAleatoria(6), idDOM = cadAleatoria(7);
+                                    var tdTabla = '<tr><td><b>' + v2.Nombre + '</b></td><td id="tdni_' + idTd + '" style="text-align: center; width: 300px;"><button class="btn badge badge-pill badge-primary configniarchivo" param="' + idDOM + '" accion="1"><i class="fa fa-file-upload"></i>&nbsp;Subir Archivo Evidencia</button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-info confignitest" param="' + idDOM + '" accion="2"><i class="fa fa-pencil-alt"></i>&nbsp;Contestar Test</button></td></tr>';
+                                    listaNIngresoParamsDOM.push({
+                                        IdElem: idDOM,
+                                        Clave: v2.Clave,
+                                    });
+                                    $('.tablanitests').css("margin-bottom", "0rem");
+                                    $('#tablani_' + idTabla).append(tdTabla);
+                                    $(data).each(function (k3, v3) {
+                                        if (v3.Clave === v2.Clave) {
+                                            if (v3.TestArchivo !== "SD") {
+                                                $('#tdni_' + idTd).html('<button class="btn badge badge-pill badge-success" onclick="mostrarIngresoPacienteInfo(' + v3.Id + ',1);"><i class="fa fa-file"></i>&nbsp;Mostrar Archivo Anexo</button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-secondary" title="Diagnostico" onclick="mostrarIngresoPacienteInfo(' + v3.Id + ',2);"><i class="fa fa-info-circle"></i></button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-danger" title="Reestablecer/Borrar" onclick="reestablecerPacienteIngreso(' + v3.Id + ');"><i class="fa fa-trash"></i></button>').parent().addClass("table-success");
+                                            }
+                                            if (v3.TestJson !== "SD") {
+
+                                            }
+                                            PacienteNIngresoDataJSON.push(v3);
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                        var tituloCoord = '';
+                        if (NuevoIngresoCoordGLOBAL === "CM") {
+                            tituloCoord = ' - Coordinación Médica';
+                        } else if (NuevoIngresoCoordGLOBAL === "CP") {
+                            tituloCoord = ' - Coordinación Psicológica';
+                        } else if (NuevoIngresoCoordGLOBAL === "CC") {
+                            tituloCoord = ' - Coordinación Consejería';
+                        }
+                        $('#modalSpanTituloCoord').html(tituloCoord);
+                        validarAprobacionCoord(PacienteNIngresoDataJSON.length);
+                        LoadingOff();
+                        $('#modalNuevoIngresoOpciones').modal('show');
+                    } else {
+                        ErrorLog(data.responseText, "Cargar Info. Pacientes Nuevo Ingreso");
+                    }
+                },
+                error: function (error) {
+                    ErrorLog(error.responseText, "Cargar Info. Pacientes Nuevo Ingreso");
+                }
+            });
+        }
+    });
+}
+
+// FUNCION QUE VERIFICA LAS COORDINACIONES (ESTA PAUSA ES EN ESPECIAL PARA LA COORDINACION DE CONSEJERIA)
+function verificarCoordConfigNuevoIngreso(idPaciente, callback) {
     $.ajax({
         type: "POST",
         contentType: "application/x-www-form-urlencoded",
-        url: "/Dinamicos/ObtenerPacienteNuevoIngresoInfo",
-        data: { IDPaciente: id },
+        url: "/Dinamicos/VerificarNuevoIngresoCoords",
         dataType: 'JSON',
+        data: { IDPaciente: idPaciente },
         beforeSend: function () {
-            LoadingOn("Cargando Info. Paciente...");
-            IdPacienteNIngresoGLOBAL = id;
-            listaNIngresoParamsDOM = [];
-            PacienteNIngresoDataJSON = [];
+            LoadingOn('Verificando Ingreso...');
         },
         success: function (data) {
-            if (Array.isArray(data)) {
-                $(nuevosIngresosListaJSON).each(function (key, value) {
-                    if (value.IdPaciente === id) {
-                        var cuerpo = '<h6><span class="badge badge-warning">ESTADO DE ALERTA: </span> ' + value.EstadoAlerta + '</h6><h6><span class="badge badge-warning">NIVEL DE INTOXICACIÓN: </span> ' + value.NivelIntoxicacion + '</h6><h6><span class="badge badge-warning">ESTADO DE ÁNIMO: </span> ' + value.EstadoAnimo + '</h6>';
-                        $('#modalDivNuevoIngresoInfo').html(cardsNIngresoInfoHTML.replace("ØÖNOMBREPACIENTEÖØ", value.NombreCompleto).replace("ØÖCUEPORPACIENTEINFOÖØ", cuerpo));
+            if (data.Err === "NA") {
+                if ((NuevoIngresoCoordGLOBAL === 'CM' && !data.CoordMedica) || (NuevoIngresoCoordGLOBAL === 'CP' && !data.CoordPsicologica) || (NuevoIngresoCoordGLOBAL === 'CC' && data.Diagnostico)) {
+                    callback(true);
+                    LoadingOff();
+                } else {
+                    callback(false);
+                    LoadingOff();
+                    var msg = '', timer = 5000;
+                    if (NuevoIngresoCoordGLOBAL === 'CM' || NuevoIngresoCoordGLOBAL === 'CP') {
+                        msg = 'Este paciente de <b>Nuevo Ingreso</b> ya fue evaludado por su <b>Coordinación</b>';
+                    } else if (NuevoIngresoCoordGLOBAL === 'CC') {
+                        msg = "El nuevo Ingreso <b>NO</b> ha sido <b>Aprobado</b> por todas las Coordinaciones\n\nCoordinaciones Faltantes:\n" + ((data.CoordMedica) ? '' : '<b>Coordinación Médica</b>\n') + ((data.CoordPsicologica) ? '' : '<b>Coordinación Psicológica</b>');
+                        timer = 8000;
                     }
-                });
-                $('#modalDivNuevoIngresoPrinc').html('');
-                $(NuevoIngresoTestJSON).each(function (k1, v1) {
-                    if (v1.Coord === NuevoIngresoCoordGLOBAL) {
-                        $('#modalDivNuevoIngresoPrinc').append(cardsNIngresoOpcHTML.replace("ØÖTITULOÖØ", v1.Titulo).replace("ØÖDIVIDÖØ", v1.IdHTML));
-                        var idTabla = cadAleatoria(8);
-                        $('#' + v1.IdHTML).html('<div class="row"><div class="col-sm-12"><div class="table table-responsive tablanitests"><table class="table table-sm table-bordered tablanitests" style="margin-bottom: 0;"><tbody id="tablani_' + idTabla + '"></tbody></table></div></div></div>');
-                        $(v1.Test).each(function (k2, v2) {
-                            var idTd = cadAleatoria(6), idDOM = cadAleatoria(7);
-                            var tdTabla = '<tr><td><b>' + v2.Nombre + '</b></td><td id="tdni_' + idTd + '" style="text-align: center; width: 300px;"><button class="btn badge badge-pill badge-primary configniarchivo" param="' + idDOM + '" accion="1"><i class="fa fa-file-upload"></i>&nbsp;Subir Archivo Evidencia</button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-info confignitest" param="' + idDOM + '" accion="2"><i class="fa fa-pencil-alt"></i>&nbsp;Contestar Test</button></td></tr>';
-                            listaNIngresoParamsDOM.push({
-                                IdElem: idDOM,
-                                Clave: v2.Clave,
-                            });
-                            $('.tablanitests').css("margin-bottom", "0rem");
-                            $('#tablani_' + idTabla).append(tdTabla);
-                            $(data).each(function (k3, v3) {
-                                if (v3.Clave === v2.Clave) {
-                                    if (v3.TestArchivo !== "SD") {
-                                        $('#tdni_' + idTd).html('<button class="btn badge badge-pill badge-success" onclick="mostrarIngresoPacienteInfo(' + v3.Id + ',1);"><i class="fa fa-file"></i>&nbsp;Mostrar Archivo Anexo</button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-secondary" title="Diagnostico" onclick="mostrarIngresoPacienteInfo(' + v3.Id + ',2);"><i class="fa fa-info-circle"></i></button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-danger" title="Reestablecer/Borrar" onclick="reestablecerPacienteIngreso(' + v3.Id + ');"><i class="fa fa-trash"></i></button>').parent().addClass("table-success");
-                                    }
-                                    if (v3.TestJson !== "SD") {
-
-                                    }
-                                    PacienteNIngresoDataJSON.push(v3);
-                                }
-                            });
-                        });
-                    }
-                });
-                var tituloCoord = '';
-                if (NuevoIngresoCoordGLOBAL === "CM") {
-                    tituloCoord = ' - Coordinación Médica';
-                } else if (NuevoIngresoCoordGLOBAL === "CP") {
-                    tituloCoord = ' - Coordinación Psicológica';
-                } else if (NuevoIngresoCoordGLOBAL === "CC") {
-                    tituloCoord = ' - Coordinación Consejería';
+                    MsgAlerta("Info!", msg, timer, "info");
                 }
-                $('#modalSpanTituloCoord').html(tituloCoord);
-                validarAprobacionCoord(data.length);
-                LoadingOff();
-                $('#modalNuevoIngresoOpciones').modal('show');
             } else {
-                ErrorLog(data.responseText, "Cargar Info. Pacientes Nuevo Ingreso");
+                callback(false);
+                ErrorLog(data.Err, "Verificar Coords. Nuevo Ingreso");
             }
         },
         error: function (error) {
-            ErrorLog(error.responseText, "Cargar Info. Pacientes Nuevo Ingreso");
+            callback(false);
+            ErrorLog(error.responseText, "Verificar Coords. Nuevo Ingreso");
         }
     });
 }
@@ -1498,6 +1599,19 @@ function reestablecerPacienteIngreso(idIngreso) {
     });
 }
 
+// FUNCION QUE DEFINE EN TEXTO EL NOMBRE DE LA COORDINACION DE ACUERDO A LA SIGLA
+function CoordNombreCompletoNI() {
+    if (NuevoIngresoCoordGLOBAL === 'CM') {
+        return 'Coordinación Médica';
+    } else if (NuevoIngresoCoordGLOBAL === 'CP') {
+        return 'Coordinación Psicológica';
+    } else if (NuevoIngresoCoordGLOBAL === 'CC') {
+        return 'Coordinación Consejería';
+    } else {
+        return '';
+    }
+}
+
 // :::::::::::::::::::::::::: [ VARIABLES DE USO EN DOM ] ::::::::::::::::::::::::::
 // ---------------------------------------------------------------------------------
 // -- INVENTARIOS
@@ -1507,6 +1621,7 @@ var tabDivInventarioHTML = '<ul class="nav nav-tabs" id="modalInventarioReporteT
 var tablaNIngresosHTML = '<div class="table table-responsive"><table class="table table-sm table-bordered"><thead><tr class="table-active"><th>Nombre del Paciente</th><th style="text-align: center;"><i class="fa fa-cog"></i>&nbsp;Opciones</th></tr></thead><tbody>ÖØCUERPOØÖ</tbody></table></div>';
 var cardsNIngresoOpcHTML = '<div class="row" style="margin-top: 5px;"><div class="col-sm-12"><div class="card"><h6 class="card-header"><i class="fa fa-briefcase-medical"></i>&nbsp;ØÖTITULOÖØ</h6><div id="ØÖDIVIDÖØ" class="card-body"></div></div></div></div>';
 var cardsNIngresoInfoHTML = '<div class="card border-warning mb-3"><div class="card-header bg-warning text-white border-warning"><h6 class="card-title">ØÖNOMBREPACIENTEÖØ</h6></div><div class="card-body"><h6><span class="badge badge-secondary">INFORMACIÓN DE INGRESO DEL PACIENTE</span></h6>ØÖCUEPORPACIENTEINFOÖØ<br><hr><h6><span class="badge badge-secondary">REVISIÓN Y APROBACIÓN DEL CASO</span></h6><div class="alert alert-warning" role="alert"><i class="fa fa-info"></i> Esta acción solo será habilitada una vez haya concluido los formularios de la derecha.</div><div class="row"><div class="col-sm-12"><button id="nuevoIngresoAprobarCaso" class="btn btn-sm btn-success btn-block"><i class="fa fa-check-circle"></i>&nbsp;Aprobar Caso del Paciente</button></div></div></div></div>';
+var modalNIngresoAprobHTML = '<div id="modalAprobarPacienteIngreso" class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false"><div class="modal-dialog"><div class="modal-content"><div class="modal-body"><div class="row" style="padding-top: 5px; padding-bottom: 10px;"><div class="col-sm-12"><h5><span class="badge badge-secondary">Aprobar Caso del Paciente</span></h5></div></div><div class="row"><div class="col-sm-12"><div class="alert alert-warning" role="alert"><i class="fa fa-info-circle"></i>&nbsp;Por medio de esta acción queda establecido que la <b id="modalAprobarPacienteIngresoCoord"></b>, da por concluida la configuración del paciente de nuevo Ingreso, así como la conformidad de las evidencias/tests añadidas para su expediente.<br><br><i class="fa fa-info-circle"></i>&nbsp;De igual manera, la información establecida <b>NO</b> podrá ser modificada sin la autorización y participación del administrador del Centro.</div></div></div><div class="row"><div class="col-sm-6" style="padding-top: 5px; padding-bottom: 15px;"><button id="modalAprobarPacienteIngresoAceptar" class="btn btn-sm btn-block btn-success"><i class="fa fa-check-circle"></i>&nbsp;Aprobar Caso Paciente</button></div><div class="col-sm-6" style="padding-top: 5px; padding-bottom: 15px;" align="right"><button id="modalAprobarPacienteIngresoCancelar" class="btn btn-sm btn-block btn-danger"><i class="fa fa-times-circle"></i>&nbsp;Cancelar y Cerrar</button></div></div></div></div></div>';
 
 
 // ******************************************* [ I M P O R T A N T E ] **********************************************
@@ -1522,7 +1637,7 @@ var NuevoIngresoTestJSON = [
         Test: [
             {
                 Nombre: "Exámen Clínico",
-                Clave: "ECM1",
+                Clave: "ECM1-1",
             },
         ],
     },
@@ -1533,7 +1648,7 @@ var NuevoIngresoTestJSON = [
         Test: [
             {
                 Nombre: "Historia Clínica",
-                Clave: "ECM2",
+                Clave: "ECM2-1",
             },
         ],
     },
@@ -1544,7 +1659,7 @@ var NuevoIngresoTestJSON = [
         Test: [
             {
                 Nombre: "Exámenes Mínimos",
-                Clave: "ECM3",
+                Clave: "ECM3-1",
             },
         ],
     },
@@ -1555,7 +1670,7 @@ var NuevoIngresoTestJSON = [
         Test: [
             {
                 Nombre: "Otros Exámenes",
-                Clave: "ECM4",
+                Clave: "ECM4-1",
             },
         ],
     },
@@ -1567,15 +1682,15 @@ var NuevoIngresoTestJSON = [
         Test: [
             {
                 Nombre: "Alcoholismo",
-                Clave: "ECP1",
+                Clave: "ECP1-1",
             },
             {
                 Nombre: "Tabaquismo",
-                Clave: "ECP2",
+                Clave: "ECP1-2",
             },
             {
                 Nombre: "Sustancias Psicoactivas",
-                Clave: "ECP3",
+                Clave: "ECP1-3",
             },
         ],
     },
@@ -1586,9 +1701,24 @@ var NuevoIngresoTestJSON = [
         Test: [
             {
                 Nombre: "Otros Exámenes",
-                Clave: "ECP4",
+                Clave: "ECP2-1",
             },
         ],
     },
     // COORDINACION CONSEJERIA
+    {
+        Titulo: "REVISIÓN DEL CASO",
+        Coord: 'CC',
+        IdHTML: 'divNICC1',
+        Test: [
+            {
+                Nombre: "Plan de Tratamiento",
+                Clave: "ECC1-1",
+            },
+            {
+                Nombre: "Hoja Ministerio Público",
+                Clave: "ECC1-2",
+            },
+        ],
+    },
 ];

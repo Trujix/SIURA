@@ -242,3 +242,24 @@ function paramsInventarioPDF(param, gestion) {
         }
     }
 }
+
+// FUNCION QUE DEVUELVE EL MAXIMO NUMERO DE UN JSON ARR (DEBES INGRESAR EL KEY DEL CAMPO)
+function maxNumJsonARR(json, key) {
+    var num = 0, arr = [];
+    for (i = 0; i < json.length; i++) {
+        arr.push(parseFloat(json[i][key]));
+    }
+    num = Math.max(...arr);
+    return num;
+}
+
+// FUNCION QUE TRUNCA LA CADENA EN UN CIERTO NUMERO DE CARACTERES (TERMINANDO CON 3  PUNTOS SUSPENSIVOS)
+function truncarCadena(cad, cantCrts) {
+    var nuevaCad = '';
+    if (cad.length > cantCrts) {
+        nuevaCad = cad.substring(0, cantCrts - 1) + "...";
+    } else {
+        nuevaCad = cad;
+    }
+    return nuevaCad;
+}

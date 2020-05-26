@@ -242,6 +242,18 @@ namespace siuraWEB.Controllers
             return MiDinamico.BorrarPacienteNuevoIngreso(IDIngreso, (string)Session["TokenCentro"]);
         }
 
+        // FUNCION QUE VERIFICA LAS COORDINACIONES (MEDICA Y PSICOLOGICA) PARA LA CONSEJERIA EN PACIENTE NUEVO INGRESO
+        public string VerificarNuevoIngresoCoords(int IDPaciente)
+        {
+            return MiDinamico.VerificarNuevoIngresoCoords(IDPaciente, (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE ACTUALIZA LA INFORMACION DEL PACIENTE Y APRUEBA AL NUEVO INGRESO
+        public string AprobarNuevoIngreso(int IDPaciente, string Coordinacion)
+        {
+            return MiDinamico.AprobarNuevoIngreso(IDPaciente, Coordinacion, (string)Session["TokenCentro"]);
+        }
+
         // ------------------------ [ FUNCION MULTIUSOS GENERICA ] ------------------------
         // FUNCION INDEPENDIENTE QUE GUARDA UN ARCHIVO
         public string GuardarArchivoDinamicos(string Info)

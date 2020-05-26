@@ -1,0 +1,258 @@
+﻿@{
+    Layout = null;
+}
+<div class="row" style="padding-top: 10px;">
+    <div class="col-sm-12">
+        <div class="card bg-info mb-3">
+            <div class="card-header text-white">Sistema Wizard - Editor de Tests <b>SIUR-A</b></div>
+            <div class="card-body bg-light">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h6><i class="fa fa-tachometer-alt"></i> Panel de Control</h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label for="wsCoordSelect"><i class="fa fa-clipboard-list"></i>&nbsp;Coordinación</label>
+                            <select id="wsCoordSelect" class="form-control form-control-sm"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="wsTestSelect"><i class="fa fa-folder-open"></i>&nbsp;Sección y tipo de Test</label>
+                            <select id="wsTestSelect" class="form-control form-control-sm"></select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <button id="wsBtnRecargar" style="margin-top: 30px;" class="btn btn-sm btn-block btn-outline-secondary" title="Reestablecer Panel"><i class="fa fa-sync-alt"></i>&nbsp;Limpiar</button>
+                    </div>
+                    <div class="col-sm-3">
+                        <button id="wsBtnCargarConfig" style="margin-top: 30px;" class="btn btn-sm btn-block btn-outline-primary" title="Cargar Configuracion"><i class="fa fa-search"></i>&nbsp;Cargar Configuración</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card border-dark">
+            <div class="card-header"><b>Listado de Test por Coordinación y Sección</b></div>
+            <div class="card-body text-dark">
+                <div class="row">
+                    <div class="col-sm-12" align="right">
+                        <button id="wsNuevoTest" class="btn btn-sm btn-success"><i class="fa fa-plus"></i>&nbsp;Nuevo Test</button>
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 5px;">
+                    <div class="col-sm-12">
+                        <div class="table table-responsive">
+                            <table class="table table-sm table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Título</th>
+                                        <th>Tipo</th>
+                                        <th style="width: 100px; text-align: center;">Habilitado</th>
+                                        <th style="width: 180px; text-align: center;"><i class="fa fa-cog"></i>&nbsp;Opciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="wsTablaTests"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="wsModalNuevoTestPrincParams" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Parámetros Nuevo Test</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4><span id="wsModalNuevoTestPrincParamsTit" class="badge badge-secondary"></span></h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label for="exampleInputPassword1"><i class="fa fa-pen"></i>&nbsp;<b>Nombre del Test</b></label>
+                            <input id="wsModalNuevoTestPrincParamsNombre" type="text" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                </div>
+                <div class="row scrollestilo" style="height: 60vh;">
+                    <div class="col-sm-12">
+                        <div class="card border-dark mb-3">
+                            <div class="card-header"><i class="fa fa-cogs"></i>&nbsp;Configuración</div>
+                            <div class="card-body text-dark">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <input id="wsModalNuevoTestPrincParamsSecc" type="checkbox" data-on="Si" data-off="No" data-toggle="toggle" data-size="xs" data-onstyle="outline-primary" data-offstyle="outline-secondary">
+                                        <label for="wsModalNuevoTestPrincParamsSecc" class="form-check-label"><b>&nbsp;En secciones</b></label>
+                                    </div>
+                                </div>
+                                <hr />
+                                <div class="row" style="padding-top: 10px;">
+                                    <div class="col-sm-6">
+                                        <input class="magic-radio" type="radio" name="modalntppconfig" id="wsModalNuevoTestPrincParamsRA">
+                                        <label for="wsModalNuevoTestPrincParamsRA">Resultado Abierto&nbsp;<span class="badge badge-dark modalntppconfiginfo" opcion="RA" title="Info"><i class="fa fa-info"></i></span></label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="magic-radio" type="radio" name="modalntppconfig" id="wsModalNuevoTestPrincParamsRE">
+                                        <label for="wsModalNuevoTestPrincParamsRE">Por Escalas&nbsp;<span class="badge badge-dark modalntppconfiginfo" opcion="RE" title="Info"><i class="fa fa-info"></i></span></label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="magic-radio" type="radio" name="modalntppconfig" id="wsModalNuevoTestPrincParamsLF">
+                                        <label for="wsModalNuevoTestPrincParamsLF">Listado Fijo&nbsp;<span class="badge badge-dark modalntppconfiginfo" opcion="LF" title="Info"><i class="fa fa-info"></i></span></label>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-top: 10px;">
+                                    <div class="col-sm-12">
+                                        <div id="wsModalNuevoTestPrincParamsAlert" class="alert alert-warning" role="alert">
+                                            <i class="fa fa-info-circle"></i>&nbsp;<b>Atención:</b> Este conjunto de parametros es importante los defina muy bien antes de continuar. Cualquier cambio realizado en este apartado reestablecerá todo el test configurado
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="wsModalNuevoTestPrincParamsAcept" type="button" class="btn btn-sm btn-primary"><i class="fa fa-check-circle"></i>&nbsp;Aceptar y Continuar</button>
+                <button id="wsModalNuevoTestPrincParamsCanc" type="button" class="btn btn-sm btn-danger"><i class="fa fa-times-circle"></i>&nbsp;Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="wsModalNuevoTestConfig" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xxl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><b>NOMBRE DEL TEST: </b><span id="wsModalNuevoTestConfigNombreTest" class="badge badge-dark"></span></h5>
+            </div>
+            <div class="modal-body scrollestilo" style="height: 87vh;">
+                <div class="row">
+                    <div class="col-sm-7">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label><b>Elige tipo reactivo:</b></label>
+                                    <div class="input-group input-group-sm">
+                                        <select id="wsModalNuevoTestConfigTipoPreg" class="form-control form-control-sm"></select>
+                                        <div class="input-group-append" id="button-addon4">
+                                            <button id="wsModalNuevoTestConfigPregAdd" class="btn btn-outline-secondary" type="button" title="Añadir Reactivo"><i class="fa fa-plus-square"></i>&nbsp;Añadir</button>
+                                            <button id="wsModalNuevoTestConfigPregInfo" class="btn btn-dark" type="button" title="Información"><i class="fa fa-info-circle"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="wsModalNuevoTestConfigSeccionDiv" class="col-sm-6"></div>
+                        </div>
+                        <div class="row">
+                            <div id="wsModalNuevoTestConfigReactivoDiv" class="col-sm-12"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="card text-white bg-info" style="margin-bottom: 0rem;">
+                            <div class="card-header">
+                                <b>Lista de Reactivos</b>
+                                <button id="wsVistaPreviaTest" class="btn btn-sm btn-dark float-right" title="Vista Previa del Test"><span class="fa fa-search"></span></button>
+                            </div>
+                            <div class="card-body bg-white text-dark">
+                                <div class="row scrollestilo" style="height: 62vh;">
+                                    <div id="wsModalNuevoTestConfigPregLista" class="col-sm-12"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="wsModalNuevoTestConfigRespuesta" class="btn btn-sm btn-block btn-dark" style="margin-top: 5px;"><i class="fa fa-cog"></i>&nbsp;Configurar Respuesta Test</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="wsModalNuevoTestConfigGuardar" type="button" class="btn badge badge-pill badge-success"><i class="fa fa-save"></i>&nbsp;Guardar Nuevo Test</button>
+                <button id="wsModalNuevoTestConfigCancelar" type="button" class="btn badge badge-pill badge-danger"><i class="fa fa-times-circle"></i>&nbsp;Cancelar y Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="wsModalNuevoTestAddSeccion" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label for="wsModalNuevoTestAddSeccionNombre">Nombre Sección</label>
+                            <input id="wsModalNuevoTestAddSeccionNombre" type="text" class="form-control form-control-sm" placeholder="Escriba Nombre">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="wsModalNuevoTestAddSeccionGuardar" type="button" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i>&nbsp;Añadir Sección</button>
+                <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="wsModalNuevoReactivoVistaPrevia" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Vista Previa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div id="wsModalNuevoReactivoVistaPreviaDiv" class="col-sm-12"></div>
+                </div>
+                <p></p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="wsModalConfigRespuesta" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" data-keyboard="false" data-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="wsModalConfigRespuestaTitulo"></h5>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="wsModalConfigRespuestaDiv"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="wsModalConfigRespuestaGuardar" type="button" class="btn btn-sm btn-success"><i class="fa fa-save"></i>&nbsp;Guardar</button>
+                <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i>&nbsp;Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="wsModalVistaPreviaTestCompleto" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div id="wsModalVistaPreviaTestCompletoHeader" class="card text-white bg-secondary" style="width: 100%;">
+                    <div class="card-header">
+                        <label style="font-size: 18px;"><span id="wsModalVistaPreviaTestCompletoNombre" class="badge badge-light"></span>&nbsp;-&nbsp;<span id="wsModalVistaPreviaTestCompletoExamen" class="badge badge-light"></span></label>
+                        <button class="float-right btn btn-sm btn-outline-danger" data-dismiss="modal"><i class="fa fa-times-circle"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div id="wsModalVistaPreviaTestCompletoDiv" class="row scrollestilo" style="padding-bottom: 10px; height: 83vh;"></div>
+            </div>
+        </div>
+    </div>
+</div>

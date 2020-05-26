@@ -26,12 +26,16 @@ DROP TABLE IF EXISTS dbo.pacienteingreso;
 DROP TABLE IF EXISTS dbo.pacienteregistrofinanzas;
 DROP TABLE IF EXISTS dbo.pacientecargosadicionales;
 DROP TABLE IF EXISTS dbo.pacienteregistropagos;
+DROP TABLE IF EXISTS dbo.pacienteevalucacioncoords;
 DROP TABLE IF EXISTS dbo.pacienteevaluacion;
 DROP TABLE IF EXISTS dbo.deportivodocumentos;
 DROP TABLE IF EXISTS dbo.medicodocumentos;
 DROP TABLE IF EXISTS dbo.psicologodocumentos;
+DROP TABLE IF EXISTS dbo.consejeriadocumentos;
 DROP TABLE IF EXISTS dbo.inventarios;
 DROP TABLE IF EXISTS dbo.inventariomovimientos;
+DROP TABLE IF EXISTS dbo.wizardaccesos;
+DROP TABLE IF EXISTS dbo.wizartests;
 
 CREATE TABLE [dbo].[centros](
 	[id] [int] IDENTITY(1,1) NOT NULL,
@@ -311,6 +315,18 @@ CREATE TABLE [dbo].[pacienteregistropagos](
 		CONSTRAINT [PK_PacienteRegistroPagos] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
+CREATE TABLE [dbo].[pacienteevalucacioncoords](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[idpaciente] [int] NOT NULL,
+	[cmedica] [bit] NOT NULL DEFAULT 'False',
+	[cpsicologica] [bit] NOT NULL DEFAULT 'False',
+	[cconsejeria] [bit] NOT NULL DEFAULT 'False',
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_PacienteEvaluacionCoords] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
 CREATE TABLE [dbo].[pacienteevaluacion](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[idcentro] [int] NOT NULL,
@@ -360,6 +376,18 @@ CREATE TABLE [dbo].[psicologodocumentos](
 		CONSTRAINT [PK_PsicologoDocumento] PRIMARY KEY CLUSTERED ([nombre] ASC)
 );
 
+CREATE TABLE [dbo].[consejeriadocumentos](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[nombre] [varchar](200) NOT NULL,
+	[extension] [varchar](200) NOT NULL,
+	[archivo] [varchar](200) NOT NULL,
+	[estatus] [int] NOT NULL DEFAULT 1,
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_ConsejeroDocumento] PRIMARY KEY CLUSTERED ([nombre] ASC)
+);
+
 CREATE TABLE [dbo].[inventarios](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[idcentro] [int] NOT NULL,
@@ -386,6 +414,25 @@ CREATE TABLE [dbo].[inventariomovimientos](
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_IDInventarioMovimiento] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[wizardaccesos](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[token] [varchar](200) NOT NULL,
+		CONSTRAINT [PK_IDWizardAcceso] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[wizartests](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[nombretest] [varchar](200) NOT NULL,
+	[clavetest] [varchar](200) NOT NULL,
+	[testestructura] [varchar](MAX) NOT NULL,
+	[activo] [bit] NOT NULL DEFAULT 'True',
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_IDWizardTests] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
 INSERT INTO usuariomenuprincipal (idcentro,nombre,visible,fechahora,admusuario) VALUES (1,'alanon','true','2017-08-09','Admin');

@@ -245,5 +245,19 @@ namespace siuraWEB
 
             return letrasLista.ToArray();
         }
+
+        // ------------------------ [ FUNCIONES AUXILIARES PARA LOS CONTROLADORES DE LA APP ] ------------------------
+        // FUMCION QUE VERIFICA LA CADENA DE SEGURIDAD PARA ACCEDER A LAS  FUNCIONES DE LA API
+        public static bool VerifSecAPI(string Key)
+        {
+            if(Key == "xQtHfLgRAyVppSvPB8ABEmR2mQckxknFzs9e}bGbHtkZDs/MVt1jIGsr}+Wm-QYR")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

@@ -34,9 +34,7 @@ $(document).on('click', 'a[name="opcCPsi"]', function () {
             if (opcion === "archivero") {
                 cargarDocumentosCP(false);
             } else if (opcion === "nuevosingresos") {
-                setTimeout(function () {
-                    $('#btnObtenerListaNIngresosCP').click();
-                }, 1000);
+                $('#btnObtenerListaNIngresosCP').click();
             }
         },
         error: function (error) {

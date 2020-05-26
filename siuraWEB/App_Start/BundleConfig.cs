@@ -27,6 +27,7 @@ namespace siuraWEB
                       "~/Content/pnotify.css",
                       "~/Content/loader.css",
                       "~/Content/toggle.min.css",
+                      "~/Content/chosen.css",
                       "~/Content/offcanvas.css"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
@@ -42,12 +43,12 @@ namespace siuraWEB
                       "~/Scripts/pnotify.min.js",
                       "~/Scripts/pnotify.js",
                       "~/Scripts/toggle.min.js",
+                      "~/Scripts/chosen.js",
                       "~/Scripts/loader.js",
                       "~/pdflib/build/vfs_fonts.js",
                       "~/pdflib/build/pdfmake.min.js",
                       "~/Scripts/jquery.signalR-2.4.1.min.js",
                       "~/Scripts/miscelaneas.js",
-                      //"~/Scripts/servidornotifs.js",
                       "~/Scripts/impresiones.js",
                       "~/Scripts/index.js",
                       "~/Scripts/dinamicos.js",
@@ -57,7 +58,8 @@ namespace siuraWEB
                       "~/Scripts/administracion.js",
                       "~/Scripts/cdeportiva.js",
                       "~/Scripts/cmedica.js",
-                      "~/Scripts/cpsicologica.js"));
+                      "~/Scripts/cpsicologica.js",
+                      "~/Scripts/cconsejeria.js"));
         }
     }
 }
