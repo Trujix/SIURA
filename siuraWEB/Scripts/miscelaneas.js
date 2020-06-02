@@ -263,3 +263,35 @@ function truncarCadena(cad, cantCrts) {
     }
     return nuevaCad;
 }
+
+// FUNCION QUE DEVUELVE UN ARRAY CON LA FECHA ACTUAL [ AÑO, MES, DIA ] AUXILIAR EN HORARIOS (PUEDE SER UTIL)
+function fechaArr() {
+    var d = new Date();
+    var arr = [d.getFullYear(), d.getMonth(), d.getDate()];
+    return arr;
+}
+
+// FUNCION QUE AÑADE HRS A UNA HR DETERMINADA, TOMA COMO BASE UNA FECHA PREVIAMENTE GUARDADA EN UN ARRAY [ AÑO, MES, DIA ] (USADA EN HORARIOS Y UTIL MAS DELANTE)
+function fechaAddHrs(fechaArr, hrInicio, hrMin, tipo, hrs24) {
+    var tiempo = hrMin, hr = hrInicio.split(":");
+    if (tipo.toLowerCase() === "hrs") {
+        tiempo = hrMin * 60;
+    }
+    var d = new Date(fechaArr[0], fechaArr[1], fechaArr[2], parseInt(hr[0]), parseInt(hr[1]), 00);
+    var dNuevo = new Date(d.getTime() + (tiempo * 60000)).toString();
+    var dArr = dNuevo.split(" ")[4].split(":");
+    return (hrs24) ? dArr[0] + ":" + dArr[1] : reloj12hrs(dArr[0] + ":" + dArr[1]);
+}
+
+// FUNCION QUE DEVUELVE UNA FECHA DE 24 HRS EN 12 HRS (CON AM O PM)
+function reloj12hrs(hr) {
+    var hrs = hr.split(":"), hrReturn = '';
+    if (parseInt(hrs[0]) === 0) {
+        hrReturn = "12:" + hrs[1] + " a.m.";
+    } else if (parseInt(hrs[0]) > 12) {
+        hrReturn = (((parseInt(hrs[0]) - 12) < 10) ? "0" + (parseInt(hrs[0]) - 12).toString() : (parseInt(hrs[0]) - 12).toString()) + ":" + hrs[1] + " p.m.";
+    } else {
+        hrReturn = ((parseInt(hrs[0]) < 10) ? "0" + parseInt(hrs[0]).toString() : hrs[0]) + ":" + hrs[1] + " a.m.";
+    }
+    return hrReturn;
+}

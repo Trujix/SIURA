@@ -36,6 +36,8 @@ DROP TABLE IF EXISTS dbo.inventarios;
 DROP TABLE IF EXISTS dbo.inventariomovimientos;
 DROP TABLE IF EXISTS dbo.wizardaccesos;
 DROP TABLE IF EXISTS dbo.wizartests;
+DROP TABLE IF EXISTS dbo.horarios;
+DROP TABLE IF EXISTS dbo.horariosconfig;
 
 CREATE TABLE [dbo].[centros](
 	[id] [int] IDENTITY(1,1) NOT NULL,
@@ -433,6 +435,43 @@ CREATE TABLE [dbo].[wizartests](
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_IDWizardTests] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[horarios](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[descripcion] [varchar](200) NOT NULL,
+	[horainicio] [varchar](200) NOT NULL,
+	[duracion] [int] NOT NULL,
+	[tipo] [varchar](200) NOT NULL,
+	[reloj] [varchar](200) NOT NULL,
+	[activo] [bit] NOT NULL DEFAULT 'True',
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_Horarios] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[horariosconfig](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[idcentro] [int] NOT NULL,
+	[idhorario] [int] NOT NULL,
+	[idhtml] [varchar](200) NOT NULL,
+	[hrinicio24hrs] [varchar](200) NOT NULL,
+	[hrinicio12hrs] [varchar](200) NOT NULL,
+	[hrtermino24hrs] [varchar](200) NOT NULL,
+	[hrtermino12hrs] [varchar](200) NOT NULL,
+	[lunes] [varchar](200) NULL DEFAULT '',
+	[martes] [varchar](200) NULL DEFAULT '',
+	[miercoles] [varchar](200) NULL DEFAULT '',
+	[jueves] [varchar](200) NULL DEFAULT '',
+	[viernes] [varchar](200) NULL DEFAULT '',
+	[sabado] [varchar](200) NULL DEFAULT '',
+	[domingo] [varchar](200) NULL DEFAULT '',
+	[receso] [bit] NOT NULL DEFAULT 'False',
+	[numorden] [int] NOT NULL,
+	[fechahora] [datetime] NULL,
+	[admusuario] [varchar](50) NULL,
+		CONSTRAINT [PK_HorariosConfig] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
 INSERT INTO usuariomenuprincipal (idcentro,nombre,visible,fechahora,admusuario) VALUES (1,'alanon','true','2017-08-09','Admin');

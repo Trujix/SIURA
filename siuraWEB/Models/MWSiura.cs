@@ -124,10 +124,10 @@ namespace siuraWEB.Models
                         }
                     }
 
-                    /*SQL.commandoSQL = new SqlCommand("DELETE FROM dbo.wizardaccesos WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND id = @IDTokenParam", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL = new SqlCommand("DELETE FROM dbo.wizardaccesos WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND id = @IDTokenParam", SQL.conSQL, SQL.transaccionSQL);
                     SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
                     SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDTokenParam", SqlDbType.Int) { Value = IdToken });
-                    SQL.commandoSQL.ExecuteNonQuery();*/
+                    SQL.commandoSQL.ExecuteNonQuery();
                 }
                 else
                 {

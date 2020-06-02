@@ -28,6 +28,7 @@ namespace siuraWEB.Models
             public string RespuestaText { get; set; }
             public string TokenUsuario { get; set; }
             public string TokenCentro { get; set; }
+            public string UsuarioNombre { get; set; }
             public bool Administrador { get; set; }
             public bool AlAnon { get; set; }
             public bool CoordDeportiva { get; set; }
@@ -67,6 +68,7 @@ namespace siuraWEB.Models
                         respuesta.Respuesta = true;
                         respuesta.TokenUsuario = lector["tokenusuario"].ToString();
                         respuesta.TokenCentro = lector["tokencentro"].ToString();
+                        respuesta.UsuarioNombre = lector["nombre"].ToString() + " " + lector["apellido"].ToString();
                         respuesta.Administrador = bool.Parse(lector["administrador"].ToString());
                         respuesta.RespuestaText = "LoginCorrecto";
                     }

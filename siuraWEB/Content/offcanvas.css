@@ -298,7 +298,33 @@ body {
         background: #c9e2f9;
     }
 
-    /* - BOOTSTRAP EXTRAS - */
-    .modal-xxl {
-        max-width: 99%;
-    }
+/* - BOOTSTRAP EXTRAS - */
+.modal-xxl {
+    max-width: 99%;
+}
+
+/* ------- HORARIOS ----------- */
+.horariotablaca {
+    background-color: #AED6F1;
+}
+.horariotablacd {
+    background-color: #F5B7B1;
+}
+.horariotablacm {
+    background-color: #A9DFBF;
+}
+.horariotablacp {
+    background-color: #EDBB99;
+}
+.horariotablace {
+    background-color: #D2B4DE;
+}
+.horariotablacc {
+    background-color: #F9E79F;
+}
+.horariotablaotro {
+    background-color: #FFDEF9;
+}
+.horariotablasinact {
+    background-color: #F2F3F4;
+}

@@ -79,6 +79,37 @@ namespace siuraWEB.Models
             public string Descripcion { get; set; }
             public double Importe { get; set; }
         }
+        // ----- CLASES DE  HORARIOS --------
+        // CLASE DE PARAMETROS GENERALES HORARIO
+        public class Horarios
+        {
+            public int IdHorario { get; set; }
+            public string Descripción { get; set; }
+            public string HoraInicio { get; set; }
+            public int Duracion { get; set; }
+            public string Tipo { get; set; }
+            public string Reloj { get; set; }
+            public bool Activo { get; set; }
+            public DateTime FechaCreado { get; set; }
+        }
+        // CLASE DE CONFIGURACION DE HORARIO
+        public class HorariosConfig
+        {
+            public string IdHTML { get; set; }
+            public string HoraInicio24hrs { get; set; }
+            public string HoraInicio12hrs { get; set; }
+            public string HoraTermino24hrs { get; set; }
+            public string HoraTermino12hrs { get; set; }
+            public string Lunes { get; set; }
+            public string Martes { get; set; }
+            public string Miercoles { get; set; }
+            public string Jueves { get; set; }
+            public string Viernes { get; set; }
+            public string Sabado { get; set; }
+            public string Domingo { get; set; }
+            public bool Receso { get; set; }
+            public int NumOrden { get; set; }
+        }
 
         // ----------- FUNCIONES GENERALES -----------
         // FUNCION QUE DEVUELVE LA  LISTA DE PACIENTES EN PRE REGISTRO [ PRE-REGISTROS ]
@@ -583,6 +614,218 @@ namespace siuraWEB.Models
 
                 SQL.transaccionSQL.Commit();
                 return JsonConvert.SerializeObject(ListaPacientesPagos);
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // ::::::::::::::::::::::::::: [ HORARIOS ] :::::::::::::::::::::::::::
+        // FUNCION QUE DEVUELVE LA LISTA DE HORARIOS [ HORARIOS ]
+        public string ObtenerListaHorarios(string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ListaHorarios");
+                List<Horarios> HorariosData = new List<Horarios>();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.horarios WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        HorariosData.Add(new Horarios()
+                        {
+                            IdHorario = int.Parse(lector["id"].ToString()),
+                            Descripción = lector["descripcion"].ToString(),
+                            HoraInicio = lector["horainicio"].ToString(),
+                            Duracion = int.Parse(lector["duracion"].ToString()),
+                            Tipo = lector["tipo"].ToString(),
+                            Reloj = lector["reloj"].ToString(),
+                            Activo = bool.Parse(lector["activo"].ToString()),
+                            FechaCreado = DateTime.Parse(lector["fechahora"].ToString()),
+                        });
+                    }
+                }
+
+                List<Dictionary<string, object>> ListaHorarios = new List<Dictionary<string, object>>();
+                foreach (Horarios Horario in HorariosData)
+                {
+                    List<Dictionary<string, object>> horarioConfig = new List<Dictionary<string, object>>();
+                    SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.horariosconfig WHERE idhorario = @IDHorarioParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) ORDER BY numorden ASC", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDHorarioParam", SqlDbType.Int) { Value = Horario.IdHorario });
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                    using (var lector = SQL.commandoSQL.ExecuteReader())
+                    {
+                        while (lector.Read())
+                        {
+                            horarioConfig.Add(new Dictionary<string, object>()
+                            {
+                                { "IdHTML", lector["idhtml"].ToString() },
+                                { "HoraInicio24hrs", lector["hrinicio24hrs"].ToString() },
+                                { "HoraInicio12hrs", lector["hrinicio12hrs"].ToString() },
+                                { "HoraTermino24hrs", lector["hrtermino24hrs"].ToString() },
+                                { "HoraTermino12hrs", lector["hrtermino12hrs"].ToString() },
+                                { "Lunes", lector["lunes"].ToString() },
+                                { "Martes", lector["martes"].ToString() },
+                                { "Miercoles", lector["miercoles"].ToString() },
+                                { "Jueves", lector["jueves"].ToString() },
+                                { "Viernes", lector["viernes"].ToString() },
+                                { "Sabado", lector["sabado"].ToString() },
+                                { "Domingo", lector["domingo"].ToString() },
+                                { "Receso",  bool.Parse(lector["receso"].ToString()) },
+                                { "NumOrden", int.Parse(lector["numorden"].ToString()) },
+                            });
+                        }
+                    }
+                    ListaHorarios.Add(new Dictionary<string, object>()
+                    {
+                        { "IdHorario", Horario.IdHorario },
+                        { "Descripción", Horario.Descripción },
+                        { "HoraInicio", Horario.HoraInicio },
+                        { "Duracion", Horario.Duracion },
+                        { "Tipo", Horario.Tipo },
+                        { "Reloj", Horario.Reloj },
+                        { "FechaCreado", Horario.FechaCreado.ToString("dddd, dd MMMM yyyy HH:mm:ss") },
+                        { "Activo", Horario.Activo },
+                        { "HorarioConfig", horarioConfig },
+                    });
+                }
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(ListaHorarios);
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE GUARDA LOS DATOS DEL HORARIO [ HORARIOS ]
+        public string GuardarHorario(Horarios horarioinfo, HorariosConfig[] horarioconfig, string tokenusuario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("GuardarHorario");
+                int IdHorarioVerif = 0, IdHorarioConfig = 0;
+                bool activo = false, activoVerif = false;
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.horarios WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        if (bool.Parse(lector["activo"].ToString()))
+                        {
+                            activoVerif = true;
+                            IdHorarioVerif = int.Parse(lector["id"].ToString());
+                        }
+                    }
+                }
+                if(!activoVerif || IdHorarioVerif == horarioinfo.IdHorario)
+                {
+                    activo = true;
+                }
+
+                if (horarioinfo.IdHorario > 0)
+                {
+                    SQL.commandoSQL = new SqlCommand("UPDATE dbo.horarios SET descripcion = @DescripcionParam, horainicio = @HoraInicioParam, duracion = @DuracionParam, tipo = @TipoParam, reloj = @RelojParam, activo = @ActivoParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam) WHERE id = @IDHorarioParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                    SqlParameter[] actHorario =
+                    {
+                        new SqlParameter("@DescripcionParam", SqlDbType.VarChar){Value = horarioinfo.Descripción },
+                        new SqlParameter("@HoraInicioParam", SqlDbType.VarChar){Value = horarioinfo.HoraInicio },
+                        new SqlParameter("@DuracionParam", SqlDbType.Int){Value = horarioinfo.Duracion },
+                        new SqlParameter("@TipoParam", SqlDbType.VarChar){Value = horarioinfo.Tipo },
+                        new SqlParameter("@RelojParam", SqlDbType.VarChar){Value = horarioinfo.Reloj },
+                        new SqlParameter("@ActivoParam", SqlDbType.Bit){Value = activo },
+                        new SqlParameter("@FechaParam", SqlDbType.DateTime){Value = MISC.FechaHoy() },
+                        new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar){Value = tokenusuario },
+                        new SqlParameter("@IDHorarioParam", SqlDbType.Int){Value = horarioinfo.IdHorario },
+                        new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar){Value = tokencentro },
+                    };
+                    SQL.commandoSQL.Parameters.AddRange(actHorario);
+                    SQL.commandoSQL.ExecuteNonQuery();
+
+                    SQL.commandoSQL = new SqlCommand("DELETE FROM dbo.horariosconfig WHERE idhorario = @IDHorarioParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDHorarioParam", SqlDbType.Int) { Value = horarioinfo.IdHorario });
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                    SQL.commandoSQL.ExecuteNonQuery();
+
+                    IdHorarioConfig = horarioinfo.IdHorario;
+                }
+                else
+                {
+                    SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.horarios (idcentro, descripcion, horainicio, duracion, tipo, reloj, activo, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA), @DescripcionParam, @HoraInicioParam, @DuracionParam, @TipoParam, @RelojParam, @ActivoParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam))", SQL.conSQL, SQL.transaccionSQL);
+                    SqlParameter[] nuevoHorario =
+                    {
+                        new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar){Value = tokencentro },
+                        new SqlParameter("@DescripcionParam", SqlDbType.VarChar){Value = horarioinfo.Descripción },
+                        new SqlParameter("@HoraInicioParam", SqlDbType.VarChar){Value = horarioinfo.HoraInicio },
+                        new SqlParameter("@DuracionParam", SqlDbType.Int){Value = horarioinfo.Duracion },
+                        new SqlParameter("@TipoParam", SqlDbType.VarChar){Value = horarioinfo.Tipo },
+                        new SqlParameter("@RelojParam", SqlDbType.VarChar){Value = horarioinfo.Reloj },
+                        new SqlParameter("@ActivoParam", SqlDbType.Bit){Value = activo },
+                        new SqlParameter("@FechaParam", SqlDbType.DateTime){Value = MISC.FechaHoy() },
+                        new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar){Value = tokenusuario },
+                    };
+                    SQL.commandoSQL.Parameters.AddRange(nuevoHorario);
+                    SQL.commandoSQL.ExecuteNonQuery();
+
+                    SQL.commandoSQL = new SqlCommand("SELECT MAX(id) AS Maximo FROM dbo.horarios WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                    using (var lector = SQL.commandoSQL.ExecuteReader())
+                    {
+                        while (lector.Read())
+                        {
+                            IdHorarioConfig = int.Parse(lector["Maximo"].ToString());
+                        }
+                    }
+                }
+
+                if (horarioconfig != null)
+                {
+                    foreach(HorariosConfig horario in horarioconfig)
+                    {
+                        SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.horariosconfig (idcentro, idhorario, idhtml, hrinicio24hrs, hrinicio12hrs, hrtermino24hrs, hrtermino12hrs, lunes, martes, miercoles, jueves, viernes, sabado, domingo, receso, numorden, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA), @IDHorarioParam, @IDHTMLParam, @HRInicio24hrs, @HRInicio12hrs, @HRTermino24hrs, @HRTermino12hrs, @LunesParam, @MartesParam, @MiercolesParam, @JuevesParam, @ViernesParam, @SabadoParam, @DomingoParam, @RecesoParam, @NumOrdenParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam))", SQL.conSQL, SQL.transaccionSQL);
+                        SqlParameter[] agregarHorarioConfig =
+                        {
+                            new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar){Value = tokencentro },
+                            new SqlParameter("@IDHorarioParam", SqlDbType.Int){Value = IdHorarioConfig },
+                            new SqlParameter("@IDHTMLParam", SqlDbType.VarChar){Value = horario.IdHTML },
+                            new SqlParameter("@HRInicio24hrs", SqlDbType.VarChar){Value = horario.HoraInicio24hrs },
+                            new SqlParameter("@HRInicio12hrs", SqlDbType.VarChar){Value = horario.HoraInicio12hrs },
+                            new SqlParameter("@HRTermino24hrs", SqlDbType.VarChar){Value = horario.HoraTermino24hrs },
+                            new SqlParameter("@HRTermino12hrs", SqlDbType.VarChar){Value = horario.HoraTermino12hrs },
+                            new SqlParameter("@LunesParam", SqlDbType.VarChar){Value = horario.Lunes },
+                            new SqlParameter("@MartesParam", SqlDbType.VarChar){Value = horario.Martes },
+                            new SqlParameter("@MiercolesParam", SqlDbType.VarChar){Value = horario.Miercoles },
+                            new SqlParameter("@JuevesParam", SqlDbType.VarChar){Value = horario.Jueves },
+                            new SqlParameter("@ViernesParam", SqlDbType.VarChar){Value = horario.Viernes },
+                            new SqlParameter("@SabadoParam", SqlDbType.VarChar){Value = horario.Sabado },
+                            new SqlParameter("@DomingoParam", SqlDbType.VarChar){Value = horario.Domingo },
+                            new SqlParameter("@RecesoParam", SqlDbType.Bit){Value = horario.Receso },
+                            new SqlParameter("@NumOrdenParam", SqlDbType.Int){Value = horario.NumOrden },
+                            new SqlParameter("@FechaParam", SqlDbType.DateTime){Value = MISC.FechaHoy() },
+                            new SqlParameter("@TokenUsuarioParam", SqlDbType.VarChar){Value = tokenusuario }, 
+                        };
+                        SQL.commandoSQL.Parameters.AddRange(agregarHorarioConfig);
+                        SQL.commandoSQL.ExecuteNonQuery();
+                    }
+                }
+
+                SQL.transaccionSQL.Commit();
+                return "true";
             }
             catch (Exception e)
             {

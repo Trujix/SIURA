@@ -2198,6 +2198,7 @@
     <Content Include="Views\CConsejeria\MenuConsejeria.cshtml" />
     <Content Include="Views\CConsejeria\Inventario.cshtml" />
     <Content Include="Views\CConsejeria\Archivero.cshtml" />
+    <Content Include="Views\Documentacion\Horario.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

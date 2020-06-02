@@ -38,6 +38,32 @@ namespace siuraWEB.Controllers
             }
         }
 
+        // FUNCION QUE DEVUELVE LA VISTA DE INVENTARIO [ INVENTARIO ]
+        public ActionResult Inventario()
+        {
+            if ((bool)Session["Documentacion"])
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("SinPermiso", "Home");
+            }
+        }
+
+        // FUNCION QUE DEVUELVE LA VISTA DE HORARIOS [ HORARIOS ]
+        public ActionResult Horario()
+        {
+            if ((bool)Session["Documentacion"])
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("SinPermiso", "Home");
+            }
+        }
+
         // FUNCION QUE DEVUELVE LA VISTA DEL FORMULARIO DE [ NUEVO PACIENTE ]
         public ActionResult NuevoPaciente()
         {
@@ -52,12 +78,6 @@ namespace siuraWEB.Controllers
 
         // FUNCION QUE DEVUELVE LA VISTA DE PAGOS DEL PACIENTE [ ADMINISTRACION ]
         public ActionResult PacientesPagos()
-        {
-            return View();
-        }
-
-        // FUNCION QUE DEVUELVE LA VISTA DE INVENTARIO [ INVENTARIO ]
-        public ActionResult Inventario()
         {
             return View();
         }
@@ -124,6 +144,19 @@ namespace siuraWEB.Controllers
         public string ListaPacientesPagosPend(string Consulta)
         {
             return MiDocumentacion.ListaPacientesPagosPendientes(Consulta, (string)Session["TokenCentro"]);
+        }
+
+        // ::::::::::::::::::::::::::: [ HORARIOS ] :::::::::::::::::::::::::::
+        // FUNCION QUE DEVUELVE LA LISTA DE HORARIOS [ HORARIOS ]
+        public string ObtenerListaHorarios()
+        {
+            return MiDocumentacion.ObtenerListaHorarios((string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE GUARDA LOS DATOS DEL HORARIO [ HORARIOS ]
+        public string GuardarHorario(MDocumentacion.Horarios HorarioInfo, MDocumentacion.HorariosConfig[] HorarioConfig)
+        {
+            return MiDocumentacion.GuardarHorario(HorarioInfo, HorarioConfig, (string)Session["Token"], (string)Session["TokenCentro"]);
         }
     }
 }

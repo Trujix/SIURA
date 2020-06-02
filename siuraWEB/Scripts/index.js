@@ -156,7 +156,7 @@ function mostrarCalendario() {
     ]);
 }
 
-$(document).on('dblclick', '.d-block a', function () {
+$(document).on('dblclick', '.d-block axxxxxxxx', function () {
     llamarTestWizard();
 });
 // ::::::::::::::::::::::::::::: [ WIZARD SIURA ] :::::::::::::::::::::::::::::

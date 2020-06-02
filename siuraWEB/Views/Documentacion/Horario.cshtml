@@ -1,0 +1,252 @@
+﻿@{
+    Layout = null;
+}
+<div class="row" style="padding-top: 5px;">
+    <div class="col-sm-3">
+        <button id="obtenerListaHorarios" class="btn badge badge-pill badge-primary"><i class="fa fa-list"></i>&nbsp;Obtener Lista Horarios</button>
+    </div>
+    <div class="col-sm-3">
+        <button id="crearNuevoHorario" class="btn badge badge-pill badge-info"><i class="fa fa-plus"></i>&nbsp;Crear Nuevo Horario</button>
+    </div>
+</div>
+<div class="row scrollestilo" style="padding-top: 5px; height: 83vh;">
+    <div class="col-sm-12">
+        <div class="table table-responsive">
+            <table class="table table-bordered table-sm">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Fecha Creación</th>
+                        <th style="text-align: center; width: 130px;">Habilitado</th>
+                        <th style="text-align: center; width: 130px;"><i class="fa fa-cog"></i>&nbsp;Opciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaHorarios"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="modalNuevoHorario" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-xxl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-calendar"></i> Nuevo Horario</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row scrollestilo" style="height: 89vh; padding-bottom: 10px;">
+                    <div class="col-sm-12">
+                        <div id="modalNuevoHorarioP1" class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label for="modalNuevoHorarioDescripcion"><i class="fa fa-edit"></i> Descripción</label>
+                                    <input id="modalNuevoHorarioDescripcion" type="text" class="form-control form-control-sm" placeholder="Descripcion" autocomplete="off" />
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="form-group">
+                                    <label for="modalNuevoHorarioHrInicio"><i class="fa fa-clock"></i> Hora de Inicio</label>
+                                    <input id="modalNuevoHorarioHrInicio" type="time" class="form-control form-control-sm" autocomplete="off" />
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label for="modalNuevoHorarioDuracionDiv"><i class="fa fa-hourglass"></i> Duración</label>
+                                    <div id="modalNuevoHorarioDuracionDiv" class="input-group input-group-sm">
+                                        <input id="modalNuevoHorarioDuracion" type="number" class="form-control" step="1" min="1" placeholder="Duración" autocomplete="off" />
+                                        <div class="input-group-append">
+                                            <select id="modalNuevoHorarioDuracionTipo" class="form-control form-control-sm">
+                                                <option value="min">Minutos</option>
+                                                <option value="hrs">Horas</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label for="modalNuevoHorarioReloj"><i class="fa fa-stopwatch"></i> Tipo de Reloj</label>
+                                    <select id="modalNuevoHorarioReloj" class="form-control form-control-sm">
+                                        <option value="12hrs">Reloj 12 Horas</option>
+                                        <option value="24hrs">Reloj 24 Horas</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-12" align="center">
+                                <div class="alert alert-warning" role="alert">
+                                    <label><i class="fa fa-warning"></i> <b>Nota: </b>Con la intención de mantener la coherencia de las horas establecidas en el horario, le recomendamos ampliamente que planifique el uso de esta herramienta en la elaboración de su horario de labores, ya que, cualquier cambio, requiere el <b>reestablecimiento parcial o total</b> de todo el horario.</label>
+                                </div>
+                                <h1></h1>
+                            </div>
+                            <div class="col-sm-10">
+                                <button name="modalNuevoHorarioCancelar" class="btn btn-sm btn-danger"><i class="fa fa-times"></i> Cancelar y cerrar</button>
+                            </div>
+                            <div class="col-sm-2">
+                                <button id="modalNuevoHorarioSigP2" class="btn btn-sm btn-block btn-info"><i class="fa fa-arrow-circle-right"></i> Siguiente paso</button>
+                            </div>
+                        </div>
+                        <div id="modalNuevoHorarioP2" class="row">
+                            <div class="col-sm-2">
+                                <button id="modalNuevoHorarioFilaNueva" class="btn badge badge-pill badge-primary"><i class="fa fa-plus"></i> Añadir Nueva Fila</button>
+                            </div>
+                            <div class="col-sm-2">
+                                <button id="modalNuevoHorarioAddReceso" class="btn badge badge-pill badge-warning"><i class="fa fa-flag"></i> Añadir Nuevo Receso</button>
+                            </div>
+                            <div class="col-sm-2">
+                                <button id="modalNuevoHorarioLimpiarHorario" class="btn badge badge-pill badge-secondary"><i class="fa fa-broom"></i> Limpiar Horario</button>
+                            </div>
+                            <div class="col-sm-12 scrollestilo" style="height: 75vh; margin-bottom: 10px; margin-top: 10px;">
+                                <div class="table table-responsive">
+                                    <table class="table table-sm table-bordered">
+                                        <thead>
+                                            <tr class="table-active">
+                                                <th style="text-align: center;">Horario</th>
+                                                <th style="text-align: center;">Lunes</th>
+                                                <th style="text-align: center;">Martes</th>
+                                                <th style="text-align: center;">Miercoles</th>
+                                                <th style="text-align: center;">Jueves</th>
+                                                <th style="text-align: center;">Viernes</th>
+                                                <th style="text-align: center;">Sabado</th>
+                                                <th style="text-align: center;">Domingo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="modalNuevoHorarioTabla"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-sm-8">
+                                <button name="modalNuevoHorarioCancelar" class="btn btn-sm btn-danger"><i class="fa fa-times"></i> Cancelar y cerrar</button>
+                            </div>
+                            <div class="col-sm-2">
+                                <button id="modalNuevoHorarioSigP1" class="btn btn-sm btn-block btn-info"><i class="fa fa-arrow-circle-left"></i> Paso Anterior</button>
+                            </div>
+                            <div class="col-sm-2">
+                                <button id="modalNuevoHorarioGuardar" class="btn btn-sm btn-block btn-success"><i class="fa fa-save"></i> Guardar Horario</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalHorarioActividades" class="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"><i class="fa fa-star"></i> Nueva Actividad</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h5><span id="modalHorarioActividadesTitulo" class="badge badge-secondary"></span></h5>
+                    </div>
+                    <div class="col-sm-8">
+                        <h5><b id="modalHorarioActividadesHoras"></b></h5>
+                    </div>
+                    <hr />
+                    <div class="col-sm-12">
+                        <table style="border: none; width: 100%;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <input class="magic-radio" type="radio" name="horarioactmodal" id="modalHorarioActividadesCA" opcion="CA">
+                                        <label for="modalHorarioActividadesCA">AL-Anon</label>
+                                    </td>
+                                    <td style="width: 50px;"><div class="horariotablaca" style="width: 20px; height: 20px; border-radius: 25px;"></div></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input class="magic-radio" type="radio" name="horarioactmodal" id="modalHorarioActividadesCD" opcion="CD">
+                                        <label for="modalHorarioActividadesCD">Coord. Deportiva</label>
+                                    </td>
+                                    <td style="width: 50px;"><div class="horariotablacd" style="width: 20px; height: 20px; border-radius: 25px;"></div></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input class="magic-radio" type="radio" name="horarioactmodal" id="modalHorarioActividadesCM" opcion="CM">
+                                        <label for="modalHorarioActividadesCM">Coord. Médica</label>
+                                    </td>
+                                    <td style="width: 50px;"><div class="horariotablacm" style="width: 20px; height: 20px; border-radius: 25px;"></div></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input class="magic-radio" type="radio" name="horarioactmodal" id="modalHorarioActividadesCP" opcion="CP">
+                                        <label for="modalHorarioActividadesCP">Coord. Psicológica</label>
+                                    </td>
+                                    <td style="width: 50px;"><div class="horariotablacp" style="width: 20px; height: 20px; border-radius: 25px;"></div></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input class="magic-radio" type="radio" name="horarioactmodal" id="modalHorarioActividadesCE" opcion="CE">
+                                        <label for="modalHorarioActividadesCE">Coord. Espiritual</label>
+                                    </td>
+                                    <td style="width: 50px;"><div class="horariotablace" style="width: 20px; height: 20px; border-radius: 25px;"></div></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input class="magic-radio" type="radio" name="horarioactmodal" id="modalHorarioActividadesCC" opcion="CC">
+                                        <label for="modalHorarioActividadesCC">Coord. Consejería</label>
+                                    </td>
+                                    <td style="width: 50px;"><div class="horariotablacc" style="width: 20px; height: 20px; border-radius: 25px;"></div></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input class="magic-radio" type="radio" name="horarioactmodal" id="modalHorarioActividadesOTRO" opcion="OTRO">
+                                        <label for="modalHorarioActividadesOTRO">Otra Actividad:</label>
+                                    </td>
+                                    <td style="width: 50px;"><div class="horariotablaotro" style="width: 20px; height: 20px; border-radius: 25px;"></div></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <input id="modalHorarioActividadesOtraTexto" type="text" class="form-control form-control-sm" placeholder="Otra actividad" autocomplete="off" /><p></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <input class="magic-radio" type="radio" name="horarioactmodal" id="modalHorarioActividadesSINACT" opcion="SINACT">
+                                        <label for="modalHorarioActividadesSINACT">Sin Actividad:</label>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modalHorarioActividadesGuardar" type="button" class="btn badge badge-pill badge-success"><i class="fa fa-save"></i> Agregar Actividad</button>
+                <button type="button" class="btn badge badge-pill badge-danger" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalNuevoRecesoHorario" class="modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Receso</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label for="modalNuevoRecesoHorarioDiv"><i class="fa fa-hourglass"></i> Duración</label>
+                            <div id="modalNuevoRecesoHorarioDiv" class="input-group input-group-sm">
+                                <input id="modalNuevoRecesoHorarioDuracion" type="number" class="form-control" step="1" min="1" placeholder="Duración" autocomplete="off" />
+                                <div class="input-group-append">
+                                    <select id="modalNuevoRecesoHorarioDuracionTipo" class="form-control form-control-sm">
+                                        <option value="min">Minutos</option>
+                                        <option value="hrs">Horas</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modalNuevoRecesoHorarioGuardar" type="button" class="btn badge badge-pill badge-success"><i class="fa fa-plus"></i> Agregar Receso</button>
+                <button type="button" class="btn badge badge-pill badge-danger" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>

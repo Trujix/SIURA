@@ -32,6 +32,7 @@ namespace siuraWEB
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                       "~/Scripts/bootstrap.min.js",
+                      "~/Scripts/popper.min.js",
                       "~/JQueryUI/jquery-ui.js",
                       "~/CalendarioUI/js/moment.min.js",
                       "~/CalendarioUI/js/fullcalendar.min.js",

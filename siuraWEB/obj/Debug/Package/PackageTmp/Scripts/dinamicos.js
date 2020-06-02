@@ -575,8 +575,11 @@ $(document).on('click', '#modalAprobarPacienteIngresoAceptar', function () {
                             LoadingOn("Asignando Parametros...");
                             $('#modalNuevoIngresoOpciones').modal('hide');
                             setTimeout(function () {
-                                MsgAlerta("Ok!", "Información de <b>Nuevo Ingreso</b> ha sido <b>actualizada</b>", 2900, "success");
+                                MsgAlerta("Ok!", "Información de <b>Nuevo Ingreso</b> ha sido <b>actualizada</b>", 1500, "success");
                                 LoadingOff();
+                                setTimeout(function () {
+                                    $('#btnObtenerListaNIngresos' + NuevoIngresoCoordGLOBAL).click();
+                                }, 1800);
                             }, 3000);
                         }, 1500);
                     } else {
@@ -1344,13 +1347,14 @@ function llenarListaNuevosIngresos(coord, callback) {
                 dataType: 'JSON',
                 success: function (data) {
                     if (Array.isArray(data)) {
+                        console.log(data);
                         var tablaNingresos = (data.length > 0) ? "" : '<tr><td class="table-info" colspan="2" style="text-align: center;"><h5><i class="fa fa-info-circle"></i>&nbsp;No tiene <b>Nuevos Ingresos</b> pendientes</h5></td></tr>';
                         $(data).each(function (key, value) {
                             tablaNingresos = '<tr><td>' + value.NombreCompleto + '</td><td style="text-align: center;"><button class="btn badge badge-pill badge-warning" onclick="configPacienteNuevoIngreso(' + value.IdPaciente + ')"><i class="fa fa-edit"></i>&nbsp;Configurar Paciente</button></td></tr>';
                             nuevosIngresosListaJSON.push(value);
                         });
-                        tablaNIngresosHTML = tablaNIngresosHTML.replace("ÖØCUERPOØÖ", tablaNingresos);
-                        $('#divNIngresosTabla' + coord).html(tablaNIngresosHTML);
+                        var tablaNIngresosFull = tablaNIngresosHTML.replace("ÖØCUERPOØÖ", tablaNingresos);
+                        $('#divNIngresosTabla' + coord).html(tablaNIngresosFull);
                         callback(true);
                     } else {
                         ErrorLog(data.responseText, "Lista Nuevos Ingresos");
@@ -1411,9 +1415,6 @@ function configPacienteNuevoIngreso(id) {
                                         if (v3.Clave === v2.Clave) {
                                             if (v3.TestArchivo !== "SD") {
                                                 $('#tdni_' + idTd).html('<button class="btn badge badge-pill badge-success" onclick="mostrarIngresoPacienteInfo(' + v3.Id + ',1);"><i class="fa fa-file"></i>&nbsp;Mostrar Archivo Anexo</button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-secondary" title="Diagnostico" onclick="mostrarIngresoPacienteInfo(' + v3.Id + ',2);"><i class="fa fa-info-circle"></i></button>&nbsp;&nbsp;<button class="btn badge badge-pill badge-danger" title="Reestablecer/Borrar" onclick="reestablecerPacienteIngreso(' + v3.Id + ');"><i class="fa fa-trash"></i></button>').parent().addClass("table-success");
-                                            }
-                                            if (v3.TestJson !== "SD") {
-
                                             }
                                             PacienteNIngresoDataJSON.push(v3);
                                         }
