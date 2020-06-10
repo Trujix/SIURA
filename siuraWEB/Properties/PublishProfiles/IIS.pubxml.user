@@ -223,10 +223,10 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>05/24/2018 07:38:24</publishTime>
     </File>
     <File Include="bin/siuraWEB.dll">
-      <publishTime>06/01/2020 19:51:04</publishTime>
+      <publishTime>06/07/2020 22:19:31</publishTime>
     </File>
     <File Include="bin/siuraWEB.pdb">
-      <publishTime>06/01/2020 19:51:04</publishTime>
+      <publishTime>06/07/2020 22:19:31</publishTime>
     </File>
     <File Include="bin/System.Diagnostics.DiagnosticSource.dll">
       <publishTime>07/19/2017 04:01:30</publishTime>
@@ -6193,7 +6193,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>03/01/2020 02:59:12</publishTime>
     </File>
     <File Include="Scripts/administracion.js">
-      <publishTime>06/01/2020 20:07:29</publishTime>
+      <publishTime>06/06/2020 14:41:03</publishTime>
     </File>
     <File Include="Scripts/bootstrap.min.js">
       <publishTime>02/10/2020 19:48:27</publishTime>
@@ -6241,7 +6241,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>03/04/2020 19:20:59</publishTime>
     </File>
     <File Include="Scripts/impresiones.js">
-      <publishTime>04/08/2020 03:24:03</publishTime>
+      <publishTime>06/02/2020 22:13:58</publishTime>
     </File>
     <File Include="Scripts/index.js">
       <publishTime>06/01/2020 01:59:12</publishTime>
@@ -6274,7 +6274,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>03/25/2020 21:11:20</publishTime>
     </File>
     <File Include="Scripts/miscelaneas.js">
-      <publishTime>06/01/2020 01:38:10</publishTime>
+      <publishTime>06/02/2020 20:29:09</publishTime>
     </File>
     <File Include="Scripts/modernizr-2.8.3.js">
       <publishTime>02/10/2020 19:23:13</publishTime>
@@ -6379,7 +6379,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>05/31/2020 19:30:43</publishTime>
     </File>
     <File Include="Views/Documentacion/Horario.cshtml">
-      <publishTime>06/01/2020 19:46:02</publishTime>
+      <publishTime>06/06/2020 22:31:29</publishTime>
     </File>
     <File Include="Views/Documentacion/Ingreso.cshtml">
       <publishTime>03/06/2020 00:03:08</publishTime>
@@ -6430,7 +6430,7 @@ edite el archivo MSBuild. Visite https://go.microsoft.com/fwlink/?LinkID=208121 
       <publishTime>02/10/2020 19:21:52</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>05/01/2020 17:50:38</publishTime>
+      <publishTime>06/07/2020 22:19:48</publishTime>
     </File>
   </ItemGroup>
 </Project>

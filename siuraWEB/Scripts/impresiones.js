@@ -996,3 +996,75 @@ function imprimirInventarioReporte(jsonInventario, gestion) {
         ErrorLog(e.toString(), "Imprimir Reporte Inventario");
     }
 }
+
+// FUNCION QUE IMPRIME UN HORARIO ESPECIFICO
+function imprimirHorario(jsonHorario, jsonInfo, centroInfo, centroLogo) {
+    var tablaCUerpo = [
+        [
+            { text: "HORARIO", fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] },
+            { text: "LUNES", fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] },
+            { text: "MARTES", fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] },
+            { text: "MIERCOLES", fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] },
+            { text: "JUEVES", fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] },
+            { text: "VIERNES", fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] },
+            { text: "SABADO", fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] },
+            { text: "DOMINGO", fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] },
+        ],
+    ];
+    $(jsonHorario).each(function (key, value) {
+        var td = [];
+        td.push({ text: ((jsonInfo.Reloj === '12hrs') ? value.HoraInicio12hrs + '\n' + value.HoraTermino12hrs : value.HoraInicio24hrs + '\n' + value.HoraTermino24hrs), fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] });
+        if (!value.Receso) {
+            td.push({ text: paramTablaHorarios(value.Lunes, 't', false).replace("<b>", "").replace("</b>", "").replace("<br />", "\n"), fillColor: paramTablaHorarios(value.Lunes, 'e', true), fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] });
+            td.push({ text: paramTablaHorarios(value.Martes, 't', false).replace("<b>", "").replace("</b>", "").replace("<br />", "\n"), fillColor: paramTablaHorarios(value.Martes, 'e', true), fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] });
+            td.push({ text: paramTablaHorarios(value.Miercoles, 't', false).replace("<b>", "").replace("</b>", "").replace("<br />", "\n"), fillColor: paramTablaHorarios(value.Miercoles, 'e', true), fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] });
+            td.push({ text: paramTablaHorarios(value.Jueves, 't', false).replace("<b>", "").replace("</b>", "").replace("<br />", "\n"), fillColor: paramTablaHorarios(value.Jueves, 'e', true), fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] });
+            td.push({ text: paramTablaHorarios(value.Viernes, 't', false).replace("<b>", "").replace("</b>", "").replace("<br />", "\n"), fillColor: paramTablaHorarios(value.Viernes, 'e', true), fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] });
+            td.push({ text: paramTablaHorarios(value.Sabado, 't', false).replace("<b>", "").replace("</b>", "").replace("<br />", "\n"), fillColor: paramTablaHorarios(value.Sabado, 'e', true), fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] });
+            td.push({ text: paramTablaHorarios(value.Domingo, 't', false).replace("<b>", "").replace("</b>", "").replace("<br />", "\n"), fillColor: paramTablaHorarios(value.Domingo, 'e', true), fontSize: 8, alignment: 'center', bold: true, border: [true, true, true, true] });
+        } else {
+            td.push({ text: "R        E        C        E        S        O", fontSize: 8, colSpan: 7, alignment: 'center', bold: true, border: [true, true, true, true] });
+        }
+        tablaCUerpo.push(td);
+    });
+    var docHorario = {
+        pageSize: 'LETTER',
+        pageMargins: [40, 40, 40, 40],
+        content: [
+            {
+                table: {
+                    widths: ['auto', '*'],
+                    body: [
+                        [
+                            { image: centroLogo.LogoCentro, width: 100, alignment: 'center', border: [false, false, false, false] },
+                            {
+                                text: [
+                                    { text: "\n" + centroInfo.NombreCentro, alignment: 'center', fontSize: 12, bold: true },
+                                    { text: "\n" + centroInfo.ClaveCentro, alignment: 'center', fontSize: 11, bold: false },
+                                    { text: "\n" + centroInfo.DireccionCentro + ", Colonia: " + centroInfo.ColoniaCentro + " - C.P. " + centroInfo.CPCentro, alignment: 'center', fontSize: 11, bold: false },
+                                    { text: "\n" + centroInfo.MunicipioCentro + ", " + centroInfo.EstadoCentro, alignment: 'center', fontSize: 11, bold: false },
+                                    //{ text: "\nTeléfono: " + centroInfo.TelefonoCentro, alignment: 'center', fontSize: 11, bold: false },
+                                ], border: [false, false, false, false]
+                            },
+                        ],
+                    ],
+                },
+            },
+            {
+                text: "HORARIO DE ACTIVIDADES", fontSize: 12, colSpan: 7, alignment: 'center', bold: true
+            },
+            {
+                table: {
+                    widths: [45, '*', '*', '*', '*', '*', '*', '*'],
+                    body: tablaCUerpo,
+                },
+            },
+        ],
+    };
+    try {
+        pdfMake.createPdf(docHorario).open();
+        LoadingOff();
+    } catch (e) {
+        ErrorLog(e.toString(), "Imprimir Horario");
+    }
+}

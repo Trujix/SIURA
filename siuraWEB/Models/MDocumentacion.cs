@@ -84,7 +84,7 @@ namespace siuraWEB.Models
         public class Horarios
         {
             public int IdHorario { get; set; }
-            public string Descripción { get; set; }
+            public string Descripcion { get; set; }
             public string HoraInicio { get; set; }
             public int Duracion { get; set; }
             public string Tipo { get; set; }
@@ -643,7 +643,7 @@ namespace siuraWEB.Models
                         HorariosData.Add(new Horarios()
                         {
                             IdHorario = int.Parse(lector["id"].ToString()),
-                            Descripción = lector["descripcion"].ToString(),
+                            Descripcion = lector["descripcion"].ToString(),
                             HoraInicio = lector["horainicio"].ToString(),
                             Duracion = int.Parse(lector["duracion"].ToString()),
                             Tipo = lector["tipo"].ToString(),
@@ -687,7 +687,7 @@ namespace siuraWEB.Models
                     ListaHorarios.Add(new Dictionary<string, object>()
                     {
                         { "IdHorario", Horario.IdHorario },
-                        { "Descripción", Horario.Descripción },
+                        { "Descripcion", Horario.Descripcion },
                         { "HoraInicio", Horario.HoraInicio },
                         { "Duracion", Horario.Duracion },
                         { "Tipo", Horario.Tipo },
@@ -743,7 +743,7 @@ namespace siuraWEB.Models
                     SQL.commandoSQL = new SqlCommand("UPDATE dbo.horarios SET descripcion = @DescripcionParam, horainicio = @HoraInicioParam, duracion = @DuracionParam, tipo = @TipoParam, reloj = @RelojParam, activo = @ActivoParam, fechahora = @FechaParam, admusuario = (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenUsuarioParam) WHERE id = @IDHorarioParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
                     SqlParameter[] actHorario =
                     {
-                        new SqlParameter("@DescripcionParam", SqlDbType.VarChar){Value = horarioinfo.Descripción },
+                        new SqlParameter("@DescripcionParam", SqlDbType.VarChar){Value = horarioinfo.Descripcion },
                         new SqlParameter("@HoraInicioParam", SqlDbType.VarChar){Value = horarioinfo.HoraInicio },
                         new SqlParameter("@DuracionParam", SqlDbType.Int){Value = horarioinfo.Duracion },
                         new SqlParameter("@TipoParam", SqlDbType.VarChar){Value = horarioinfo.Tipo },
@@ -770,7 +770,7 @@ namespace siuraWEB.Models
                     SqlParameter[] nuevoHorario =
                     {
                         new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar){Value = tokencentro },
-                        new SqlParameter("@DescripcionParam", SqlDbType.VarChar){Value = horarioinfo.Descripción },
+                        new SqlParameter("@DescripcionParam", SqlDbType.VarChar){Value = horarioinfo.Descripcion },
                         new SqlParameter("@HoraInicioParam", SqlDbType.VarChar){Value = horarioinfo.HoraInicio },
                         new SqlParameter("@DuracionParam", SqlDbType.Int){Value = horarioinfo.Duracion },
                         new SqlParameter("@TipoParam", SqlDbType.VarChar){Value = horarioinfo.Tipo },
@@ -831,6 +831,141 @@ namespace siuraWEB.Models
             {
                 SQL.transaccionSQL.Rollback();
                 return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE ACTIVA (Y DESACTIVA) HORARIOS [ HORARIOS ]
+        public string ActivarHorario(int idhorario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("ActivarHorario");
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.horarios SET activo = @ActivoParam WHERE id <> @IDHorarioParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDHorarioParam", SqlDbType.Int) { Value = idhorario });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@ActivoParam", SqlDbType.Int) { Value = false });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.commandoSQL = new SqlCommand("UPDATE dbo.horarios SET activo = @ActivoParam WHERE id = @IDHorarioParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDHorarioParam", SqlDbType.Int) { Value = idhorario });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@ActivoParam", SqlDbType.Int) { Value = true });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+        // FUNCION QUE BORRA UN HORARIO [ HORARIOS ]
+        public string BorrarHorario(int idhorario, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("BorrarHorario");
+                bool eraActivo = false;
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.horarios WHERE id = @IDHorarioParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDHorarioParam", SqlDbType.Int) { Value = idhorario });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        if (bool.Parse(lector["activo"].ToString()))
+                        {
+                            eraActivo = true;
+                        }
+                    }
+                }
+
+                SQL.commandoSQL = new SqlCommand("DELETE FROM dbo.horarios WHERE id = @IDHorarioParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDHorarioParam", SqlDbType.Int) { Value = idhorario });
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                SQL.commandoSQL.ExecuteNonQuery();
+
+                if (eraActivo)
+                {
+                    SQL.commandoSQL = new SqlCommand("UPDATE dbo.horarios SET activo = @ActivoParam WHERE id <> @IDHorarioParam AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@IDHorarioParam", SqlDbType.Int) { Value = idhorario });
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@ActivoParam", SqlDbType.Int) { Value = false });
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                    SQL.commandoSQL.ExecuteNonQuery();
+
+                    SQL.commandoSQL = new SqlCommand("UPDATE dbo.horarios SET activo = @ActivoParam WHERE id = (SELECT MIN(id) AS Minimo FROM dbo.horarios WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)) AND idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@ActivoParam", SqlDbType.Int) { Value = true });
+                    SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                    SQL.commandoSQL.ExecuteNonQuery();
+                }
+
+                SQL.transaccionSQL.Commit();
+                return "true";
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
+
+        // ------------------ [ FUNCIONES COMPLEMENTARIOS ] ------------------
+        // FUNCION QUE DEVUELVE LOS PARAMETROS DEL CENTRO PARA COMPLEMENTAR UN DOCUMENTO
+        public Dictionary<string, object> DocCentroInfo(string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("DocCentroInfo");
+                Dictionary<string, object> CentroInfo = new Dictionary<string, object>();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.usuarioscentro WHERE id = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA)", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL.Parameters.Add(new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro });
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        CentroInfo = new Dictionary<string, object>()
+                        {
+                            { "SiglaLegal",lector["siglalegal"].ToString() },
+                            { "NombreCentro", lector["nombrecentro"].ToString() },
+                            { "ClaveCentro", lector["clavecentro"].ToString() },
+                            { "DireccionCentro", lector["direccion"].ToString() },
+                            { "CPCentro", lector["cp"].ToString() },
+                            { "ColoniaCentro", lector["colonia"].ToString() },
+                            { "EstadoCentro", lector["estado"].ToString() },
+                            { "MunicipioCentro", lector["municipio"].ToString() },
+                            { "Director", lector["nombredirector"].ToString() },
+                            { "TelefonoCentro", double.Parse(lector["telefono"].ToString()) },
+                            { "LogoCentro", (bool.Parse(lector["logopersonalizado"].ToString())) ? "«~LOGOPERS~»" : "«~LOGOALANON~»" },
+                        };
+                    }
+                }
+
+                SQL.transaccionSQL.Commit();
+                return CentroInfo;
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                Dictionary<string, object> Error = new Dictionary<string, object>() {
+                    { "Error",  e.ToString() },
+                };
+                return Error;
             }
             finally
             {

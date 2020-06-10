@@ -295,3 +295,46 @@ function reloj12hrs(hr) {
     }
     return hrReturn;
 }
+
+// FUNCION EXCLUSIVA DE HORARIOS QUE DEVUELVE PARAMETROS PARA LA ESTRCUTRUA DE LA TABLA [ HORARIOS ]
+function paramTablaHorarios(valor, tipo, hash) {
+    var retorno = '', coords = ["CA", "CD", "CM", "CP", "CE", "CC"];
+    var coordsNoms = {
+        CA: "<b>AL-Anon</b>",
+        CD: "<b>Coord.<br />Deportiva</b>",
+        CM: "<b>Coord.<br />Médica</b>",
+        CP: "<b>Coord.<br />Psicológica</b>",
+        CE: "<b>Coord.<br />Espiritual</b>",
+        CC: "<b>Coord.<br />Consejería</b>",
+    };
+    var coordsColores = {
+        CA: "#AED6F1",
+        CD: "#F5B7B1",
+        CM: "#A9DFBF",
+        CP: "#EDBB99",
+        CE: "#D2B4DE",
+        CC: "#F9E79F",
+    };
+    if (tipo === 't') {
+        if (valor === "-") {
+            retorno = "<b>Sin<br />Actividad</b>";
+        } else {
+            if (coords.includes(valor)) {
+                retorno = coordsNoms[valor];
+            } else {
+                retorno = "<b>" + valor + "</b>";
+            }
+        }
+    } else if (tipo === 'e') {
+        if (valor === "-") {
+            retorno = (hash) ? "#F2F3F4" : "horariotablasinact";
+        } else {
+            if (coords.includes(valor)) {
+                retorno = (hash) ? coordsColores[valor] : "horariotabla" + valor.toLowerCase();
+            } else {
+                retorno = (hash) ? "#FFDEF9" : "horariotablaotro";
+            }
+        }
+    }
+    return retorno;
+}

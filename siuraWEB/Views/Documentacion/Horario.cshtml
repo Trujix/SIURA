@@ -50,7 +50,7 @@
                             </div>
                             <div class="col-sm-3">
                                 <div class="form-group">
-                                    <label for="modalNuevoHorarioDuracionDiv"><i class="fa fa-hourglass"></i> Duración</label>
+                                    <label for="modalNuevoHorarioDuracionDiv"><i class="fa fa-hourglass"></i> Duración <b>(Primera Actividad)</b></label>
                                     <div id="modalNuevoHorarioDuracionDiv" class="input-group input-group-sm">
                                         <input id="modalNuevoHorarioDuracion" type="number" class="form-control" step="1" min="1" placeholder="Duración" autocomplete="off" />
                                         <div class="input-group-append">
@@ -214,6 +214,37 @@
             </div>
             <div class="modal-footer">
                 <button id="modalHorarioActividadesGuardar" type="button" class="btn badge badge-pill badge-success"><i class="fa fa-save"></i> Agregar Actividad</button>
+                <button type="button" class="btn badge badge-pill badge-danger" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalNuevaFilaHorario" class="modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Fila</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label for="modalNuevaFilaHorarioDiv"><i class="fa fa-hourglass"></i> Duración</label>
+                            <div id="modalNuevaFilaHorarioDiv" class="input-group input-group-sm">
+                                <input id="modalNuevaFilaHorarioDuracion" type="number" class="form-control" step="1" min="1" placeholder="Duración" autocomplete="off" />
+                                <div class="input-group-append">
+                                    <select id="modalNuevaFilaHorarioDuracionTipo" class="form-control form-control-sm">
+                                        <option value="min">Minutos</option>
+                                        <option value="hrs">Horas</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modalNuevaFilaHorarioGuardar" type="button" class="btn badge badge-pill badge-success"><i class="fa fa-plus"></i> Agregar Nueva Fila</button>
                 <button type="button" class="btn badge badge-pill badge-danger" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
             </div>
         </div>

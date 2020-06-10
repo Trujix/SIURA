@@ -36,7 +36,7 @@ $(document).on('click', 'a[name="opcAdm"]', function () {
             $('#divMenuAdministracion').html(data);
             LoadingOff();
             if (opcion === "horario") {
-                paramsInicialesHorario();
+                cargarListaHorarios();
             }
         },
         error: function (error) {
@@ -169,9 +169,15 @@ $(document).on('click', '#obtenerListaHorarios', function () {
 // DOCUMENT - BOTON QUE ABRE UN NUEVO MODAL PARA CREAR UN NUEVO HORARIO [ HORARIOS ]
 $(document).on('click', '#crearNuevoHorario', function () {
     IdHorarioGLOBAL = 0;
+    fechaArrHorarioGLOBAL = fechaArr();
+    horarioParamsConfigJSON = {};
+    $('#modalNuevoHorarioDescripcion').val('');
+    $('#modalNuevoHorarioHrInicio').val('');
+    $('#modalNuevoHorarioDuracion').val('');
+    $('#modalNuevoHorarioDuracionTipo').val('min');
+    $('#modalNuevoHorarioReloj').val('12hrs');
     $('#modalNuevoHorarioP1').show();
     $('#modalNuevoHorarioP2').hide();
-    $('#modalNuevoHorarioTabla').html('');
     $('#modalNuevoHorario').modal('show');
 });
 
@@ -188,7 +194,7 @@ $(document).on('click', 'button[name="modalNuevoHorarioCancelar"]', function () 
 $(document).on('click', '#modalNuevoHorarioSigP1', function () {
     MsgPregunta("TODOS LOS CAMBIOS SE PERDERAN", "¿Desea continuar?", function (si) {
         if (si) {
-            $('#modalNuevoHorarioDescripcion').val(horarioParamsConfigJSON.Descripción);
+            $('#modalNuevoHorarioDescripcion').val(horarioParamsConfigJSON.Descripcion);
             $('#modalNuevoHorarioHrInicio').val(horarioParamsConfigJSON.HoraInicio);
             $('#modalNuevoHorarioDuracion').val(horarioParamsConfigJSON.Duracion);
             $('#modalNuevoHorarioDuracionTipo').val(horarioParamsConfigJSON.Tipo);
@@ -269,28 +275,38 @@ $(document).on('click', '#modalHorarioActividadesGuardar', function () {
 
 // DOCUMENT - BOTON QUE AGREGA UNA NUEVA FILA AL HORARIO [ HORARIOS ]
 $(document).on('click', '#modalNuevoHorarioFilaNueva', function () {
-    MsgPregunta("Nueva Fila", "¿Desea continuar?", function (si) {
-        if (si) {
-            var antHorario = horarioCuerpoJSON[horarioCuerpoJSON.length - 1].HoraTermino24hrs;
-            horarioCuerpoJSON.push({
-                IdHTML: cadAleatoria(8),
-                HoraInicio24hrs: antHorario,
-                HoraInicio12hrs: reloj12hrs(antHorario),
-                HoraTermino24hrs: fechaAddHrs(fechaArrHorarioGLOBAL, antHorario, parseInt(horarioParamsConfigJSON.Duracion), horarioParamsConfigJSON.Tipo, true),
-                HoraTermino12hrs: fechaAddHrs(fechaArrHorarioGLOBAL, antHorario, parseInt(horarioParamsConfigJSON.Duracion), horarioParamsConfigJSON.Tipo, false),
-                Lunes: '-',
-                Martes: '-',
-                Miercoles: '-',
-                Jueves: '-',
-                Viernes: '-',
-                Sabado: '-',
-                Domingo: '-',
-                Receso: false,
-                NumOrden: horarioCuerpoJSON.length + 1,
-            });
-            llenarTablaHorarios();
-        }
-    });
+    $('#modalNuevaFilaHorarioDuracion').val('1');
+    $('#modalNuevaFilaHorarioDuracionTipo').val("min");
+    $('#modalNuevaFilaHorario').modal('show');
+});
+
+// DOCUMENT - BOTON QUE AGREGA UNA NUEVA FILA [ HORARIOS ]
+$(document).on('click', '#modalNuevaFilaHorarioGuardar', function () {
+    if (validarNuevaFilaHorario()) {
+        MsgPregunta("Añadir Nueva Fila", "¿Desea continuar?", function (si) {
+            if (si) {
+                var antHorario = horarioCuerpoJSON[horarioCuerpoJSON.length - 1].HoraTermino24hrs;
+                horarioCuerpoJSON.push({
+                    IdHTML: cadAleatoria(8),
+                    HoraInicio24hrs: antHorario,
+                    HoraInicio12hrs: reloj12hrs(antHorario),
+                    HoraTermino24hrs: fechaAddHrs(fechaArrHorarioGLOBAL, antHorario, parseInt($('#modalNuevaFilaHorarioDuracion').val()), $('#modalNuevaFilaHorarioDuracionTipo').val(), true),
+                    HoraTermino12hrs: fechaAddHrs(fechaArrHorarioGLOBAL, antHorario, parseInt($('#modalNuevaFilaHorarioDuracion').val()), $('#modalNuevaFilaHorarioDuracionTipo').val(), false),
+                    Lunes: '-',
+                    Martes: '-',
+                    Miercoles: '-',
+                    Jueves: '-',
+                    Viernes: '-',
+                    Sabado: '-',
+                    Domingo: '-',
+                    Receso: false,
+                    NumOrden: horarioCuerpoJSON.length + 1,
+                });
+                llenarTablaHorarios();
+                $('#modalNuevaFilaHorario').modal('hide');
+            }
+        });
+    }
 });
 
 // DOCUMENT - BOTON QUE ABRE MODAL PARA AÑADIR UN RECESO A LA TABLA DEL HORARIO [ HORARIOS ]
@@ -369,6 +385,7 @@ $(document).on('click', '#modalNuevoHorarioGuardar', function () {
                 },
                 success: function (data) {
                     if (data === "true") {
+                        $('#tablaHorarios').html('<tr class="table-warning"><td colspan="4" style="text-align: center;"><label><i class="fa fa-info-circle"></i> Cargando los nuevos parámetros.</label></td></tr>');
                         $('#modalNuevoHorario').modal('hide');
                         setTimeout(function () {
                             LoadingOff();
@@ -446,20 +463,6 @@ function ListaPagosPacientes() {
     });
 }
 
-// FUNCION QUE INICIALIZA LOS PARAMETROS DEL NUEVO HORARIO [ HORARIOS ]
-function paramsInicialesHorario() {
-    $('#modalNuevoHorario').on('shown.bs.modal', function (e) {
-        fechaArrHorarioGLOBAL = fechaArr();
-        horarioParamsConfigJSON = {};
-        $('#modalNuevoHorarioDescripcion').val('');
-        $('#modalNuevoHorarioHrInicio').val('');
-        $('#modalNuevoHorarioDuracion').val('');
-        $('#modalNuevoHorarioDuracionTipo').val('min');
-        $('#modalNuevoHorarioReloj').val('12hrs');
-    });
-    cargarListaHorarios();
-}
-
 // FUNCION QUE CARGA LA  LISTA DE LOS HORARIOS [ HORARIOS ]
 function cargarListaHorarios() {
     $.ajax({
@@ -478,7 +481,7 @@ function cargarListaHorarios() {
                     var horarios = '';
                     $(data).each(function (key, value) {
                         var activo = '<button class="btn badge badge-pill badge-' + ((value.Activo) ? 'success' : 'danger') + '" title="' + ((value.Activo) ? '' : 'Activar Horario') + '"' + ((value.Activo) ? '' : 'onclick="activarHorario(' + value.IdHorario + ');"') + '><i class="fa fa-toggle-' + ((value.Activo) ? 'on' : 'off') + '"></i></button>';
-                        horarios += '<tr><td>' + value.Descripción + '</td><td>' + CrearCadOracion(value.FechaCreado) + '</td><td style="text-align: center;">' + activo + '</td><td style="text-align: center;"><button class="btn badge badge-pill badge-warning" onclick="editarHorario(' + value.IdHorario + ');" title="Editar Horario"><i class="fa fa-pen"></i></button>&nbsp;<button class="btn badge badge-pill badge-danger" onclick="borrarHorario(' + value.IdHorario + ');" title="Borrar Horario"><i class="fa fa-trash"></i></button></td></tr>';
+                        horarios += '<tr><td>' + value.Descripcion + '</td><td>' + CrearCadOracion(value.FechaCreado) + '</td><td style="text-align: center;">' + activo + '</td><td style="text-align: center;"><button class="btn badge badge-pill badge-dark" onclick="impresionHorario(' + value.IdHorario + ');" title="Imprimir Horario"><i class="fa fa-print"></i></button>&nbsp;<button class="btn badge badge-pill badge-warning" onclick="editarHorario(' + value.IdHorario + ');" title="Editar Horario"><i class="fa fa-pen"></i></button>&nbsp;<button class="btn badge badge-pill badge-danger" onclick="borrarHorario(' + value.IdHorario + ');" title="Borrar Horario"><i class="fa fa-trash"></i></button></td></tr>';
                     });
                     $('#tablaHorarios').html(horarios);
                 } else {
@@ -499,7 +502,140 @@ function cargarListaHorarios() {
 function activarHorario(id) {
     MsgPregunta("Activar Horario", "¿Desea Continuar?", function (si) {
         if (si) {
+            $.ajax({
+                type: "POST",
+                contentType: "application/x-www-form-urlencoded",
+                url: "/Documentacion/ActivarHorario",
+                data: { IDHorario: id },
+                beforeSend: function () {
+                    LoadingOn("Cambiando Parametros...");
+                },
+                success: function (data) {
+                    if (data === "true") {
+                        cargarListaHorarios();
+                    } else {
+                        ErrorLog(data, "Activar Horario");
+                    }
+                },
+                error: function (error) {
+                    ErrorLog(error, "Activar Horario");
+                }
+            });
+        }
+    });
+}
 
+// FUNCION QUE MANDA A IMPRIMIR UN HORARIO [ HORARIOS ]
+function impresionHorario(id) {
+    $.ajax({
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/Documentacion/DocCentroInfo",
+        dataType: "JSON",
+        beforeSend: function () {
+            LoadingOn("Cargando Parametros...");
+        },
+        success: function (data) {
+            if (data[0].SiglaLegal !== undefined) {
+                try {
+                    var centroLogo = JSON.parse(data[1]), horarioJson = [], horarioInfo = {};
+                    $(ListaHorariosJSON).each(function (key, value) {
+                        if (value.IdHorario === id) {
+                            horarioInfo = {
+                                Descripcion: value.Descripcion,
+                                Reloj: value.Reloj,
+                            };
+                            horarioJson = value.HorarioConfig;
+                            return false;
+                        }
+                    });
+                    imprimirHorario(horarioJson, horarioInfo, data[0], centroLogo);
+                } catch (e) {
+                    ErrorLog(e.toString(), "Impresion de Horario: Info de Centro [Parse]");
+                }
+            } else {
+                ErrorLog(data[0].Error, "Impresion de Horario: Info de Centro");
+            }
+        },
+        error: function (error) {
+            ErrorLog(error.responseText, "Impresion de Horario: Info de Centro");
+        }
+    });
+}
+
+// FUNCION QUE ACTIVA LA ACCION DE EDITAR UN HORARIO [ HORARIOS ]
+function editarHorario(id) {
+    LoadingOn("Cargando Paraemtros...");
+    fechaArrHorarioGLOBAL = fechaArr();
+    IdHorarioGLOBAL = id;
+    $(ListaHorariosJSON).each(function (key, value) {
+        if (value.IdHorario === id) {
+            horarioCuerpoJSON = [];
+            horarioParamsConfigJSON = {
+                IdHorario: IdHorarioGLOBAL,
+                Descripcion: value.Descripcion,
+                HoraInicio: value.HoraInicio,
+                Duracion: value.Duracion,
+                Tipo: value.Tipo,
+                Reloj: value.Reloj,
+            };
+            $(value.HorarioConfig).each(function (k1, v1) {
+                horarioCuerpoJSON.push({
+                    IdHTML: v1.IdHTML,
+                    HoraInicio24hrs: v1.HoraInicio24hrs,
+                    HoraInicio12hrs: v1.HoraInicio12hrs,
+                    HoraTermino24hrs: v1.HoraTermino24hrs,
+                    HoraTermino12hrs: v1.HoraTermino12hrs,
+                    Lunes: v1.Lunes,
+                    Martes: v1.Martes,
+                    Miercoles: v1.Miercoles,
+                    Jueves: v1.Jueves,
+                    Viernes: v1.Viernes,
+                    Sabado: v1.Sabado,
+                    Domingo: v1.Domingo,
+                    Receso: v1.Receso,
+                    NumOrden: v1.NumOrden,
+                });
+            });
+            return false;
+        }
+    });
+    $('#modalNuevoHorarioDescripcion').val(horarioParamsConfigJSON.Descripcion);
+    $('#modalNuevoHorarioHrInicio').val(horarioParamsConfigJSON.HoraInicio);
+    $('#modalNuevoHorarioDuracion').val(horarioParamsConfigJSON.Duracion);
+    $('#modalNuevoHorarioDuracionTipo').val(horarioParamsConfigJSON.Tipo);
+    $('#modalNuevoHorarioReloj').val(horarioParamsConfigJSON.Reloj);
+    $('#modalNuevoHorarioP1').hide();
+    $('#modalNuevoHorarioP2').show();
+    llenarTablaHorarios();
+    $('#modalNuevoHorario').modal('show');
+    LoadingOff();
+    MsgAlerta("Info!", "La edición del horario se abre directamente en el editor de las actividades; si no desea perder la configuración actual <b>NO</b> vuelva al <b>Paso Anterior</b>", 5000, "info");
+}
+
+// FUNCION QUE PERMITE BORRAR UN HORARIO [ HORARIOS ]
+function borrarHorario(id) {
+    MsgPregunta("ELIMINAR Horario", "¿Desea Continuar?", function (si) {
+        if (si) {
+            $.ajax({
+                type: "POST",
+                contentType: "application/x-www-form-urlencoded",
+                url: "/Documentacion/BorrarHorario",
+                data: { IDHorario: id },
+                beforeSend: function () {
+                    LoadingOn("Cambiando Parametros...");
+                },
+                success: function (data) {
+                    if (data === "true") {
+                        cargarListaHorarios();
+                    } else {
+                        ErrorLog(data, "Borrar Horario");
+                    }
+                },
+                error: function (error) {
+                    ErrorLog(error, "Borrar Horario");
+                }
+            });
         }
     });
 }
@@ -531,7 +667,7 @@ function validarFormNuevoHorarioP2() {
         horarioCuerpoJSON = [];
         horarioParamsConfigJSON = {
             IdHorario: IdHorarioGLOBAL,
-            Descripción: $('#modalNuevoHorarioDescripcion').val().toUpperCase(),
+            Descripcion: $('#modalNuevoHorarioDescripcion').val().toUpperCase(),
             HoraInicio: $('#modalNuevoHorarioHrInicio').val(),
             Duracion: $('#modalNuevoHorarioDuracion').val(),
             Tipo: $('#modalNuevoHorarioDuracionTipo').val(),
@@ -587,6 +723,29 @@ function validarNuevaActividadHorario() {
     return correcto;
 }
 
+
+// FUNCION QUE VALIDA EL AGREGAR UNA NUEVA FILA EN EL HORARIO [ HORARIOS ]
+function validarNuevaFilaHorario() {
+    var correcto = true, msg = '';
+    if (isNaN(parseFloat($('#modalNuevaFilaHorarioDuracion').val()))) {
+        correcto = false;
+        msg = 'La <b>Duración</b> es incorecta';
+        $('#modalNuevaFilaHorarioDuracion').focus();
+    } else if (parseFloat($('#modalNuevaFilaHorarioDuracion').val()) <= 0) {
+        correcto = false;
+        msg = 'La <b>Duración</b> NO es válida';
+        $('#modalNuevaFilaHorarioDuracion').focus();
+    } else if ($('#modalNuevaFilaHorarioDuracion').val() === "") {
+        correcto = false;
+        msg = 'Coloque la <b>Descripción</b>';
+        $('#modalNuevaFilaHorarioDuracion').focus();
+    }
+    if (!correcto) {
+        MsgAlerta("Atención!", msg, 3000, "default");
+    }
+    return correcto;
+}
+
 // FUNCION QUE VALIDA EL AGREGAR UN NUEVO RECESO EN EL HORARIO [ HORARIOS ]
 function validarNuevoRecesoHorario() {
     var correcto = true, msg = '';
@@ -630,43 +789,8 @@ function llenarTablaHorarios() {
         if (value.Receso) {
             horario += '<tr id="' + value.IdHTML + '"><td style="text-align: center;">' + horas + '</td><td colspan="7" style="text-align: center;"><label><b>R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;O</b></label></td></tr>';
         } else {
-            horario += '<tr id="' + value.IdHTML + '"><td style="text-align: center;">' + horas + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Lunes, 'e') + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="lunes">' + paramTablaHorarios(value.Lunes, 't') + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Martes, 'e') + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="martes">' + paramTablaHorarios(value.Martes, 't') + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Miercoles, 'e') + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="miercoles">' + paramTablaHorarios(value.Miercoles, 't') + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Jueves, 'e') + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="jueves">' + paramTablaHorarios(value.Jueves, 't') + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Viernes, 'e') + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="viernes">' + paramTablaHorarios(value.Viernes, 't') + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Sabado, 'e') + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="sabado">' + paramTablaHorarios(value.Sabado, 't') + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Domingo, 'e') + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="domingo">' + paramTablaHorarios(value.Domingo, 't') + '</td></tr>';
+            horario += '<tr id="' + value.IdHTML + '"><td style="text-align: center;">' + horas + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Lunes, 'e', false) + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="lunes">' + paramTablaHorarios(value.Lunes, 't', false) + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Martes, 'e', false) + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="martes">' + paramTablaHorarios(value.Martes, 't', false) + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Miercoles, 'e', false) + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="miercoles">' + paramTablaHorarios(value.Miercoles, 't', false) + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Jueves, 'e', false) + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="jueves">' + paramTablaHorarios(value.Jueves, 't', false) + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Viernes, 'e', false) + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="viernes">' + paramTablaHorarios(value.Viernes, 't', false) + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Sabado, 'e', false) + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="sabado">' + paramTablaHorarios(value.Sabado, 't', false) + '</td><td class="tdtablahorarios ' + paramTablaHorarios(value.Domingo, 'e', false) + '" style="cursor: pointer; text-align: center;" title="Click para asignar Actividad" dia="domingo">' + paramTablaHorarios(value.Domingo, 't', false) + '</td></tr>';
         }
     });
     $('#modalNuevoHorarioTabla').html(horario);
-}
-
-// FUNCION EXCLUSIVA DE HORARIOS QUE DEVUELVE PARAMETROS PARA LA ESTRCUTRUA DE LA TABLA [ HORARIOS ]
-function paramTablaHorarios(valor, tipo) {
-    var retorno = '', coords = ["CA", "CD", "CM", "CP", "CE", "CC"];
-    var coordsNoms = {
-        CA: "<b>AL-Anon</b>",
-        CD: "<b>Coord.<br />Deportiva</b>",
-        CM: "<b>Coord.<br />Médica</b>",
-        CP: "<b>Coord.<br />Psicológica</b>",
-        CE: "<b>Coord.<br />Espiritual</b>",
-        CC: "<b>Coord.<br />Consejería</b>",
-    }
-    if (tipo === 't') {
-        if (valor === "-") {
-            retorno = "<b>Sin<br />Actividad</b>";
-        } else {
-            if (coords.includes(valor)) {
-                retorno = coordsNoms[valor];
-            } else {
-                retorno = "<b>" + valor + "</b>";
-            }
-        }
-    } else if (tipo === 'e') {
-        if (valor === "-") {
-            retorno = "horariotablasinact";
-        } else {
-            if (coords.includes(valor)) {
-                retorno = "horariotabla" + valor.toLowerCase();
-            } else {
-                retorno = "horariotablaotro";
-            }
-        }
-    }
-    return retorno;
 }

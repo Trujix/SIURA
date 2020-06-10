@@ -158,5 +158,43 @@ namespace siuraWEB.Controllers
         {
             return MiDocumentacion.GuardarHorario(HorarioInfo, HorarioConfig, (string)Session["Token"], (string)Session["TokenCentro"]);
         }
+
+        // FUNCION QUE ACTIVA (Y DESACTIVA) HORARIOS [ HORARIOS ]
+        public string ActivarHorario(int IDHorario)
+        {
+            return MiDocumentacion.ActivarHorario(IDHorario, (string)Session["TokenCentro"]);
+        }
+
+        // FUNCION QUE BORRA UN HORARIO [ HORARIOS ]
+        public string BorrarHorario(int IDHorario)
+        {
+            return MiDocumentacion.BorrarHorario(IDHorario, (string)Session["TokenCentro"]);
+        }
+
+        // ------------------ [ FUNCIONES COMPLEMENTARIOS ] ------------------
+        // FUNCION QUE DEVUELVE LOS PARAMETROS DEL CENTRO PARA COMPLEMENTAR UN DOCUMENTO
+        public string DocCentroInfo()
+        {
+            try
+            {
+                Dictionary<string, object> CentroInfo = MiDocumentacion.DocCentroInfo((string)Session["TokenCentro"]);
+                List<object> Respuesta = new List<object>() {
+                    CentroInfo
+                };
+                if (JsonConvert.SerializeObject(CentroInfo).IndexOf("«~LOGOPERS~»") >= 0)
+                {
+                    Respuesta.Add(System.IO.File.ReadAllText(Server.MapPath("~/Docs/" + (string)Session["TokenCentro"] + "/logocentro.json")));
+                }
+                else
+                {
+                    Respuesta.Add(System.IO.File.ReadAllText(Server.MapPath("~/Media/logoalanon.json")));
+                }
+                return JsonConvert.SerializeObject(Respuesta);
+            }
+            catch (Exception e)
+            {
+                return e.ToString();
+            }
+        }
     }
 }
