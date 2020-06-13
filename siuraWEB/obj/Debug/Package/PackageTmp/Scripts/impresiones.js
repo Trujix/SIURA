@@ -5,10 +5,10 @@
 // ----------- VARIABLES GLOBALES ------------
 // IMPORTANTE MANTENER ACTUALIZADAS ESTAS VARIABLES AL EDITAR LOS CONTRATOS
 var ContratoVoluntarioVersion = "01";
-var ContratoVoluntarioRevision = "05/03/2020";
+var ContratoVoluntarioRevision = "03/06/2020";
 
 var ContratoInvoluntarioVersion = "01";
-var ContratoInvoluntarioRevision = "05/03/2020";
+var ContratoInvoluntarioRevision = "03/06/2020";
 /* ---------------------------------------------- */
 
 // --------- FUNCIONES GENERALES ----------
@@ -30,15 +30,15 @@ function imprimirReciboPago(reciboData, logoIMG) {
                                     widths: ['*', 'auto'],
                                     body: [
                                         [
-                                            { text: reciboData.NombreCentro, bold: true, border: [false, false, false, false] },
+                                            { text: reciboData.NombreCentro.toUpperCase(), bold: true, border: [false, false, false, false] },
                                             { text: [{ text: "Telf: " }, { text: reciboData.Telefono, bold: true }], alignment: 'right', border: [false, false, false, false] }
                                         ],
                                         [
                                             { text: [{ text: "Folio: " }, { text: reciboData.FolioPago, bold: true }], border: [false, false, false, false] },
-                                            { text: [{ text: "Fecha: " }, { text: CrearCadOracion(reciboData.FechaEmision), bold: true }], alignment: 'right', border: [false, false, false, false] }
+                                            { text: [{ text: "Fecha: " }, { text: reciboData.FechaEmision.toUpperCase(), bold: true }], alignment: 'right', border: [false, false, false, false] }
                                         ],
                                         [
-                                            { text: reciboData.DireccionCentro, colSpan: 2, alignment: 'right', border: [false, false, false, false] }
+                                            { text: reciboData.DireccionCentro.toUpperCase(), colSpan: 2, alignment: 'right', border: [false, false, false, false] }
                                         ]
                                     ],
                                 },
@@ -209,9 +209,9 @@ function imprimirContratoCV(jsonCV, logoIMG) {
                 { text: "$ " + jsonCV.MontoPagoParcial.toFixed(2), bold: true, decoration: 'underline' },
                 { text: " " + jsonCV.TipoMoneda, bold: true },
                 { text: ", las cuales comenzarán el día " },
-                { text: CrearCadOracion(jsonCV.FechaInicioPago), bold: true },
+                { text: jsonCV.FechaInicioPago.toUpperCase(), bold: true },
                 { text: " y finalizan el día " },
-                { text: CrearCadOracion(jsonCV.FechaFinPago) + ".", bold: true },
+                { text: jsonCV.FechaFinPago.toUpperCase() + ".", bold: true },
             ], alignment: 'justify', fontSize: 12
         };
     }
@@ -537,9 +537,9 @@ function imprimirContratoCI(jsonCI, logoIMG) {
                 { text: "$ " + jsonCI.MontoPagoParcial.toFixed(2), bold: true, decoration: 'underline' },
                 { text: " " + jsonCI.TipoMoneda, bold: true },
                 { text: ", las cuales comenzarán el día " },
-                { text: CrearCadOracion(jsonCI.FechaInicioPago), bold: true },
+                { text: jsonCI.FechaInicioPago.toUpperCase(), bold: true },
                 { text: " y finalizan el día " },
-                { text: CrearCadOracion(jsonCI.FechaFinPago) + ".", bold: true },
+                { text: jsonCI.FechaFinPago.toUpperCase() + ".", bold: true },
             ], alignment: 'justify', fontSize: 12
         };
     }
@@ -804,8 +804,8 @@ function imprimirContratoCI(jsonCI, logoIMG) {
                             {
                                 text: [
                                     { text: "___________________________________\n" },
-                                    { text: jsonCI.NombrePaciente, bold: true },
-                                    { text: "\nPACIENTE", fontSize: 10 },
+                                    { text: /*jsonCI.NombrePaciente*/jsonCI.FamiliarNombre, bold: true },
+                                    { text: "\nFAMILIAR DEL PACIENTE", fontSize: 10 },
                                 ], alignment: 'center', border: [false, false, false, false]
                             },
                             {
@@ -830,9 +830,8 @@ function imprimirContratoCI(jsonCI, logoIMG) {
 
 // FUNCION QUE IMPRIME EL REPORTE DE INVENTARIO (GENERAL, MINIMOS, ENTRADAS, SALIDAS)
 function imprimirInventarioReporte(jsonInventario, gestion) {
-    console.log(jsonInventario.InventarioData);
     var logoIMG = JSON.parse(jsonInventario.Logo);
-    var tablasInventario = [];
+    var tablasInventario = [], fechasRangoBusq = "";;
     $(jsonInventario.InventarioData).each(function (k1, v1) {
         tablasInventario.push({
             text: v1.Area + "\n", bold: true, fontSize: 12,
@@ -939,6 +938,7 @@ function imprimirInventarioReporte(jsonInventario, gestion) {
             } else if (gestion == "E1" || gestion == "E2" || gestion == "E3") {
                 data7["text"] = v2.FechaTxt;
                 filas.push(data7);
+                fechasRangoBusq = "\nRango de Busqueda: " + v2.FechaBusquedaIni + " a " + v2.FechaBusquedaFin;
             }
 
             tablaInv.table.body.push(filas);
@@ -971,7 +971,7 @@ function imprimirInventarioReporte(jsonInventario, gestion) {
                             { image: logoIMG.LogoCentro, width: 120, alignment: 'center', border: [false, false, false, false] },
                             {
                                 text: [
-                                    { text: jsonInventario.NombreCentro + "\n", bold: true, fontSize: 16, },
+                                    { text: jsonInventario.NombreCentro + "\n", bold: true, fontSize: 15, },
                                     { text: jsonInventario.Direccion + ", " + jsonInventario.Colonia + " C.P." + jsonInventario.CodigoPostal + " Tel: (" + jsonInventario.Telefono + ")" + "\n", bold: true, fontSize: 14, },
                                     { text: jsonInventario.Estado + ", " + jsonInventario.Municipio + "\n\n", bold: true, fontSize: 14, },
                                     { text: paramsInventarioPDF(1, gestion), bold: true, fontSize: 14, },
@@ -985,6 +985,7 @@ function imprimirInventarioReporte(jsonInventario, gestion) {
                 },
             },
             { text: "\n" },
+            { text: fechasRangoBusq, bold: true, fontSize: 12, alignment: 'center' },
         ],
     };
     $(tablasInventario).each(function (key, value) {

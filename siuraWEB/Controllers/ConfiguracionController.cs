@@ -195,7 +195,7 @@ namespace siuraWEB.Controllers
         }
 
         // FUNCION QUE ENVIA CORREO ELECTRONICO CON LOS [ DOCUMENTOS INFORMATIVOS ]
-        public string EnviarCorreoDocsInf(string Correo)
+        public string EnviarCorreoDocsInf(string Correo, string[] Docs)
         {
             try
             {
@@ -221,7 +221,10 @@ namespace siuraWEB.Controllers
                             archivo = (string)docK.Value;
                         }
                     }
-                    linksDocs += "<a href='" + UrlUsuarioDocs + archivo + "." + extension + "' target='_blank'>" + nombre + "</a><br><a href='" + UrlUsuarioDocs + archivo + "." + extension + "' target='_blank'>" + UrlUsuarioDocs + archivo + "." + extension + "</a><br><br>";
+                    if (Docs.Contains(nombre))
+                    {
+                        linksDocs += "<a href='" + UrlUsuarioDocs + archivo + "." + extension + "' target='_blank'>" + nombre + "</a><br><a href='" + UrlUsuarioDocs + archivo + "." + extension + "' target='_blank'>" + UrlUsuarioDocs + archivo + "." + extension + "</a><br><br>";
+                    }
                 }
                 correoHTML = correoHTML.Replace("ê~DOCUMENTOS~ê", linksDocs);
 

@@ -413,6 +413,7 @@ CREATE TABLE [dbo].[inventariomovimientos](
 	[idinventario] [int] NOT NULL,
 	[accion] [varchar](50) NOT NULL,
 	[cantidad] [float] NOT NULL DEFAULT 0,
+	[descripcion] [varchar](MAX) NOT NULL,
 	[fechahora] [datetime] NULL,
 	[admusuario] [varchar](50) NULL,
 		CONSTRAINT [PK_IDInventarioMovimiento] PRIMARY KEY CLUSTERED ([id] ASC)

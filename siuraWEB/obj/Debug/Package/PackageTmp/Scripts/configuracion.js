@@ -11,6 +11,7 @@ var ArchivoDocInformativoDATA = {
 var ListaUrlsDocsUsuario = {};
 var logoPersMiCentro = false;
 var logoAlAnonChangeFirst = true;
+var ListaDocsJSON = [];
 
 var ArchivoImgLogoPers;
 
@@ -165,26 +166,34 @@ $(document).on('click', '#archivoBtnDocInf', function () {
 
 // DOCUMENT - BOTON QUE ENVIA EL CORREO CON LOS [ DOCUMENTOS INFORMATIVOS ]
 $(document).on('click', '#modalBtnEnviarDocsInf', function () {
-    $.ajax({
-        type: "POST",
-        url: "/Configuracion/EnviarCorreoDocsInf",
-        data: { Correo: $('#modalTextMailDocInf').val() },
-        beforeSend: function () {
-            LoadingOn();
-        },
-        success: function (data) {
-            if (data === "true") {
-                MsgAlerta("Ok!", "Correo enviado <b>exitósamente</b>", 2000, "success");
-                $('#modalMailDocInf').modal('hide');
-            } else {
+    if (validarMailDocsInf()) {
+        var docs = [];
+        $('input[name="docsinfadm"]').each(function () {
+            if ($(this).is(":checked")) {
+                docs.push(ListaDocsJSON.DocsInformativos[parseInt($(this).attr("id").split("_")[1])].Nombre);
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: "/Configuracion/EnviarCorreoDocsInf",
+            data: { Correo: $('#modalTextMailDocInf').val(), Docs: docs },
+            beforeSend: function () {
+                LoadingOn();
+            },
+            success: function (data) {
+                if (data === "true") {
+                    MsgAlerta("Ok!", "Correo enviado <b>exitósamente</b>", 2000, "success");
+                    $('#modalMailDocInf').modal('hide');
+                } else {
+                    ErrorLog(error, "Enviar Correo");
+                }
+                LoadingOff();
+            },
+            error: function (error) {
                 ErrorLog(error, "Enviar Correo");
             }
-            LoadingOff();
-        },
-        error: function (error) {
-            ErrorLog(error, "Enviar Correo");
-        }
-    });
+        });
+    }
 });
 
 // DOCUMENT - BOTON QUE CONTROLA EL SWITCH QUE PERMITE ELEGIR EL LOGO ALANON DEFAULT [ MI CENTRO ]
@@ -1156,6 +1165,7 @@ function cargarDocumentos(msg) {
             ListaUrlsDocsUsuario = {};
         },
         success: function (data) {
+            ListaDocsJSON = data;
             var i = 0;
             var docsInfHTML = (data.DocsInformativos.length > 0) ? "" : "<div class='col-sm-12' style='text-align: center;'><h2 style='color: #95A5A6;'><i class='fa fa-exclamation'></i>&nbsp;No tiene archivos agregados aún.</h2></div>";
             $(data.DocsInformativos).each(function (key, value) {
@@ -1173,6 +1183,11 @@ function cargarDocumentos(msg) {
             $('#modalMailDocInf').on('shown.bs.modal', function (e) {
                 $('#modalTextMailDocInf').val('');
                 $('#modalTextMailDocInf').focus();
+                var tablaDocs = '<h6><b>Eliga documentos a enviar:</b></h6>';
+                $(ListaDocsJSON.DocsInformativos).each(function (key, value) {
+                    tablaDocs += '<div class="col-sm-4"><div class="checkbox icheck-info"><input type="checkbox" name="docsinfadm" id="docInf_' + key + '" /><label for="docInf_' + key + '"><b>' + value.Nombre + '</b></label></div></div>';
+                });
+                $('#modalMailDocInfLista').html(tablaDocs);
             });
 
             LoadingOff();
@@ -1204,6 +1219,32 @@ function validarFormDocInf() {
         MsgAlerta("Atención!", "Coloque el <b>nombre del archivo</b>", 2000, "default");
     }
     return respuesta;
+}
+
+// FUNCION QUE VALIDA EL ENVIO DEL MAIL CON DOCUMENTOS INFORMATIVOS [ DOCUMENTOS INFORMATIVOS ]
+function validarMailDocsInf() {
+    var correcto = true, msg = '', docscheck = false;
+    $('input[name="docsinfadm"]').each(function () {
+        if ($(this).is(":checked")) {
+            docscheck = true;
+        }
+    });
+    if ($('#modalTextMailDocInf').val() === "") {
+        correcto = false;
+        msg = 'Escriba el <b>correo electrónico</b>';
+        $('#modalTextMailDocInf').focus();
+    } else if (!esEmail($('#modalTextMailDocInf').val())) {
+        correcto = false;
+        msg = 'El formato del <b>correo electrónico</b> NO es válido';
+        $('#modalTextMailDocInf').focus();
+    } else if (!docscheck) {
+        correcto = false;
+        msg = 'Eliga al menos <b>1 documento de la lista</b>';
+    }
+    if (!correcto) {
+        MsgAlerta("Atención!", msg, 3000, "default");
+    }
+    return correcto;
 }
 
 // FUNCION QUE CARGA LOS PARAMETROS DEL CENTRO DE REHABILITACION [ MI CENTRO ]

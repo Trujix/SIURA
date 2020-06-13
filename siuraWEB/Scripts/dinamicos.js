@@ -3,6 +3,11 @@
 
 // --------------------------------------------------------
 // VARIABLES GLOBALES
+var EstatusPacientesJSON = {
+    1: "Pre-Registro",
+    2: "Pre-Ingreso",
+    3: "En Rev. Coord.",
+};
 var estatusPacienteConsulta = 0;
 var finanzasPacientesJSON = {};
 var idPacienteFinanzasGLOBAL = 0;
@@ -56,6 +61,11 @@ $(document).on('keyup', '#modalTxtPacienteBusqueda', function (e) {
 // DOCUMENT - QUE CONTROLA EL BOTON DE BUSQUEDA DE PACIENTES
 $(document).on('click', '#btnModalPacienteBusqueda', function () {
     llenarTablaConsultaPacientes();
+});
+
+// DOCUMENT - BOTON QUE CONTROLA LA BUSQUEDA DE PACIENTES POR NIVEL
+$(document).on('click', '#btnModalTxtPacienteBusquedaNivel', function () {
+    llenarTablaConsultaPacientesNivel();
 });
 
 // DOCUMENT - BOTON QUE GENERA EL PAGO DE UN PACIENTE
@@ -615,7 +625,11 @@ function consultarPacientes() {
         success: function (data) {
             $('body').append(data);
             $('#modalPacienteBusqueda').modal('show');
-
+            var llaves = Object.keys(EstatusPacientesJSON), listaNiv = '';
+            for (i = 0; i < llaves.length; i++) {
+                listaNiv += '<option value="' + llaves[i] + '">' + EstatusPacientesJSON[llaves[i]] + '</option>';
+            }
+            $('#modalTxtPacienteBusquedaNivel').html(listaNiv);
             $('#modalPacienteBusqueda').on('shown.bs.modal', function (e) {
                 LoadingOff();
                 $('#modalTxtPacienteBusqueda').focus();
@@ -688,6 +702,7 @@ function consultarPagos() {
                                 Descripcion: value.Descripcion
                             };
                         });
+                        
                         $('#modalPacienteNombre').html(finanzasPacientesJSON["Finanza_" + idPacienteFinanzasGLOBAL].NombreCompleto);
                         $('#modalPacienteMontoInicial').html(finanzasPacientesJSON["Finanza_" + idPacienteFinanzasGLOBAL].Monto.toFixed(2));
                         $('#modalPacienteMontoActual').html(montoActual.toFixed(2));
@@ -707,6 +722,12 @@ function consultarPagos() {
                         } else {
                             $('#modalDivPacienteBecaInfo').html('<div class="col-sm-12"><span class="badge badge-pill badge-secondary">Paciente No Becario</span></div>');
                         }
+
+                        var parcialDiv = '<span class="badge badge-secondary">Sin Pagos Parciales</span>';
+                        if (data.Parcialidad) {
+                            parcialDiv = '<span class="badge badge-info">Compromisos de Pagos</span><br><h6><b>Monto Pago: </b><span class="badge badge-secondary">$ ' + data.MontoPagoParcial.toFixed(2) + '</span></h6><h6><b>Cant. Pagos: </b><span class="badge badge-secondary">' + data.CantPagos + '</span></h6><h6><b>Periodos: </b><span class="badge badge-secondary">' + data.TipoPagos + '</span></h6>';
+                        }
+                        $('#modalDivPacientePagosParcial').html(parcialDiv);
 
                         $('#modalPacientesPagos').modal('show');
                         LoadingOff();
@@ -749,48 +770,74 @@ function llenarTablaConsultaPacientes() {
             LoadingOn("Cargando pacientes...");
         },
         success: function (data) {
-            if (Array.isArray(data)) {
-                if (data.length > 0) {
-                    var tabla = "<div class='col-sm-12'><div class='table scrollestilo' style='max-height: 40vh; overflow: scroll;'><table class='table table-sm table-bordered'><thead><tr class='table-active'><th>Nombre Paciente</th><th style='text-align: center;'>Nivel</th><th style='text-align: center;'>Opciones</th></tr></thead><tbody>óê%TABLA%óê</tbody></table></div></div>";
-                    var pacientes = "";
-                    $(data).each(function (key, value) {
-                        var id = cadAleatoria(8), boton = "", nivel = "";
-                        if (value.Estatus === 1) {
-                            boton = "<button class='btn badge badge-pill badge-warning editarPrePaciente' title='Editar Pre-registro'><i class='fa fa-user-edit'></i></button>&nbsp;<button class='btn badge badge-pill badge-dark reimprimircontrato' idpaciente='" + value.IdPaciente + "' title='Reimprimir Contrato'><i class='fa fa-print'></i></button>";
-                            nivel = "<span class='badge badge-dark'>Pre-registro</span>";
-                        } else if (value.Estatus === 2) {
-                            boton = "<button class='btn badge badge-pill badge-warning configurarPacienteIngreso' idpaciente='" + id + "' title='Configurar Ingreso'><i class='fa fa-user-cog'></i>&nbsp;Configurar Ingreso</button>";
-                            nivel = "<span class='badge badge-dark'>Pre-Ingreso</span>";
-                        } else if (value.Estatus === 3) {
-                            boton = "<button class='btn badge badge-pill badge-warning' idpaciente='" + id + "' title='Ver Información'><i class='fa fa-search'></i>&nbsp;Ver Info.</button>";
-                            nivel = "<span class='badge badge-dark'>En Revisión Coord.</span>";
-                        } else if (value.Estatus === 4) {
-
-                        }
-                        pacientes += "<tr><td>" + value.NombreCompleto + "</td><td style='text-align: center;'>" + nivel + "</td><td style='text-align: center;'>" + boton + "</td></tr>";
-                        ListaPacientesConsultaJSON.push({
-                            Id: id,
-                            IdPaciente: value.IdPaciente,
-                            NombreCompleto: value.NombreCompleto,
-                            ClavePaciente: value.ClavePaciente,
-                        });
-                    });
-                    LoadingOff();
-                    $('#modalTxtPacienteBusqueda').focus();
-                    $('#modalTablaConsultaPacientes').html(tabla.replace("óê%TABLA%óê", pacientes));
-                } else {
-                    LoadingOff();
-                    $('#modalTxtPacienteBusqueda').focus();
-                    $('#modalTablaConsultaPacientes').html("<div class='col-sm-12' style='text-align: center;'><h2 style='color: #85929E;'><i class='fa fa-exclamation-circle'></i> No se encontraron pacientes.</h2></div>");
-                }
-            } else {
-                ErrorLog(data.responseText, "Generar Consulta Pacientes");
-            }
+            llenarTablaDinamicaPacienteBusq(data);
         },
         error: function (error) {
             ErrorLog(error.responseText, "Generar Consulta Pacientes");
         }
     });
+}
+
+// FUNCION QUE GENERA CONSULTA DE PACIENTE POR  PARAMETRO DE NIVEL
+function llenarTablaConsultaPacientesNivel() {
+    $.ajax({
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded",
+        url: "/Dinamicos/ConsultaPacienteNivel",
+        data: { Estatus: $('#modalTxtPacienteBusquedaNivel').val() },
+        dataType: "JSON",
+        beforeSend: function () {
+            ListaPacientesConsultaJSON = [];
+            LoadingOn("Cargando pacientes...");
+        },
+        success: function (data) {
+            llenarTablaDinamicaPacienteBusq(data);
+        },
+        error: function (error) {
+            ErrorLog(error.responseText, "Generar Consulta Pacientes");
+        }
+    });
+}
+
+// --------------------- [ CONSULTA DINAMICA ] ---------------------
+function llenarTablaDinamicaPacienteBusq(data) {
+    if (Array.isArray(data)) {
+        if (data.length > 0) {
+            var tabla = "<div class='col-sm-12'><div class='table scrollestilo' style='max-height: 40vh; overflow: scroll;'><table class='table table-sm table-bordered'><thead><tr class='table-active'><th>Nombre Paciente</th><th style='text-align: center;'>Nivel</th><th style='text-align: center;'>Opciones</th></tr></thead><tbody>óê%TABLA%óê</tbody></table></div></div>";
+            var pacientes = "";
+            $(data).each(function (key, value) {
+                var id = cadAleatoria(8), boton = "", nivel = "";
+                if (value.Estatus === 1) {
+                    boton = "<button class='btn badge badge-pill badge-warning editarPrePaciente' title='Editar Pre-registro'><i class='fa fa-user-edit'></i></button>&nbsp;<button class='btn badge badge-pill badge-dark reimprimircontrato' idpaciente='" + value.IdPaciente + "' title='Reimprimir Contrato'><i class='fa fa-print'></i></button>";
+                    nivel = "<span class='badge badge-dark'>" + EstatusPacientesJSON[value.Estatus.toString()] + "</span>";
+                } else if (value.Estatus === 2) {
+                    boton = "<button class='btn badge badge-pill badge-warning configurarPacienteIngreso' idpaciente='" + id + "' title='Configurar Ingreso'><i class='fa fa-user-cog'></i>&nbsp;Configurar Ingreso</button>";
+                    nivel = "<span class='badge badge-dark'>" + EstatusPacientesJSON[value.Estatus.toString()] + "</span>";
+                } else if (value.Estatus === 3) {
+                    boton = "<button class='btn badge badge-pill badge-warning' idpaciente='" + id + "' title='Ver Información'><i class='fa fa-search'></i>&nbsp;Ver Info.</button>";
+                    nivel = "<span class='badge badge-dark'>" + EstatusPacientesJSON[value.Estatus.toString()] + "</span>";
+                } else if (value.Estatus === 4) {
+
+                }
+                pacientes += "<tr><td>" + value.NombreCompleto + "</td><td style='text-align: center;'>" + nivel + "</td><td style='text-align: center;'>" + boton + "</td></tr>";
+                ListaPacientesConsultaJSON.push({
+                    Id: id,
+                    IdPaciente: value.IdPaciente,
+                    NombreCompleto: value.NombreCompleto,
+                    ClavePaciente: value.ClavePaciente,
+                });
+            });
+            LoadingOff();
+            $('#modalTxtPacienteBusqueda').focus();
+            $('#modalTablaConsultaPacientes').html(tabla.replace("óê%TABLA%óê", pacientes));
+        } else {
+            LoadingOff();
+            $('#modalTxtPacienteBusqueda').focus();
+            $('#modalTablaConsultaPacientes').html("<div class='col-sm-12' style='text-align: center;'><h2 style='color: #85929E;'><i class='fa fa-exclamation-circle'></i> No se encontraron pacientes.</h2></div>");
+        }
+    } else {
+        ErrorLog(data.responseText, "Generar Consulta Pacientes");
+    }
 }
 
 // FUNCION QUE VALIDA EL FORMULAIRO DE PAGOS
@@ -1180,12 +1227,17 @@ function validarFormExistencias() {
         $('#modalInventarioExistenciaCant').focus();
         correcto = false;
         msg = "La <b>Cantidad</b> a reducir es <b>MAYOR</b> a la <b>existencia actual</b>\n\nExistencia: " + existenciaArticuloInventario.toFixed(4);
+    } else if ($('#modalInventarioExistenciaMotivo').val() === "") {
+        $('#modalInventarioExistenciaMotivo').focus();
+        correcto = false;
+        msg = "Coloque el <b>Motivo / Descripción</b>";
     } else {
         InventarioAltaJSON = {
             IdArticuloInventario: IdArticuloInventarioGLOBAL,
             Existencias: (accionInventarioExitencia === "Q") ? (existenciaArticuloInventario - parseFloat($('#modalInventarioExistenciaCant').val())) : (existenciaArticuloInventario + parseFloat($('#modalInventarioExistenciaCant').val())),
             Area: accionInventarioExitencia,
             PrecioCompra: parseFloat($('#modalInventarioExistenciaCant').val()),
+            Nombre: $('#modalInventarioExistenciaMotivo').val().toUpperCase(),
         };
     }
     if (!correcto) {

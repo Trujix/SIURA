@@ -102,10 +102,6 @@
         <div class="modal-content">
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-sm-4">
-                        <button id="btnModalArchivoSubirLogo" class="btn badge badge-info"><i class="fa fa-image"></i> Elegir Imagen</button>
-                        <input id="modalArchivoSubirLogo" type="file" style="visibility: hidden; font-size: 0px;" accept="image/x-png,image/jpeg" />
-                    </div>
                 </div>
                 <div class="row" style="padding-top: 2px;">
                     <div class="col-sm-12">
@@ -118,9 +114,19 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button id="btnModalMiCentroGuardarLogo" type="button" class="btn btn-sm btn-success"><i class="fa fa-save"></i> Guardar Logo</button>
-                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <button id="btnModalArchivoSubirLogo" class="btn btn-sm btn-info"><i class="fa fa-image"></i> Elegir Imagen</button>
+                        <input id="modalArchivoSubirLogo" type="file" style="visibility: hidden; font-size: 0px;" accept="image/x-png,image/jpeg" />
+                    </div>
+                    <div class="col-sm-4">
+                        <button id="btnModalMiCentroGuardarLogo" type="button" class="btn btn-block btn-sm btn-success"><i class="fa fa-save"></i> Guardar Logo</button>
+                    </div>
+                    <div class="col-sm-3">
+                        <button type="button" class="btn btn-block btn-sm btn-secondary" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

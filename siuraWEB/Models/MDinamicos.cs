@@ -49,6 +49,8 @@ namespace siuraWEB.Models
             public bool CodigoAuto { get; set; }
             public string Usuario { get; set; }
             public string FechaTxt { get; set; }
+            public string FechaBusquedaIni { get; set; }
+            public string FechaBusquedaFin { get; set; }
         }
         // CLASE PARA LA IMPRESION DE INVENTARIO (CLIENTE)
         public class InventarioImpresionData
@@ -157,14 +159,63 @@ namespace siuraWEB.Models
             }
         }
 
+        // FUNCION QUE DEVUELVE EL RESULTADO DE LA CONSULTA DE PACIENTES POR NIVEL
+        public string ConsultaDinamicaPacientesNiveles(int estatus, string tokencentro)
+        {
+            try
+            {
+                SQL.comandoSQLTrans("PacienteConsulta");
+
+                List<Dictionary<string, object>> PacientesLista = new List<Dictionary<string, object>>();
+                SQL.commandoSQL = new SqlCommand("SELECT * FROM pacienteregistro WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND estatus = @EstatusParam ORDER BY nombre ASC", SQL.conSQL, SQL.transaccionSQL);
+                SqlParameter[] pacienteConsulta =
+                {
+                    new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar) { Value = tokencentro },
+                    new SqlParameter("@EstatusParam", SqlDbType.Int) { Value = estatus }
+                };
+                SQL.commandoSQL.Parameters.AddRange(pacienteConsulta);
+                using (var lector = SQL.commandoSQL.ExecuteReader())
+                {
+                    while (lector.Read())
+                    {
+                        Dictionary<string, object> paciente = new Dictionary<string, object>()
+                        {
+                            { "IdPaciente", int.Parse(lector["id"].ToString()) },
+                            { "Nombre", lector["nombre"].ToString() },
+                            { "ClavePaciente", lector["idpaciente"].ToString() },
+                            { "ApellidoP", lector["apellidopaterno"].ToString() },
+                            { "ApellidoM", lector["apellidomaterno"].ToString() },
+                            { "Estatus", int.Parse(lector["estatus"].ToString()) },
+                            { "NombreCompleto", lector["nombre"].ToString().ToUpper() + " " + lector["apellidopaterno"].ToString().ToUpper() + " " + lector["apellidomaterno"].ToString().ToUpper() }
+                        };
+                        PacientesLista.Add(paciente);
+                    }
+                }
+
+                SQL.transaccionSQL.Commit();
+                return JsonConvert.SerializeObject(PacientesLista);
+            }
+            catch (Exception e)
+            {
+                SQL.transaccionSQL.Rollback();
+                return e.ToString();
+            }
+            finally
+            {
+                SQL.conSQL.Close();
+            }
+        }
+
         // FUNCION QUE DEVUELVE LA LISTA DE PAGOS DEL PACIENTE
         public string ListaPagosPaciente(int idfinanzas, string tokencentro)
         {
             try
             {
                 SQL.comandoSQLTrans("PacientePagosLista");
-                bool Becario = false;
-                string BecaValor = "", BecaTipo = "";
+                bool Becario = false , Parcialidad = false;
+                string BecaValor = "", BecaTipo = "", TipoPagos = "";
+                int CantPagos = 0;
+                double MontoPagoParcial = 0;
                 SQL.commandoSQL = new SqlCommand("SELECT * FROM dbo.pacienteregistrofinanzas WHERE idcentro = (SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA) AND id = @IdFinanzasParam", SQL.conSQL, SQL.transaccionSQL);
                 SqlParameter[] pacienteFinanzasConsulta =
                 {
@@ -179,6 +230,10 @@ namespace siuraWEB.Models
                         Becario = bool.Parse(lector["becario"].ToString());
                         BecaValor = lector["becavalor"].ToString();
                         BecaTipo = lector["becatipo"].ToString();
+                        Parcialidad = bool.Parse(lector["parcialidad"].ToString());
+                        CantPagos = int.Parse(lector["cantidadpagos"].ToString());
+                        MontoPagoParcial = double.Parse(lector["montopagoparcial"].ToString());
+                        TipoPagos = lector["tipopago"].ToString();
                     }
                 }
 
@@ -259,6 +314,10 @@ namespace siuraWEB.Models
                     { "BecaComprobante", "«~BECAçCOMPROBANTE~»" },
                     { "UrlFolderUsuario", "«~URLçUSUARIO~»" },
                     { "ClavePaciente", IDClavePaciente },
+                    { "Parcialidad", Parcialidad },
+                    { "CantPagos", CantPagos },
+                    { "MontoPagoParcial", MontoPagoParcial },
+                    { "TipoPagos", TipoPagos },
                 };
 
                 SQL.transaccionSQL.Commit();
@@ -840,13 +899,14 @@ namespace siuraWEB.Models
                 SQL.commandoSQL.Parameters.AddRange(actualizarInventarioArticulo);
                 SQL.commandoSQL.ExecuteNonQuery();
 
-                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.inventariomovimientos (idcentro, idinventario, accion, cantidad, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA), @IDInventarioArticuloParam, @AccionParam, @CantidadParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenParam))", SQL.conSQL, SQL.transaccionSQL);
+                SQL.commandoSQL = new SqlCommand("INSERT INTO dbo.inventariomovimientos (idcentro, idinventario, accion, cantidad, descripcion, fechahora, admusuario) VALUES ((SELECT id FROM dbo.centros WHERE tokencentro = @TokenCentroDATA), @IDInventarioArticuloParam, @AccionParam, @CantidadParam, @DescripcionParam, @FechaParam, (SELECT usuario FROM dbo.usuarios WHERE tokenusuario = @TokenParam))", SQL.conSQL, SQL.transaccionSQL);
                 SqlParameter[] guardarInventarioArticulo =
                 {
                     new SqlParameter("@TokenCentroDATA", SqlDbType.VarChar){Value = tokencentro },
                     new SqlParameter("@IDInventarioArticuloParam", SqlDbType.Int){Value = inventariodata.IdArticuloInventario },
                     new SqlParameter("@AccionParam", SqlDbType.VarChar){Value = inventariodata.Area },
                     new SqlParameter("@CantidadParam", SqlDbType.Float){Value = inventariodata.PrecioCompra },
+                    new SqlParameter("@DescripcionParam", SqlDbType.VarChar){Value = inventariodata.Nombre },
                     new SqlParameter("@FechaParam", SqlDbType.DateTime){Value = MISC.FechaHoy() },
                     new SqlParameter("@TokenParam", SqlDbType.VarChar){Value = tokenusuario },
                 };
@@ -999,6 +1059,8 @@ namespace siuraWEB.Models
                                         Usuario = lector["usuario"].ToString(),
                                         Area = (lector["accion"].ToString() == "Q") ? "Salida" : "Entrada",
                                         Existencias = double.Parse(lector["cantidad"].ToString()),
+                                        FechaBusquedaIni = new DateTime(int.Parse(fechaIni[0]), int.Parse(fechaIni[1]), int.Parse(fechaIni[2])).ToString("dd MMMM yyyy"),
+                                        FechaBusquedaFin = new DateTime(int.Parse(fechaFin[0]), int.Parse(fechaFin[1]), int.Parse(fechaFin[2])).ToString("dd MMMM yyyy"),
                                     });
                                 }
                             }

@@ -275,38 +275,28 @@ $(document).on('click', '#modalHorarioActividadesGuardar', function () {
 
 // DOCUMENT - BOTON QUE AGREGA UNA NUEVA FILA AL HORARIO [ HORARIOS ]
 $(document).on('click', '#modalNuevoHorarioFilaNueva', function () {
-    $('#modalNuevaFilaHorarioDuracion').val('1');
-    $('#modalNuevaFilaHorarioDuracionTipo').val("min");
-    $('#modalNuevaFilaHorario').modal('show');
-});
-
-// DOCUMENT - BOTON QUE AGREGA UNA NUEVA FILA [ HORARIOS ]
-$(document).on('click', '#modalNuevaFilaHorarioGuardar', function () {
-    if (validarNuevaFilaHorario()) {
-        MsgPregunta("Añadir Nueva Fila", "¿Desea continuar?", function (si) {
-            if (si) {
-                var antHorario = horarioCuerpoJSON[horarioCuerpoJSON.length - 1].HoraTermino24hrs;
-                horarioCuerpoJSON.push({
-                    IdHTML: cadAleatoria(8),
-                    HoraInicio24hrs: antHorario,
-                    HoraInicio12hrs: reloj12hrs(antHorario),
-                    HoraTermino24hrs: fechaAddHrs(fechaArrHorarioGLOBAL, antHorario, parseInt($('#modalNuevaFilaHorarioDuracion').val()), $('#modalNuevaFilaHorarioDuracionTipo').val(), true),
-                    HoraTermino12hrs: fechaAddHrs(fechaArrHorarioGLOBAL, antHorario, parseInt($('#modalNuevaFilaHorarioDuracion').val()), $('#modalNuevaFilaHorarioDuracionTipo').val(), false),
-                    Lunes: '-',
-                    Martes: '-',
-                    Miercoles: '-',
-                    Jueves: '-',
-                    Viernes: '-',
-                    Sabado: '-',
-                    Domingo: '-',
-                    Receso: false,
-                    NumOrden: horarioCuerpoJSON.length + 1,
-                });
-                llenarTablaHorarios();
-                $('#modalNuevaFilaHorario').modal('hide');
-            }
-        });
-    }
+    MsgPregunta("Nueva Fila", "¿Desea continuar?", function (si) {
+        if (si) {
+            var antHorario = horarioCuerpoJSON[horarioCuerpoJSON.length - 1].HoraTermino24hrs;
+            horarioCuerpoJSON.push({
+                IdHTML: cadAleatoria(8),
+                HoraInicio24hrs: antHorario,
+                HoraInicio12hrs: reloj12hrs(antHorario),
+                HoraTermino24hrs: fechaAddHrs(fechaArrHorarioGLOBAL, antHorario, parseInt(horarioParamsConfigJSON.Duracion), horarioParamsConfigJSON.Tipo, true),
+                HoraTermino12hrs: fechaAddHrs(fechaArrHorarioGLOBAL, antHorario, parseInt(horarioParamsConfigJSON.Duracion), horarioParamsConfigJSON.Tipo, false),
+                Lunes: '-',
+                Martes: '-',
+                Miercoles: '-',
+                Jueves: '-',
+                Viernes: '-',
+                Sabado: '-',
+                Domingo: '-',
+                Receso: false,
+                NumOrden: horarioCuerpoJSON.length + 1,
+            });
+            llenarTablaHorarios();
+        }
+    });
 });
 
 // DOCUMENT - BOTON QUE ABRE MODAL PARA AÑADIR UN RECESO A LA TABLA DEL HORARIO [ HORARIOS ]
@@ -385,7 +375,6 @@ $(document).on('click', '#modalNuevoHorarioGuardar', function () {
                 },
                 success: function (data) {
                     if (data === "true") {
-                        $('#tablaHorarios').html('<tr class="table-warning"><td colspan="4" style="text-align: center;"><label><i class="fa fa-info-circle"></i> Cargando los nuevos parámetros.</label></td></tr>');
                         $('#modalNuevoHorario').modal('hide');
                         setTimeout(function () {
                             LoadingOff();
@@ -566,7 +555,6 @@ function impresionHorario(id) {
 // FUNCION QUE ACTIVA LA ACCION DE EDITAR UN HORARIO [ HORARIOS ]
 function editarHorario(id) {
     LoadingOn("Cargando Paraemtros...");
-    fechaArrHorarioGLOBAL = fechaArr();
     IdHorarioGLOBAL = id;
     $(ListaHorariosJSON).each(function (key, value) {
         if (value.IdHorario === id) {
@@ -716,29 +704,6 @@ function validarNuevaActividadHorario() {
             msg = '<b>Nombre de Actividad</b> NO es válido';
             $('#modalHorarioActividadesOtraTexto').focus();
         }
-    }
-    if (!correcto) {
-        MsgAlerta("Atención!", msg, 3000, "default");
-    }
-    return correcto;
-}
-
-
-// FUNCION QUE VALIDA EL AGREGAR UNA NUEVA FILA EN EL HORARIO [ HORARIOS ]
-function validarNuevaFilaHorario() {
-    var correcto = true, msg = '';
-    if (isNaN(parseFloat($('#modalNuevaFilaHorarioDuracion').val()))) {
-        correcto = false;
-        msg = 'La <b>Duración</b> es incorecta';
-        $('#modalNuevaFilaHorarioDuracion').focus();
-    } else if (parseFloat($('#modalNuevaFilaHorarioDuracion').val()) <= 0) {
-        correcto = false;
-        msg = 'La <b>Duración</b> NO es válida';
-        $('#modalNuevaFilaHorarioDuracion').focus();
-    } else if ($('#modalNuevaFilaHorarioDuracion').val() === "") {
-        correcto = false;
-        msg = 'Coloque la <b>Descripción</b>';
-        $('#modalNuevaFilaHorarioDuracion').focus();
     }
     if (!correcto) {
         MsgAlerta("Atención!", msg, 3000, "default");

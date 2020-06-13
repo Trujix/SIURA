@@ -55,6 +55,12 @@ namespace siuraWEB.Controllers
             return MiDinamico.ConsultaDinamicaPacientes(PacienteConsulta, Estatus, (string)Session["TokenCentro"]);
         }
 
+        // FUNCION QUE DEVUELVE LA CONSULTA DE UN PACIENTE POR NIVEL
+        public string ConsultaPacienteNivel(string PacienteConsulta, int Estatus)
+        {
+            return MiDinamico.ConsultaDinamicaPacientesNiveles(Estatus, (string)Session["TokenCentro"]);
+        }
+
         // FUNCION QUE DEVUELVE LA LISTA DE LOS PAGOS DEL PACIENTE
         public string ListaPagosPaciente(int IdFinanzas)
         {
